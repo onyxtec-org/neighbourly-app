@@ -1,0 +1,56 @@
+import React from "react";
+import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import  Icon  from 'react-native-vector-icons/MaterialCommunityIcons';
+import defaultStyles from "../config/styles";
+import colors from "../config/colors";
+function AppTextInput({ icon, width = "100%", height, borderRadius = 0, shadowOffset, textAreaWidth='90%',
+    borderWidth = 0, borderColor = colors.primary, alignItems = "center", justifyContent = "flex-start",paddingright=45,
+    shadowColor, shadowOpacity, elevation, paddingHorizontal, padding, fontSize = 17, backgroundColor, handlePasswordVisibility, isPasswordVisible, isPassword = false, iconPosition, ...otherProps }) {
+    return (
+        <View style={[styles.container, { width, height, borderRadius, padding, paddingHorizontal, elevation, backgroundColor, shadowColor, shadowOpacity, shadowOffset, borderWidth, borderColor, alignItems, justifyContent,paddingRight:paddingright }]}>
+            {icon && (
+                <Icon
+                    name={icon}
+                    size={20}
+                    style={[styles.icon, { alignSelf: iconPosition }]}
+                    color={colors.darkViolet} />
+            )}
+          
+
+            <TextInput
+                style={[defaultStyles.text, { width: textAreaWidth, fontSize,height, textAlignVertical: 'top'}]}
+                {...otherProps} />
+             
+            {isPassword && <TouchableOpacity activeOpacity={0.9} style={styles.eyeIconContainer} onPress={handlePasswordVisibility}>
+                <Icon
+                    name={isPasswordVisible ? "eye-outline" : "eye-off-outline"}
+                    size={20}
+                    style={[styles.eyeIcon]}
+                    color={colors.primary} />
+            </TouchableOpacity>}
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        backgroundColor: defaultStyles.colors.secondary,
+        flexDirection: "row",
+        marginBottom: "1.2%",
+      
+    },
+    icon: {
+        marginRight: "4%",
+    },
+    eyeIcon: {
+        position: 'absolute',
+        right: "4%",
+    },
+    eyeIconContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        width: "10%"
+    }
+});
+
+export default AppTextInput;
