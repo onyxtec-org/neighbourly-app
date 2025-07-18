@@ -1,16 +1,24 @@
-import React from 'react';
-import { View, StyleSheet,Text } from 'react-native';
+// App.js
+import React, { useEffect } from 'react';
+import { LogBox } from 'react-native';
+import { getApps, initializeApp } from 'firebase/app';
+import AppNavigator from './src/navigation/AppNavigator';
+import { firebaseConfig } from './src/config/firebaseConfig';
 
-function App(props) {
-  return (
-    <View style={styles.container}>
-        <Text>Main Screen</Text>
-    </View>
-  );
-}
+export default function App() {
+  useEffect(() => {
+    const initFirebase = () => {
+      if (getApps().length === 0) {
+        initializeApp(firebaseConfig);
+        console.log('✅ Firebase initialized in App.js');
+      } else {
+        console.log('✅ Firebase already initialized');
+      }
+    };
 
-const styles = StyleSheet.create({
-  container: {}
-});
+    initFirebase();
+    LogBox.ignoreLogs(['AsyncStorage has been extracted']); // optional: to suppress known warning
+  }, []);
 
-export default App;
+  return <AppNavigator />;
+};
