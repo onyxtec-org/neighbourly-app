@@ -17,16 +17,7 @@ const colors = {
   darkViolet: '#6d6a7a',
   lightPurple: '#b5abd4',
   gradientPink: '#B20EB8',
-  gradientPurple: '#5351FE',
-  unpaid: '#f56954',
-  calledout: '#f39c12',
-  sickLeave: '#00a65a',
-  casualLeave: '#f56954',
-  annualLeave: '#00a65a',
-  approved:'#349839',
-  rejected:'#ed6d58',
-  pending:'#32a1ff',
-  withdrawn:'#fdaf2f',
+
 
 };
 
