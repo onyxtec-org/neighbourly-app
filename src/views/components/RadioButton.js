@@ -51,7 +51,7 @@ justifyContent:'space-between'
     width: 20,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.lightGray,
+    borderColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
