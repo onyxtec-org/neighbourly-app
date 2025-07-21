@@ -5,6 +5,8 @@ import { getApps, initializeApp } from 'firebase/app';
 import AppNavigator from './src/navigation/AppNavigator';
 import { firebaseConfig } from './src/config/firebaseConfig';
 
+import { Provider } from 'react-redux';
+import store from './src/app/store'; 
 export default function App() {
   useEffect(() => {
     const initFirebase = () => {
@@ -17,8 +19,12 @@ export default function App() {
     };
 
     initFirebase();
-    LogBox.ignoreLogs(['AsyncStorage has been extracted']); // optional: to suppress known warning
+    LogBox.ignoreLogs(['AsyncStorage has been extracted']);
   }, []);
 
-  return <AppNavigator />;
-};
+  return (
+    <Provider store={store}>
+      <AppNavigator />
+    </Provider>
+  );
+}

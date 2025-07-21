@@ -1,28 +1,30 @@
 import { View, Text, StyleSheet } from 'react-native';
 
-const MainScreen = () => {
-  return (
-    <View style={styles.container}>
+
+ const MainScreen = () => {
+   return (
+     <View style={styles.container}>
       <Text style={styles.text}>🚀 Welcome to Main Screen</Text>
-    </View>
-  );
-};
+     </View>
+   );
+ };
 
-export default MainScreen;
+ export default MainScreen;
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
+ const styles = StyleSheet.create({
+   container: {
+     flex: 1,
+     justifyContent: 'center',
     alignItems: 'center'
-  },
-  text: {
+   },   text: {
     fontSize: 20,
     fontWeight: 'bold'
-  },
-  subtext: {
-    fontSize: 14,
-    marginTop: 10,
+   },
+   subtext: {
+     fontSize: 14,
+     marginTop: 10,
     color: 'gray'
   }
 });
+
+
