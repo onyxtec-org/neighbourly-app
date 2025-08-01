@@ -1,11 +1,10 @@
 import Config from "react-native-config";
 
 export default {
-  baseURL: "https://fl.onyxtec.io/api",
-  imageURL: "https://fl.onyxtec.io",
+  baseURL: "https://n.onyxtec.io/api",
+  imageURL: "http://n.onyxtec.io",
 
 };
-
 
 // import Config from 'react-native-config';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Icon = ({
@@ -7,14 +7,23 @@ const Icon = ({
   color,
   size = 24,
   style,
-  focused,
   onPress,
+  pressed = false, // 👈 New flag to control if it's clickable
   ...props
 }) => {
+  if (pressed) {
+    return (
+      <TouchableOpacity onPress={onPress} style={style}>
+        <MaterialIcons name={name} size={size} color={color} {...props} />
+      </TouchableOpacity>
+    );
+  }
+
   return (
-    <TouchableOpacity onPress={onPress}>
+    <View style={style}>
       <MaterialIcons name={name} size={size} color={color} {...props} />
-    </TouchableOpacity>
+    </View>
   );
 };
+
 export default Icon;

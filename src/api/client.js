@@ -1,6 +1,6 @@
 import axios from 'axios';
 import config from '../config';
-import authStorage from '../auth/storage';
+import authStorage from './../app/storage';
 
 const apiClient = axios.create({
   baseURL: config.baseURL,
