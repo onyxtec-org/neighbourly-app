@@ -19,6 +19,14 @@ const colors = {
   gradientPink: '#B20EB8',
 
 
+
+
+
+    background: '#FFFFFF',
+  textDark: '#000000',
+  textMedium: '#888888',
+  border: '#E0E0E0',
+
 };
 
 export default colors;

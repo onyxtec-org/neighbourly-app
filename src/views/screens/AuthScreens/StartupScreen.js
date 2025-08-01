@@ -1,36 +1,57 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import SvgWelcome from '../assets/icons/welcome.svg'; // If using SVG
-// import logo from '../assets/images/logo.png'; // Use if using PNG
+import { View, Text, StyleSheet } from 'react-native';
+import AppButton from '../../components/AppButton';
+import CrossIconButton from '../../components/CrossIconButton';
+import colors from '../../../config/colors';
+import StartupSVG from '../../../assets/icons/startup.svg';
 
-const StartupScreen = ({ navigation }) => {
+const StartupScreen = ({ navigation, route }) => {
+  const { accountType } = route.params;
   return (
     <View style={styles.container}>
-      {/* SVG or PNG logo */}
+      <CrossIconButton
+        onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            navigation.navigate(' Welcome');
+          }
+        }}
+        size={22}
+        color="#212529"
+        style={styles.closeButton}
+      />
+      {/* SVG Illustration */}
       <View style={styles.imageContainer}>
-        <SvgWelcome width={250} height={250} />
-        {/* <Image source={logo} style={styles.logo} resizeMode="contain" /> */}
+        <StartupSVG width={250} height={250} />
       </View>
 
-      {/* App Title */}
-      <Text style={styles.title}>Welcome to MyApp</Text>
-      <Text style={styles.subtitle}>Manage your tasks easily and smartly</Text>
+      {/* Title & Subtitle */}
+      <Text style={styles.title}>Get Started</Text>
+      <Text style={styles.subtitle}>
+        Create an account or log in to connect with reliable local support and
+        community services.
+      </Text>
 
-      {/* Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.registerButton}
-          onPress={() => navigation.navigate('Register')}
-        >
-          <Text style={styles.buttonText}>Register</Text>
-        </TouchableOpacity>
+        <AppButton
+          title="Register"
+          onPress={() => navigation.navigate('Signup', { accountType })}
+          btnStyles={styles.primaryButton}
+          textStyle={styles.primaryButtonText}
+          IconName="account-plus-outline"
+          IconSize={20}
+        />
 
-        <TouchableOpacity
-          style={styles.loginButton}
+        <AppButton
+          title="Login"
           onPress={() => navigation.navigate('Login')}
-        >
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
+          btnStyles={styles.secondaryButton}
+          textStyle={styles.secondaryButtonText}
+          IconName="login"
+          IconSize={20}
+          iconColor={colors.primary}
+        />
       </View>
     </View>
   );
@@ -41,50 +62,71 @@ export default StartupScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F8F9FA',
     padding: 24,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
   },
   imageContainer: {
-    marginBottom: 40,
-  },
-  logo: {
-    width: 250,
-    height: 250,
+    marginBottom: 48,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
+    fontSize: 30,
+    fontWeight: '700',
+    color: '#212529',
+    marginBottom: 12,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 32,
+    fontSize: 17,
+    color: '#495057',
+    marginBottom: 40,
     textAlign: 'center',
+    lineHeight: 24,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 25,
+    right: 25,
+    zIndex: 999,
+    backgroundColor: '#f1f3f5',
   },
   buttonContainer: {
     width: '100%',
+    paddingHorizontal: 16,
   },
-  registerButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 14,
-    borderRadius: 10,
-    marginBottom: 16,
-    alignItems: 'center',
+  primaryButton: {
+    backgroundColor: colors.primary || '#6C63FF',
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginBottom: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  loginButton: {
-    backgroundColor: '#2196F3',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
+  secondaryButton: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 16,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: colors.primary || '#6C63FF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  buttonText: {
-    color: '#fff',
+  primaryButtonText: {
+    color: '#FFFFFF',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
+  },
+  secondaryButtonText: {
+    color: colors.primary || '#6C63FF',
+    fontSize: 18,
+    fontWeight: '600',
   },
 });
