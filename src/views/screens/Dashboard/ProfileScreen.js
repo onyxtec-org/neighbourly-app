@@ -14,13 +14,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice';
 import { logoutUser } from '../../../redux/thunks/auth/logoutThunk';
 import CustomToast from '../../components/CustomToast';
+import CustomPopup from '../../components/CustomPopup';
+import colors from '../../../config/colors';
 import config from '../../../config';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 
 const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const nav = useNavigation(); // for logout navigation
-
+  const [deletePopupVisible, setDeletePopupVisible] = useState(false);
+  const handleDeleteAccount = () => {
+    console.log('🗑 Account deletion confirmed');
+    setDeletePopupVisible(false);
+    // Dispatch delete thunk or navigate here
+  };
+  
   const login = useSelector(state => state.login);
   const {
     user: profileUser,
@@ -154,7 +162,7 @@ const ProfileScreen = ({ navigation }) => {
             onPress={() => navigation.navigate('AccountScreen')}
           >
             <View>
-              <Text style={profileStyles.menuItemText}>Account</Text>
+              <Text style={profileStyles.menuItemText}>Profile Details</Text>
               <Text style={profileStyles.menuItemSubText}>
                 {profileUser?.email || 'user@example.com'}
               </Text>
@@ -163,13 +171,13 @@ const ProfileScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           {[
-            'Account Security',
             'Change Password',
+            'Notifications Settings',
+            'Delete Account',
             'Payment',
-            'Promos',
-            'Notifications',
             'Support',
-            'About',
+            'Privacy Policy',
+            'Terms of Service',
           ].map((item, index) => (
             <TouchableOpacity
               key={index}
@@ -177,6 +185,14 @@ const ProfileScreen = ({ navigation }) => {
               onPress={() => {
                 if (item === 'Change Password') {
                   navigation.navigate('ChangePasswordScreen');
+                } else if (item === 'Notifications Settings') {
+                  navigation.navigate('NotificationSettings');
+              } else if (item === 'Delete Account') {
+                  setDeletePopupVisible(true);
+                }else if (item === 'Privacy Policy') {
+                  navigation.navigate('PrivacyPolicy');
+                } else if (item === 'Terms of Service') {
+                  navigation.navigate('TermsandconditionScreen');
                 } else {
                   console.log(`${item} pressed`);
                 }
@@ -213,6 +229,18 @@ const ProfileScreen = ({ navigation }) => {
         type={toastType}
         onHide={handleToastHide}
       />
+      <CustomPopup
+  visible={deletePopupVisible}
+  onClose={() => setDeletePopupVisible(false)}
+  title="Delete Account"
+  message="Are you sure you want to delete your account? This action cannot be undone."
+  icon="trash-outline"
+  iconColor="#DC2626"
+  cancelText="Cancel"
+  confirmText="Delete"
+  onCancel={() => setDeletePopupVisible(false)}
+  onConfirm={handleDeleteAccount}
+/>
     </View>
   );
 };
