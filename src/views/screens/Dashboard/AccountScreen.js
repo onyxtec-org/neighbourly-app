@@ -15,13 +15,15 @@ import { useFocusEffect } from '@react-navigation/native';
 import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice'; // <-- Import this
 import { useDispatch } from 'react-redux';
 import { useCallback, useState } from 'react';
-
+import ShareBottomSheet from '../../components/ShareBottomSheet'; // adjust if needed
+import { generateBranchLink } from '../../utils/branchUtils';
 const AccountScreen = ({ navigation }) => {
   const [imageLoading, setImageLoading] = useState(false);
 
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.profile || {});
-
+  const [isShareSheetVisible, setIsShareSheetVisible] = useState(false);
+  const [branchLink, setBranchLink] = useState('');
   useFocusEffect(
     useCallback(() => {
       if (user?.id) {
@@ -40,12 +42,37 @@ const AccountScreen = ({ navigation }) => {
           <Icon name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Profile Details</Text>
-        <TouchableOpacity
+        <View style={{ flexDirection: 'row' }}>
+    <TouchableOpacity
+      onPress={async () => {
+        try {
+          const url = await generateBranchLink({
+            id: user?.id,
+            type: 'user',
+            title: `${user?.name}'s Profile on Expense Jar`,
+            description: `${user?.name} is inviting you to view their profile`,
+          });
+          setBranchLink(url);
+          setIsShareSheetVisible(true);
+        } catch (error) {
+          console.error('Error generating Branch link:', error);
+        }
+      }}
+      style={{ marginRight: 12 }}
+    >
+      <Icon name="share-social-outline" size={24} color="#000" />
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={() => navigation.navigate('UpdateProfileScreen')}>
+      <Icon name="create-outline" size={24} color="#000" />
+    </TouchableOpacity>
+  </View>
+        {/* <TouchableOpacity
           onPress={() => navigation.navigate('UpdateProfileScreen')}
           style={styles.editButton}
         >
           <Icon name="create-outline" size={24} color="#000" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {/* User Profile Summary */}
@@ -128,6 +155,12 @@ const AccountScreen = ({ navigation }) => {
             </View>
           </View>
         </View>
+        <ShareBottomSheet
+  url={branchLink}
+  onClose={() => setIsShareSheetVisible(false)}
+  visible={isShareSheetVisible}
+/>
+
       </View>
     </ScrollView>
   );
