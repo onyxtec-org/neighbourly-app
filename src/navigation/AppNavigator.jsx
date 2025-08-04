@@ -18,6 +18,9 @@ import ChangePasswordScreen from '../views/screens/AuthScreens/ChangePasswordScr
 import ResetPasswordScreen from '../views/screens/AuthScreens/ResetPasswordScreen'; // Import ResetPasswordScreen
 import UpdateProfileScreen from '../views/screens/Dashboard/UpdateProfileScreen'; // Import UpdateProfileScreen
 import AllCategoriesScreen from '../views/screens/Dashboard/AllCategoriesScreen'; // Import AllCategoriesScreen
+import NotificationSettingsScreen from '../views/screens/Dashboard/NotificationSettingsScreen'; // Import NotificationSettingsScreen
+import PrivacyPolicyScreen from '../views/screens/Dashboard/PrivacyPolicyScreen'; // Import PrivacyPolicyScreen
+import TermsandconditionScreen from '../views/screens/Dashboard/TermsandconditionScreen'; // Import TermsandconditionScreen
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -43,6 +46,9 @@ const AppNavigator = () => {
         <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
         <Stack.Screen name="UpdateProfileScreen" component={UpdateProfileScreen} />
         <Stack.Screen name="AllCategoriesScreen" component={AllCategoriesScreen} />
+        <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
+        <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+        <Stack.Screen name="TermsandconditionScreen" component={TermsandconditionScreen} />
 
 
 
