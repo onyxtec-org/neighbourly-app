@@ -13,6 +13,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice';
 import { logoutUser } from '../../../redux/thunks/auth/logoutThunk';
+import { setUserRole } from '../../../redux/slices/auth/profileSlice';
 import CustomToast from '../../components/CustomToast';
 import config from '../../../config';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -83,7 +84,14 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
+  const handleSwitchProfile = () => {
+    const newRole = profileUser?.role === 'provider' ? 'consumer' : 'provider';
+    dispatch(setUserRole(newRole));
+  };
+
   useEffect(() => {
+    console.log('login user',login);
+    
     if (login?.user?.id) {
       console.log(
         '📦 Dispatching fetchUserProfile with userId:',
@@ -189,9 +197,9 @@ const ProfileScreen = ({ navigation }) => {
         </View>
 
         <View style={profileStyles.menuSection}>
-          <TouchableOpacity style={profileStyles.centeredMenuItem}>
+          <TouchableOpacity style={profileStyles.centeredMenuItem} onPress={handleSwitchProfile}>
             <Text style={profileStyles.centeredMenuItemText}>
-              Become Tasker
+             {profileUser.role==='provider'?"Swtich to Consumer": "Become a Provider"}
             </Text>
           </TouchableOpacity>
 

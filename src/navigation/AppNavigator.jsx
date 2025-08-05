@@ -9,7 +9,7 @@ import AppEntryScreen from '../views/screens/AppEntryScreen';
 import OTPScreen from '../views/screens/AuthScreens/OTPScreen';
 import WelcomeScreen from '../views/screens/AuthScreens/WelcomeScreen';
 import JobCreateScreen from '../views/screens/Dashboard/JobCreateScreen';
-import DashboardNavigator from './DashboardNavigator';
+import ConsumerTabNavigator from './ConsumerTabNavigator';
 import SearchScreen from '../views/screens/Dashboard/SearchScreen'; // Import SearchScreen
 import CategoryDetailsScreen from '../views/screens/Dashboard/CategoryDetailsScreen'; // Import CategoryDetailsScreen
 import ProfileScreen from '../views/screens/Dashboard/ProfileScreen'; 
@@ -18,6 +18,8 @@ import ChangePasswordScreen from '../views/screens/AuthScreens/ChangePasswordScr
 import ResetPasswordScreen from '../views/screens/AuthScreens/ResetPasswordScreen'; // Import ResetPasswordScreen
 import UpdateProfileScreen from '../views/screens/Dashboard/UpdateProfileScreen'; // Import UpdateProfileScreen
 import AllCategoriesScreen from '../views/screens/Dashboard/AllCategoriesScreen'; // Import AllCategoriesScreen
+import ProviderTabNavigator from './ProviderTabNavigator';
+import DashboardRouter from './DashboardRouter';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -31,7 +33,10 @@ const AppNavigator = () => {
         <Stack.Screen name="Login" component={LoginScreen} /> 
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} /> 
         <Stack.Screen name="OTPScreen" component={OTPScreen} />
-        <Stack.Screen name="Dashboard" component={DashboardNavigator} />
+        <Stack.Screen name="ConsumerDashboard" component={ConsumerTabNavigator} />
+        <Stack.Screen name="ProviderDashboard" component={ProviderTabNavigator} />
+        <Stack.Screen name="DashboardRouter" component={DashboardRouter} />
+
         <Stack.Screen name="SearchScreen" component={SearchScreen} options={{ headerShown: false }} />
         <Stack.Screen name="JobCreateScreen" component={JobCreateScreen} />
         <Stack.Screen name="CategoryDetailsScreen" component={CategoryDetailsScreen} />

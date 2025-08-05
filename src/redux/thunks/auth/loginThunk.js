@@ -13,7 +13,8 @@ export const loginUser = createAsyncThunk(
         // ✅ Use your centralized storage methods
         await storage.storeToken(data.token);
         await storage.storeUser(data.user);
-
+        console.log('user',data.user);
+        
         return {
           user: data.user,
           token: data.token,

@@ -51,6 +51,12 @@ const profileSlice = createSlice({
       state.status = 'idle';
       state.error = null;
     },
+    setUserRole: (state, action) => {
+  if (state.user) {
+    state.user.role = action.payload;
+  }
+}
+
   },
   extraReducers: builder => {
     builder
@@ -73,5 +79,5 @@ const profileSlice = createSlice({
       });
   },
 });
-export const { resetProfile } = profileSlice.actions;
+export const { resetProfile,setUserRole } = profileSlice.actions;
 export default profileSlice.reducer;
