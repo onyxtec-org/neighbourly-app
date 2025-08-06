@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "192241477776",
+    "firebase_url": "https://neighbourly-prod-5f2cc-default-rtdb.firebaseio.com",
     "project_id": "neighbourly-prod-5f2cc",
     "storage_bucket": "neighbourly-prod-5f2cc.firebasestorage.app"
   },

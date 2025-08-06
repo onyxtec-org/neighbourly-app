@@ -150,7 +150,7 @@ const OTPScreen = ({ navigation, route }) => {
           navigation.dispatch(
             CommonActions.reset({
               index: 0,
-              routes: [{ name: 'Dashboard' }],
+              routes: [{ name: 'ConsumerDashboard' }],
             }),
           );
         }, 1500);

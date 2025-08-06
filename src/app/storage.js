@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const tokenKey = 'authToken';
 const userKey = 'authUser';
+const fcmToken = 'fcmToken';
 
 // ✅ Token functions
 const storeToken = async (token) => {
@@ -12,11 +13,28 @@ const storeToken = async (token) => {
   }
 };
 
+const storeFcmToken = async (token) => {
+  try {
+    await AsyncStorage.setItem(fcmToken, token);
+  } catch (error) {
+    console.error('Error storing the fcm token', error);
+  }
+};
+
 const getToken = async () => {
   try {
     return await AsyncStorage.getItem(tokenKey);
   } catch (error) {
     console.error('Error getting the auth token', error);
+    return null;
+  }
+};
+
+const geFcmToken = async () => {
+  try {
+    return await AsyncStorage.getItem(fcmToken);
+  } catch (error) {
+    console.error('Error getting the fcm token', error);
     return null;
   }
 };
@@ -65,4 +83,6 @@ export default {
   storeUser,
   getUser,
   removeUser,
+  storeFcmToken,
+  geFcmToken
 };
