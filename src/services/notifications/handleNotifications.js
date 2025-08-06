@@ -59,9 +59,7 @@ const NotificationService = {
     this.handleBackgroundMessages();
 
     const initialNotification = await getInitialNotification();
-    // if (initialNotification) {
-    //   this.handleNotificationRedirection(initialNotification?.data);
-    // }
+
 
     AppState.addEventListener('change', this.handleAppStateChange);
   },
@@ -87,36 +85,9 @@ const NotificationService = {
     if (!navigationRef.isReady()) return;
 
     try {
-      //setNotificationCount(notificationCount-1)
 
-      const user = await RestoreUser();
-      //console.log('➡️ Redirection data:', JSON.parse(data.message));
 
-      if (data.leaveRequest) {
-        const request = JSON.parse(data.leaveRequest);
-        console.log('request------', request);
-
-        this.getPath(
-          request.user_id,
-          user.id,
-          request.status ? request.status : 'pending',
-          request,
-        );
-      }
-      if (data.message) {
-        const message = JSON.parse(data.message);
-
-        navigationRef.navigate('DashBoard', {
-          screen: ' Messages',
-          params: {
-            screen: 'ViewNotifications',
-            params: {
-              details: message,
-              from: 'pushNotification',
-            },
-          },
-        });
-      }
+    
     } catch (error) {
       console.log('erreo', error);
     }

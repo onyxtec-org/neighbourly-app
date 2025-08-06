@@ -22,7 +22,7 @@ const colors = {
 
 
 
-    background: '#FFFFFF',
+  background: '#FFFFFF',
   textDark: '#000000',
   textMedium: '#888888',
   border: '#E0E0E0',

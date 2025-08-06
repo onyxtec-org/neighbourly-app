@@ -6,6 +6,7 @@ import TaskScreen from '../views/screens/Dashboard/TaskScreen';
 import ProfileScreen from '../views/screens/Dashboard/ProfileScreen';
 import colors from '../config/colors';
 import ProviderHomeScreen from '../views/screens/Dashboard/ProviderHomeScreen';
+import ServicesSelectScreen from '../views/screens/Dashboard/ServicesSelectScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -46,7 +47,8 @@ const ProviderTabNavigator = () => {
         },
       })}
     >
-      <Tab.Screen name="Home" component={ProviderHomeScreen} />
+    {/* <Tab.Screen name="Home" component={ProviderHomeScreen} /> */}
+<Tab.Screen name="Home" component={ServicesSelectScreen} />
       <Tab.Screen name="MyServices" component={ServicesScreen} />
       <Tab.Screen name="MyTasks" component={TaskScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />

@@ -125,9 +125,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
-  searchContainer: {
-    padding: 16,
-  },
+
   locationContainer: { flexDirection: 'row', alignItems: 'center' },
   locationText: { marginLeft: 8, fontSize: 16 },
   content: { paddingLeft: 8 },
@@ -172,23 +170,7 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
   },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f1f1f1',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  searchIcon: { marginRight: 8, color: colors.primary },
-  searchInput: { flex: 1, fontSize: 16, color: 'gray' },
-  categoryHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    marginTop: 8,
-  },
+
   seeAllText: {
     fontSize: 14,
     color: colors.primary,
