@@ -4,38 +4,61 @@ import apiClient from '../../../api/client';
 import storage from '../../../app/storage';
 import { logoutUser } from '../../thunks/auth/logoutThunk';
 
-
 export const fetchUserProfile = createAsyncThunk(
-    'profile/fetchUserProfile',
-    async (userId, { rejectWithValue }) => {
-      try {
-        const token = await storage.getToken();
-        console.log('🛑 Token fetched inside thunk:', token);
-        console.log('🛑 User ID passed to thunk:', userId);
-  
-        const response = await apiClient.get(`/profile/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
-        console.log('✅ Profile API response:', response.data);
-  
-        const { success, data } = response.data;
-        if (success && data) {
-          return data;
-        } else {
-          return rejectWithValue('Failed to fetch profile');
-        }
-      } catch (error) {
-        console.log('❌ Profile API error:', error.response?.data || error.message);
-        return rejectWithValue(
-          error.response?.data?.message || 'Something went wrong'
-        );
+  'profile/fetchUserProfile',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const token = await storage.getToken();
+      console.log('🛑 Token fetched inside thunk:', token);
+      console.log('🛑 User ID passed to thunk:', userId);
+
+      const response = await apiClient.get(`/profile/${userId}`);
+
+      console.log('✅ Profile API response:', response.data);
+
+      const { success, data } = response.data;
+      if (success && data) {
+        return data;
+      } else {
+        return rejectWithValue('Failed to fetch profile');
       }
+    } catch (error) {
+      console.log(
+        '❌ Profile API error:',
+        error.response?.data || error.message,
+      );
+      return rejectWithValue(
+        error.response?.data?.message || 'Something went wrong',
+      );
     }
-  );
-  
+  },
+);
+
+export const switchUserProfile = createAsyncThunk(
+  'profile/switchUserProfile',
+  async (body,{ rejectWithValue }) => {
+    try {
+      const response = await apiClient.post(`/switch-profile`,body);
+      console.log('✅ switch profile API response:', response.data);
+
+      const { success, data } = response.data;
+
+      if (success && data) {
+        return data; // Return the updated user data
+      } else {
+        return rejectWithValue('Failed to switch profile');
+      }
+    } catch (error) {
+      console.log(
+        '❌ switch profile error:',
+        error.response?.data || error.message,
+      );
+      return rejectWithValue(
+        error.response?.data?.message || 'Something went wrong',
+      );
+    }
+  },
+);
 
 const profileSlice = createSlice({
   name: 'profile',
@@ -46,21 +69,20 @@ const profileSlice = createSlice({
   },
   reducers: {
     // ✅ Manual reset action if you want to call it yourself
-    resetProfile: (state) => {
+    resetProfile: state => {
       state.user = null;
       state.status = 'idle';
       state.error = null;
     },
     setUserRole: (state, action) => {
-  if (state.user) {
-    state.user.role = action.payload;
-  }
-}
-
+      if (state.user) {
+        state.user.role = action.payload;
+      }
+    },
   },
   extraReducers: builder => {
     builder
-    
+
       .addCase(fetchUserProfile.pending, state => {
         state.status = 'loading';
       })
@@ -72,12 +94,25 @@ const profileSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
-      .addCase(logoutUser.fulfilled, (state) => {
+      // Switch profile cases
+      .addCase(switchUserProfile.pending, state => {
+        state.status = 'switching';
+      })
+      .addCase(switchUserProfile.fulfilled, (state, action) => {
+        state.status = 'switched';
+        state.user = action.payload;
+      })
+      .addCase(switchUserProfile.rejected, (state, action) => {
+        state.status = 'switch_failed';
+        state.error = action.payload;
+      })
+
+      .addCase(logoutUser.fulfilled, state => {
         state.user = null;
         state.status = 'idle';
         state.error = null;
       });
   },
 });
-export const { resetProfile,setUserRole } = profileSlice.actions;
+export const { resetProfile, setUserRole } = profileSlice.actions;
 export default profileSlice.reducer;

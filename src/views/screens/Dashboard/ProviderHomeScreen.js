@@ -14,8 +14,29 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../../../redux/slices/categoriesSlice';
 import colors from '../../../config/colors';
+import storage from '../../../app/storage';
 
 const ProviderHomeScreen = ({ navigation }) => {
+    useEffect(() => {
+
+      console.log('In provider prfoile');
+      
+      const getUser = async () => {
+        try {
+        
+          const user = await storage.getUser();
+          console.log('user from sydync storage',user);
+          
+
+        
+        } catch (err) {
+          console.log('Error getting user:', err);
+        }
+      };
+  
+      getUser();
+    }, []);
+  
   const dispatch = useDispatch();
   const { categories, status } = useSelector(state => state.categories);
 
