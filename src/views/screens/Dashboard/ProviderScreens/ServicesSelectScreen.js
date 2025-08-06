@@ -14,12 +14,11 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCategories } from '../../../redux/slices/categoriesSlice';
-import { fetchServices } from '../../../redux/slices/servicesSlice';
-import CustomToast from '../../components/CustomToast';
-import colors from '../../../config/colors';
-import ServicesCard from '../../components/services/ServicesCard';
-import { addServices } from '../../../redux/slices/servicesSlice';
+import { fetchServices,addServices } from '../../../../redux/slices/servicesSlice';
+import CustomToast from '../../../components/CustomToast';
+import colors from '../../../../config/colors';
+import ServicesCard from '../../../components/services/ServicesCard';
+
 const ServicesSelectScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { categories, status } = useSelector(state => state.categories);

@@ -12,9 +12,9 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCategories } from '../../../redux/slices/categoriesSlice';
-import colors from '../../../config/colors';
-import storage from '../../../app/storage';
+import { fetchCategories } from '../../../../redux/slices/categoriesSlice';
+import colors from '../../../../config/colors';
+import storage from '../../../../app/storage';
 
 const ProviderHomeScreen = ({ navigation }) => {
     useEffect(() => {

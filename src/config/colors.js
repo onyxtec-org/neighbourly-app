@@ -18,15 +18,28 @@ const colors = {
   lightPurple: '#b5abd4',
   gradientPink: '#B20EB8',
 
-
-
-
-
   background: '#FFFFFF',
   textDark: '#000000',
   textMedium: '#888888',
   border: '#E0E0E0',
-
+  pending: '#32a1ff',
+  inProgress: '#fdaf2f',
+  completed:'#349839',
+  rejected:'#ed6d58',
+  statusColors(type) {
+    switch (type) {
+      case 'pending':
+        return this.pending;
+      case 'in progress':
+        return this.inProgress;
+      case 'completed':
+        return this.completed;
+      case 'rejected':
+        return this.rejected;
+      default:
+        return this.black;
+    }
+  },
 };
 
 export default colors;
