@@ -1,9 +1,9 @@
 import React from 'react';
 import {useFormikContext} from 'formik';
 import TextInput from '../AppTextInput';
-import { StyleSheet,Platform ,View} from 'react-native'; 
+import { StyleSheet,Platform ,View,Text} from 'react-native'; 
 import ErrorMessage from './ErrorMessage';
-import colors from '../../../config/colors';
+import colors from '../../config/colors';
 import AppText from '../AppText';
 import {
   widthPercentageToDP as wp,
