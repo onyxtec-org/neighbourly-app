@@ -5,8 +5,7 @@ import ServicesScreen from '../views/screens/Dashboard/ServiceScreen';
 import JobsScreen from '../views/screens/Dashboard/JobsScreen';
 import ProfileScreen from '../views/screens/Dashboard/ProfileScreen';
 import colors from '../config/colors';
-import ProviderHomeScreen from '../views/screens/Dashboard/ProviderScreens/ProviderHomeScreen';
-import ServicesSelectScreen from '../views/screens/Dashboard/ProviderScreens/ServicesSelectScreen';
+import ProviderNavigator from './ProviderNavigator';
 const Tab = createBottomTabNavigator();
 
 const ProviderTabNavigator = () => {
@@ -47,8 +46,7 @@ const ProviderTabNavigator = () => {
         },
       })}
     >
-      {/* <Tab.Screen name="Home" component={ProviderHomeScreen} /> */}
-      <Tab.Screen name="Dashboard" component={ServicesSelectScreen} />
+      <Tab.Screen name="Dashboard" component={ProviderNavigator} />
       <Tab.Screen name="Notifications" component={ServicesScreen} />
       <Tab.Screen name="Jobs" component={JobsScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />

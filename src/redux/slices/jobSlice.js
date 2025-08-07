@@ -21,6 +21,21 @@ export const createJob = createAsyncThunk(
   }
 );
 
+export const getJobs = createAsyncThunk(
+  'job/getJob',
+  async ( { rejectWithValue }) => {
+    try {
+      const response = await apiClient.post('/jobs');
+      return response.data;
+    } catch (error) {
+        console.log('Get Job Error:', error);
+      return rejectWithValue(
+        error.response?.data || { message: 'Something went wrong' }
+      );
+    }
+  }
+);
+
 const jobSlice = createSlice({
   name: 'job',
   initialState: {
@@ -33,6 +48,7 @@ const jobSlice = createSlice({
       state.loading = false;
       state.success = false;
       state.error = null;
+      state.jobs=[];
     },
   },
   extraReducers: (builder) => {
@@ -48,6 +64,21 @@ const jobSlice = createSlice({
         state.error = null;
       })
       .addCase(createJob.rejected, (state, action) => {
+        state.loading = false;
+        state.success = false;
+        state.error = action.payload?.message || 'Error creating job';
+      })
+       .addCase(getJobs.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(getJobs.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+        state.error = null;
+      })
+      .addCase(getJobs.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
         state.error = action.payload?.message || 'Error creating job';

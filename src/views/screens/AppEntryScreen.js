@@ -5,7 +5,7 @@ import StartupSVG from '../../assets/icons/startup.svg';
 import { useDispatch } from 'react-redux';
 import { fetchUserProfile } from '../../redux/slices/auth/profileSlice';
 import storage from '../../app/storage';
-import { useSelector } from 'react-redux';
+import { setMyServices } from '../../redux/slices/servicesSlice';
 const AppEntryScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   useEffect(() => {
@@ -28,6 +28,8 @@ const AppEntryScreen = ({ navigation }) => {
           );
           navigation.replace('Welcome');
         } else if (token && user) {
+          dispatch(setMyServices(user.services));
+
           const result = await dispatch(fetchUserProfile(user.id)); // ✅ Re-hydrate Redux
 
           if (fetchUserProfile.fulfilled.match(result)) {

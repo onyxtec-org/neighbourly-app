@@ -69,22 +69,21 @@ export const addServices = createAsyncThunk(
   'services/addServices',
   async (body, { rejectWithValue }) => {
     try {
-      console.log('body',body);
-      
+      console.log('body', body);
+
       const response = await apiClient.post(`/user/services`, body);
       console.log('add services API response:', response.data);
 
-      const { success, data,statusCode, message } = response.data;
+      const { success, data, statusCode, message } = response.data;
 
       if (success && data) {
-        
-        return {data,statusCode,message}; // Return response
+        return { data, statusCode, message }; // Return response
       } else {
         return rejectWithValue('Failed to add service');
       }
     } catch (error) {
       console.log(
-        '❌ add service error:',
+        'add service error:',
         error.response?.data || error.message,
       );
       return rejectWithValue(
@@ -104,8 +103,13 @@ const servicesSlice = createSlice({
     error: null,
     addStatus: 'idle',
     addError: null,
+    myServices: [],
   },
-  reducers: {},
+  reducers: {
+    setMyServices: (state, action) => {
+      state.myServices = action.payload;
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchServices.pending, state => {
@@ -133,5 +137,6 @@ const servicesSlice = createSlice({
       });
   },
 });
+export const { setMyServices } = servicesSlice.actions;
 
 export default servicesSlice.reducer;

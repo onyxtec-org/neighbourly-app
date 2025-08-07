@@ -14,29 +14,16 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../../../../redux/slices/categoriesSlice';
 import colors from '../../../../config/colors';
-import storage from '../../../../app/storage';
 
 const ProviderHomeScreen = ({ navigation }) => {
-    useEffect(() => {
+  const { myServices } = useSelector(state => state.services);
 
-      console.log('In provider prfoile');
-      
-      const getUser = async () => {
-        try {
-        
-          const user = await storage.getUser();
-          console.log('user from sydync storage',user);
-          
+  useEffect(() => {
+    if (myServices.length === 0) {
+      navigation.navigate('ServicesSelection');
+    }
+  }, []);
 
-        
-        } catch (err) {
-          console.log('Error getting user:', err);
-        }
-      };
-  
-      getUser();
-    }, []);
-  
   const dispatch = useDispatch();
   const { categories, status } = useSelector(state => state.categories);
 
@@ -74,11 +61,21 @@ const ProviderHomeScreen = ({ navigation }) => {
         {/* AppBar */}
         <View style={styles.appBar}>
           <TouchableOpacity style={styles.locationContainer}>
-            <Ionicons name="location-outline" size={24} color={colors.primary} />
+            <Ionicons
+              name="location-outline"
+              size={24}
+              color={colors.primary}
+            />
             <Text style={styles.locationText}>Your Location</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
-            <Ionicons name="notifications-outline" size={24} color={colors.primary} />
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Notifications')}
+          >
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color={colors.primary}
+            />
           </TouchableOpacity>
         </View>
 
@@ -86,7 +83,9 @@ const ProviderHomeScreen = ({ navigation }) => {
         <View style={styles.categoryHeader}>
           <Text style={styles.helpText}>My services</Text>
           {categories.length > 4 && (
-            <TouchableOpacity onPress={() => navigation.navigate('AllCategoriesScreen')}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AllCategoriesScreen')}
+            >
               <Text style={styles.seeAllText}>See All</Text>
             </TouchableOpacity>
           )}
@@ -112,7 +111,6 @@ const ProviderHomeScreen = ({ navigation }) => {
     </TouchableWithoutFeedback>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },

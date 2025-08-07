@@ -14,15 +14,14 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchServices,addServices } from '../../../../redux/slices/servicesSlice';
+import { fetchServices,addServices, setMyServices } from '../../../../redux/slices/servicesSlice';
 import CustomToast from '../../../components/CustomToast';
 import colors from '../../../../config/colors';
 import ServicesCard from '../../../components/services/ServicesCard';
 
 const ServicesSelectScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { categories, status } = useSelector(state => state.categories);
-  const { services, addStatus, addError } = useSelector(
+  const { services, addStatus, myServices } = useSelector(
     state => state.services,
   );
 
@@ -35,6 +34,7 @@ const ServicesSelectScreen = ({ navigation }) => {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
+console.log('my services--------',myServices);
 
   useEffect(() => {
     dispatch(fetchServices());
@@ -90,7 +90,10 @@ const ServicesSelectScreen = ({ navigation }) => {
       if (result.statusCode === 200) {
         setToastMessage(result.message);
         setToastType('success');
-        setToastVisible(true);
+        setToastVisible(true);        
+        dispatch(setMyServices(result.data.user.services))
+        navigation.pop();
+
       } else {
         setToastMessage(result.message);
         setToastType('error');
@@ -138,7 +141,7 @@ const ServicesSelectScreen = ({ navigation }) => {
 
         {/* Services List */}
         <View style={styles.content}>
-          {status === 'loading' ? (
+          {addStatus === 'loading' ? (
             <ActivityIndicator size="large" color={colors.primary} />
           ) : (
             <ScrollView

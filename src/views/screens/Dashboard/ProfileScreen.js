@@ -23,6 +23,7 @@ import colors from '../../../config/colors';
 import config from '../../../config';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import storage from '../../../app/storage';
+import { setMyServices } from '../../../redux/slices/servicesSlice';
 const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const nav = useNavigation(); // for logout navigation
@@ -32,7 +33,7 @@ const ProfileScreen = ({ navigation }) => {
     setDeletePopupVisible(false);
     // Dispatch delete thunk or navigate here
   };
-  
+
   const login = useSelector(state => state.login);
   const {
     user: profileUser,
@@ -68,6 +69,12 @@ const ProfileScreen = ({ navigation }) => {
               if (logoutUser.fulfilled.match(result)) {
                 showToast(result.payload || 'Logout successful', 'success');
                 setShouldNavigate(true);
+                nav.dispatch(
+                  CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }],
+                  }),
+                );
               } else {
                 throw new Error(result.payload || 'Logout failed');
               }
@@ -86,12 +93,6 @@ const ProfileScreen = ({ navigation }) => {
 
     if (shouldNavigate) {
       setShouldNavigate(false);
-      nav.dispatch(
-        CommonActions.reset({
-          index: 0,
-          routes: [{ name: 'Login' }],
-        }),
-      );
     }
   };
 
@@ -105,8 +106,12 @@ const ProfileScreen = ({ navigation }) => {
       await storage.storeUser(result.user);
 
       console.log(' Switched profile:', result.user);
-
-       dispatch(setUserRole(newRole));
+      if (result.user.services) {
+        dispatch(setMyServices(result.user.services));
+      } else {
+        dispatch(setMyServices([]));
+      }
+      dispatch(setUserRole(newRole));
       // Now reset and return to AppEntryScreen
       navigation.dispatch(
         CommonActions.reset({
@@ -214,9 +219,9 @@ const ProfileScreen = ({ navigation }) => {
                   navigation.navigate('ChangePasswordScreen');
                 } else if (item === 'Notifications Settings') {
                   navigation.navigate('NotificationSettings');
-              } else if (item === 'Delete Account') {
+                } else if (item === 'Delete Account') {
                   setDeletePopupVisible(true);
-                }else if (item === 'Privacy Policy') {
+                } else if (item === 'Privacy Policy') {
                   navigation.navigate('PrivacyPolicy');
                 } else if (item === 'Terms of Service') {
                   navigation.navigate('TermsandconditionScreen');
@@ -267,17 +272,17 @@ const ProfileScreen = ({ navigation }) => {
         onHide={handleToastHide}
       />
       <CustomPopup
-  visible={deletePopupVisible}
-  onClose={() => setDeletePopupVisible(false)}
-  title="Delete Account"
-  message="Are you sure you want to delete your account? This action cannot be undone."
-  icon="trash-outline"
-  iconColor="#DC2626"
-  cancelText="Cancel"
-  confirmText="Delete"
-  onCancel={() => setDeletePopupVisible(false)}
-  onConfirm={handleDeleteAccount}
-/>
+        visible={deletePopupVisible}
+        onClose={() => setDeletePopupVisible(false)}
+        title="Delete Account"
+        message="Are you sure you want to delete your account? This action cannot be undone."
+        icon="trash-outline"
+        iconColor="#DC2626"
+        cancelText="Cancel"
+        confirmText="Delete"
+        onCancel={() => setDeletePopupVisible(false)}
+        onConfirm={handleDeleteAccount}
+      />
     </View>
   );
 };

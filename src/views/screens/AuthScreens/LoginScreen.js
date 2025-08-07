@@ -13,7 +13,8 @@ import AppButton from '../../components/AppButton';
 import colors from '../../../config/colors';
 import CustomToast from '../../components/CustomToast';
 import storage from '../../../app/storage'; // Adjust the path as per your structure
-
+import { setMyServices } from '../../../redux/slices/servicesSlice';
+import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice';
 const validationSchema = Yup.object().shape({
   email: Yup.string()
     .email('Invalid email address')
@@ -28,6 +29,7 @@ const LoginScreen = ({ navigation }) => {
   const { loading, error, success, user, token } = useSelector(
     state => state.login,
   );
+
   const [loginEmail, setLoginEmail] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -53,6 +55,9 @@ const LoginScreen = ({ navigation }) => {
     console.log('Error:', error);
   
     if (success && user && token) {
+      dispatch(setMyServices(user.services));
+      dispatch(fetchUserProfile(user.id));
+     
       setToastMessage('Login Successful!');
       setToastType('success');
       setToastVisible(true);
@@ -68,7 +73,7 @@ const LoginScreen = ({ navigation }) => {
           navigation.dispatch(
             CommonActions.reset({
               index: 0,
-              routes: [{ name: 'ConsumerDashboard' }],
+              routes: [{ name: 'DashboardRouter' }],
             })
           );
         }, 1200);
@@ -96,6 +101,8 @@ const LoginScreen = ({ navigation }) => {
       dispatch(resetLoginState());
     }
   }, [success, error, user, dispatch, navigation, loginEmail, token]);
+  
+  console.log('toast type----',toastType);
   
   return (
     <View style={styles.container}>
