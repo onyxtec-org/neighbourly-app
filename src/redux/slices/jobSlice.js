@@ -26,7 +26,7 @@ export const getJobs = createAsyncThunk(
   async ( _ ,{ rejectWithValue }) => {
     try {
       const response = await apiClient.get('/jobs');
-      //console.log('jobs data',response.data);
+      console.log('jobs data',response.data);
       
       return response.data;
     } catch (error) {

@@ -14,27 +14,29 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchServices,addServices, setMyServices } from '../../../../redux/slices/servicesSlice';
 import CustomToast from '../../../components/CustomToast';
 import colors from '../../../../config/colors';
 import ServicesCard from '../../../components/services/ServicesCard';
+import { fetchServices,addServices, setMyServices } from '../../../../redux/slices/servicesSlice';
 
 const ServicesSelectScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { services, addStatus, myServices } = useSelector(
-    state => state.services,
+  const { status } = useSelector(state => state.services);
+  const { categories } = useSelector(state => state.categories);
+
+  const [selectedCustomServiceNames, setSelectedCustomServiceNames] = useState(
+    [],
   );
 
   const [selectedServiceIds, setSelectedServiceIds] = useState([]);
   const [customService, setCustomService] = useState('');
-  const [customServiceName, setCustomServiceName] = useState('');
+  const [expandedCategoryIds, setExpandedCategoryIds] = useState([]);
+  const [customServices, setCustomServices] = useState([]);
 
-  const [customServicesList, setCustomServicesList] = useState([]);
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
-console.log('my services--------',myServices);
 
   useEffect(() => {
     dispatch(fetchServices());
@@ -46,42 +48,46 @@ console.log('my services--------',myServices);
     );
   };
 
+  const toggleCategory = categoryId => {
+    setExpandedCategoryIds(prev =>
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId],
+    );
+  };
+  const toggleSelectCustomService = serviceName => {
+    setSelectedCustomServiceNames(prev =>
+      prev.includes(serviceName)
+        ? prev.filter(name => name !== serviceName)
+        : [...prev, serviceName],
+    );
+  };
+
   const handleAddCustomService = () => {
     const trimmed = customService.trim();
-    if (!trimmed) return;
+    if (trimmed) {
+      const newService = {
+        id: `custom-${Date.now()}`,
+        name: trimmed,
+      };
 
-    const newService = {
-      id: `custom_${Date.now()}`,
-      name: trimmed,
-      isCustom: true,
-    };
-
-    setCustomServicesList(prev => [...prev, newService]);
-    setSelectedServiceIds(prev => [...prev, newService.id]);
-    setCustomService('');
-    setShowCustomInput(false);
-    Keyboard.dismiss();
+      setCustomServices(prev => [...prev, newService]); // add to display list
+      setSelectedCustomServiceNames(prev => [...prev, trimmed]); // mark as selected
+      setCustomService('');
+      setShowCustomInput(false);
+    }
   };
 
   const handleLogSelected = async () => {
-    const selected = [...services, ...customServicesList].filter(service =>
-      selectedServiceIds.includes(service.id),
+    console.log('✅ Selected Preset Service IDs:', selectedServiceIds);
+    console.log(
+      '🛠️ Selected Custom Service Names:',
+      selectedCustomServiceNames,
     );
 
-    const customServiceNames = selected
-      .filter(service => service.isCustom)
-      .map(service => service.name);
-
-    const presetServiceIds = selected
-      .filter(service => !service.isCustom)
-      .map(service => service.id);
-
-    console.log(' Custom Service Names:', customServiceNames);
-    console.log(' Preset Service IDs:', presetServiceIds);
-
     const body = {
-      service_ids: presetServiceIds, // Existing service IDs
-      new_services: customServiceNames, // New services to create unduer 'Other' category
+      service_ids: selectedServiceIds, // Existing service IDs
+      new_services: selectedCustomServiceNames, // New services to create unduer 'Other' category
     };
 
     try {
@@ -90,10 +96,9 @@ console.log('my services--------',myServices);
       if (result.statusCode === 200) {
         setToastMessage(result.message);
         setToastType('success');
-        setToastVisible(true);        
-        dispatch(setMyServices(result.data.user.services))
+        setToastVisible(true);
+        dispatch(setMyServices(result.data.user.services));
         navigation.pop();
-
       } else {
         setToastMessage(result.message);
         setToastType('error');
@@ -104,8 +109,38 @@ console.log('my services--------',myServices);
     }
   };
 
+  const renderCategory = ({ item: category }) => {
+    const isExpanded = expandedCategoryIds.includes(category.id);
 
-  const allServices = [...services, ...customServicesList];
+    return (
+      <View>
+        <TouchableOpacity
+          onPress={() => toggleCategory(category.id)}
+          style={styles.categoryHeader}
+        >
+          <Text style={styles.categoryTitle}>{category.name}</Text>
+          <Ionicons
+            name={isExpanded ? 'chevron-up' : 'chevron-down'}
+            size={20}
+            color="gray"
+          />
+        </TouchableOpacity>
+
+        {isExpanded && (
+          <View style={styles.cardWrapContainer}>
+            {category.services?.map(service => (
+              <ServicesCard
+                key={service.id}
+                item={service}
+                isSelected={selectedServiceIds.includes(service.id)}
+                onToggleSelect={() => toggleSelectService(service.id)}
+              />
+            ))}
+          </View>
+        )}
+      </View>
+    );
+  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -135,43 +170,22 @@ console.log('my services--------',myServices);
         <View style={styles.categoryHeader}>
           <Text style={styles.helpText}>
             Select Services{' '}
-            <Text style={styles.minimumText}>(atleast 1 existing service required)</Text>
+            <Text style={styles.minimumText}>
+              (atleast 1 existing service required)
+            </Text>
           </Text>
         </View>
 
         {/* Services List */}
         <View style={styles.content}>
-          {addStatus === 'loading' ? (
+          {status === 'loading' ? (
             <ActivityIndicator size="large" color={colors.primary} />
           ) : (
-            <ScrollView
-              style={{ maxHeight: 180 }}
-              showsVerticalScrollIndicator={false}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  paddingHorizontal: 8,
-                }}
-              >
-                {allServices.map(item => (
-                  <View
-                    key={item.id.toString()}
-                    style={{
-                      marginRight: 8,
-                      marginBottom: 8,
-                    }}
-                  >
-                    <ServicesCard
-                      item={item}
-                      isSelected={selectedServiceIds.includes(item.id)}
-                      onToggleSelect={() => toggleSelectService(item.id)}
-                    />
-                  </View>
-                ))}
-              </View>
-            </ScrollView>
+            <FlatList
+              data={categories}
+              keyExtractor={item => item.id.toString()}
+              renderItem={renderCategory}
+            />
           )}
         </View>
 
@@ -200,6 +214,22 @@ console.log('my services--------',myServices);
             >
               <Text style={styles.addButtonText}>Add Service</Text>
             </TouchableOpacity>
+          </View>
+        )}
+        {customServices.length > 0 && (
+          <View style={styles.customServicesContainer}>
+            <Text style={styles.customServicesTitle}>Custom Services</Text>
+
+            <View style={styles.cardWrapContainer}>
+              {customServices.map(service => (
+                <ServicesCard
+                  key={service.name}
+                  item={service}
+                  isSelected={selectedCustomServiceNames.includes(service.name)}
+                  onToggleSelect={() => toggleSelectCustomService(service.name)}
+                />
+              ))}
+            </View>
           </View>
         )}
 
@@ -314,6 +344,37 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'gray',
     fontWeight: 'normal',
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+
+  categoryTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  customServicesContainer: {
+    marginTop: 20,
+    paddingHorizontal: 16,
+  },
+
+  customServicesTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: colors.primary,
+  },
+  cardWrapContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10, // optional spacing between cards (RN 0.71+)
   },
 });
 

@@ -5,124 +5,111 @@ import {
   View,
   Text,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import colors from '../../../config/colors';
 import JobListings from '../../components/JobComponents/JobListings';
 import { getJobs } from '../../../redux/slices/jobSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectJobsByStatus } from '../../../redux/selectors/jobSelector';
+
+const tabs = [
+  { key: 'new', label: 'New Requests' },
+  { key: 'pending', label: 'Pending' },
+  { key: 'my_jobs', label: 'My Jobs' },
+  { key: 'in_progress', label: 'In Progress' },
+  { key: 'completed', label: 'Completed' },
+];
+
 const JobsScreen = () => {
   const dispatch = useDispatch();
-
-  const [activeTab, setActiveTab] = useState('pending');
+  const [activeTab, setActiveTab] = useState('new');
 
   useEffect(() => {
     dispatch(getJobs());
   }, [dispatch]);
 
-  const pendingJobs = useSelector(selectJobsByStatus('pending'));
-  const inProgressJobs = useSelector(selectJobsByStatus('in_progress'));
-
-  const completedJobs = useSelector(selectJobsByStatus('completed'));
+  const jobsByStatus = {
+    new: useSelector(selectJobsByStatus('new')),
+    pending: useSelector(selectJobsByStatus('pending')),
+    my_jobs: useSelector(selectJobsByStatus('my_jobs')),
+    in_progress: useSelector(selectJobsByStatus('in_progress')),
+    completed: useSelector(selectJobsByStatus('completed')),
+  };
 
   const renderJobs = () => {
-    switch (activeTab) {
-      case 'pending':
-        return (
-          <JobListings data={pendingJobs} emptyMessage={'No pending jobs'} />
-        );
-      case 'inProgress':
-        return (
-          <JobListings
-            data={inProgressJobs}
-            emptyMessage={'No in Progress jobs'}
-          />
-        );
-      case 'completed':
-        return (
-          <JobListings
-            data={completedJobs}
-            emptyMessage={'No Completed jobs'}
-          />
-        );
-      default:
-        return null;
-    }
+    const jobData = jobsByStatus[activeTab] || [];
+    const emptyMessages = {
+      new: 'No new requests',
+      pending: 'No pending jobs',
+      my_jobs: 'No jobs assigned to you',
+      in_progress: 'No in progress jobs',
+      completed: 'No completed jobs',
+    };
+
+    return (
+      <JobListings
+        data={jobData}
+        emptyMessage={emptyMessages[activeTab] || 'No jobs'}
+      />
+    );
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Jobs</Text>
-        </View>
-      </View>
+<SafeAreaView style={styles.safeArea}>
+  {/* Header */}
+  <View style={styles.header}>
+    <View style={styles.headerCenter}>
+      <Text style={styles.headerTitle}>Jobs</Text>
+    </View>
+  </View>
 
-      {/* Tab Navigation */}
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            activeTab === 'pending' && styles.activeTab,
-          ]}
-          onPress={() => setActiveTab('pending')}
-        >
-          <Text
+  {/* Tabs + Content wrapper */}
+  <View style={{ flex: 1 }}>
+    {/* Tabs */}
+    <View >
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.tabContainer}
+      >
+        {tabs.map(tab => (
+          <TouchableOpacity
+            key={tab.key}
             style={[
-              styles.tabText,
-              activeTab === 'pending' && styles.activeTabText,
+              styles.tabButton,
+              activeTab === tab.key && styles.activeTab,
             ]}
+            onPress={() => setActiveTab(tab.key)}
           >
-            Pending
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === tab.key && styles.activeTabText,
+              ]}
+            >
+              {tab.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
 
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            activeTab === 'inProgress' && styles.activeTab,
-          ]}
-          onPress={() => setActiveTab('inProgress')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'inProgress' && styles.activeTabText,
-            ]}
-          >
-            In Progress
-          </Text>
-        </TouchableOpacity>
+    {/* Content */}
+    <View style={styles.contentContainer}>
+      {renderJobs()}
+    </View>
+  </View>
+</SafeAreaView>
 
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            activeTab === 'completed' && styles.activeTab,
-          ]}
-          onPress={() => setActiveTab('completed')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'completed' && styles.activeTabText,
-            ]}
-          >
-            Completed
-          </Text>
-        </TouchableOpacity>
-      </View>
 
-      {/* Main Content */}
-      <View style={styles.contentContainer}>{renderJobs()}</View>
-    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
   },
   header: {
     height: 60,
@@ -142,16 +129,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  tabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
+tabContainer: {
+  flexDirection: 'row',
+  borderBottomWidth: 1,
+  borderBottomColor: '#e0e0e0',
+  height: 50, 
+},
+
   tabButton: {
-    flex: 1,
-    alignItems: 'center',
     paddingVertical: 15,
+    paddingHorizontal: 20,
   },
   activeTab: {
     borderBottomWidth: 3,
@@ -167,8 +154,9 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
     backgroundColor: '#f9f9f9',
+    marginTop:0
   },
 });
 
