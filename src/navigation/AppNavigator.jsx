@@ -18,6 +18,7 @@ import ChangePasswordScreen from '../views/screens/AuthScreens/ChangePasswordScr
 import ResetPasswordScreen from '../views/screens/AuthScreens/ResetPasswordScreen'; // Import ResetPasswordScreen
 import UpdateProfileScreen from '../views/screens/Dashboard/UpdateProfileScreen'; // Import UpdateProfileScreen
 import AllCategoriesScreen from '../views/screens/Dashboard/AllCategoriesScreen'; // Import AllCategoriesScreen
+import JobDetailsScreen from '../views/screens/JobDetailsScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -36,14 +37,14 @@ const AppNavigator = () => {
         <Stack.Screen name="JobCreateScreen" component={JobCreateScreen} />
         <Stack.Screen name="CategoryDetailsScreen" component={CategoryDetailsScreen} />
         {/* <Stack.Screen name="ProfileManager" component={ProfileManagerScreen} /> */}
-
+        
         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
         <Stack.Screen name="AccountScreen" component={AccountScreen} />
         <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
         <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
         <Stack.Screen name="UpdateProfileScreen" component={UpdateProfileScreen} />
         <Stack.Screen name="AllCategoriesScreen" component={AllCategoriesScreen} />
-
+        <Stack.Screen name="JobDetailsScreen" component={JobDetailsScreen} />
 
 
         

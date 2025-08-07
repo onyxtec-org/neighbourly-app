@@ -2,7 +2,7 @@ import Config from "react-native-config";
 
 export default {
   baseURL: "https://n.onyxtec.io/api",
-  imageURL: "http://n.onyxtec.io",
+  imageURL: "http://n.onyxtec.io/storage/",
 
 };
 
