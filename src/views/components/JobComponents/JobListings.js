@@ -16,6 +16,7 @@ function JobListings({ data ,emptyMessage , onJobPress}) {
     <View style={styles.container}>
 
       <FlatList
+      
         data={data}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}

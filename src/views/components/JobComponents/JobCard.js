@@ -73,6 +73,15 @@ function JobCard({ item, onPress }) {
         />
         <Text style={styles.infoText}>{item.payment_type || 'N/A'}</Text>
       </View>
+          <View style={styles.infoRow}>
+        <Ionicons
+          name="briefcase-outline"
+          size={16}
+          color={colors.gray}
+          style={styles.icon}
+        />
+        <Text style={styles.infoText}>{item.service.name || 'N/A'}</Text>
+      </View>
     </TouchableOpacity>
   );
 }
