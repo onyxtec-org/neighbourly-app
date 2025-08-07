@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,45 +8,43 @@ import {
 } from 'react-native';
 import colors from '../../../config/colors';
 import JobListings from '../../components/JobComponents/JobListings';
-
+import { getJobs } from '../../../redux/slices/jobSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectJobsByStatus } from '../../../redux/selectors/jobSelector';
 const JobsScreen = () => {
+  const dispatch = useDispatch();
+
   const [activeTab, setActiveTab] = useState('pending');
 
-  const pendingJobs = [
-    {
-      title: 'Plumbing job',
-      description: 'ihsbvjbvbd gbghnhtntnty',
-      hour_rate: '$10',
-      duration: '2 hours',
-      status: 'pending',
-      payment_type: 'cash',
-    },
-    {
-      title: 'Cleaning job',
-      description: 'ihsbvjbvbd gbghnhtntnty',
-      hour_rate: '$20',
-      duration: '3 hours',
-      status: 'pending',
-      payment_type: 'e-pay',
-    },
-  ];
+  useEffect(() => {
+    dispatch(getJobs());
+  }, [dispatch]);
 
-  const inProgressJobs = [
-   
-  ];
+  const pendingJobs = useSelector(selectJobsByStatus('pending'));
+  const inProgressJobs = useSelector(selectJobsByStatus('in_progress'));
 
-  const completedJobs = [
-    
-  ];
+  const completedJobs = useSelector(selectJobsByStatus('completed'));
 
   const renderJobs = () => {
     switch (activeTab) {
       case 'pending':
-        return <JobListings data={pendingJobs} emptyMessage={'No pending jobs'} />;
+        return (
+          <JobListings data={pendingJobs} emptyMessage={'No pending jobs'} />
+        );
       case 'inProgress':
-        return <JobListings data={inProgressJobs} emptyMessage={'No in Progress jobs'}/>;
+        return (
+          <JobListings
+            data={inProgressJobs}
+            emptyMessage={'No in Progress jobs'}
+          />
+        );
       case 'completed':
-        return <JobListings data={completedJobs} emptyMessage={'No Completed jobs'}/>;
+        return (
+          <JobListings
+            data={completedJobs}
+            emptyMessage={'No Completed jobs'}
+          />
+        );
       default:
         return null;
     }

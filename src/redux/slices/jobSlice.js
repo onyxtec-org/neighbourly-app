@@ -23,9 +23,11 @@ export const createJob = createAsyncThunk(
 
 export const getJobs = createAsyncThunk(
   'job/getJob',
-  async ( { rejectWithValue }) => {
+  async ( _ ,{ rejectWithValue }) => {
     try {
-      const response = await apiClient.post('/jobs');
+      const response = await apiClient.get('/jobs');
+      //console.log('jobs data',response.data);
+      
       return response.data;
     } catch (error) {
         console.log('Get Job Error:', error);
@@ -42,13 +44,14 @@ const jobSlice = createSlice({
     loading: false,
     success: false,
     error: null,
+    jobs:[],
+
   },
   reducers: {
     resetJobState: (state) => {
       state.loading = false;
       state.success = false;
       state.error = null;
-      state.jobs=[];
     },
   },
   extraReducers: (builder) => {
@@ -73,15 +76,17 @@ const jobSlice = createSlice({
         state.success = false;
         state.error = null;
       })
-      .addCase(getJobs.fulfilled, (state) => {
+      .addCase(getJobs.fulfilled, (state,action) => {
         state.loading = false;
         state.success = true;
         state.error = null;
+          state.jobs = action.payload.data.jobs; // ✅ Store the array of jobs
+
       })
       .addCase(getJobs.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
-        state.error = action.payload?.message || 'Error creating job';
+        state.error = action.payload?.message || 'Error Getting jobs';
       });
   },
 });
