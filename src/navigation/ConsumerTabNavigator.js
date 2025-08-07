@@ -22,12 +22,13 @@ const ConsumerTabNavigator = () => {
             case 'Home':
               iconName = 'home-outline';
               break;
+            case 'Jobs':
+              iconName = 'checkmark-done-outline';
+              break;
             case 'Services':
               iconName = 'construct-outline';
               break;
-            case 'MyTasks':
-              iconName = 'checkmark-done-outline';
-              break;
+
             case 'Profile':
               iconName = 'person-outline';
               break;
@@ -47,8 +48,8 @@ const ConsumerTabNavigator = () => {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Jobs" component={TaskScreen} />
       <Tab.Screen name="Services" component={ServicesScreen} />
-      <Tab.Screen name="MyTasks" component={TaskScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

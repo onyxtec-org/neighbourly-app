@@ -33,7 +33,12 @@ function JobCard({ item }) {
 
       {/* Description */}
       <View style={styles.descriptionContainer}>
-        <Ionicons name="document-text-outline" size={16} color={colors.gray} style={styles.icon} />
+        <Ionicons
+          name="document-text-outline"
+          size={16}
+          color={colors.gray}
+          style={styles.icon}
+        />
         <Text numberOfLines={3} ellipsizeMode="tail" style={styles.description}>
           {item.description}
         </Text>
@@ -41,16 +46,35 @@ function JobCard({ item }) {
 
       {/* Duration and Rate */}
       <View style={styles.infoRow}>
-        <Ionicons name="time-outline" size={16} color={colors.gray} style={styles.icon} />
-        <Text style={styles.infoText}>{item.duration}</Text>
+        {item.price_type !== 'fixed' && (
+          <>
+            <Ionicons
+              name="time-outline"
+              size={16}
+              color={colors.gray}
+              style={styles.icon}
+            />
+            <Text style={styles.infoText}>{item.no_of_hours}</Text>
+          </>
+        )}
 
-        <Ionicons name="cash-outline" size={16} color={colors.gray} style={[styles.icon, { marginLeft: 20 }]} />
-        <Text style={styles.infoText}>{item.hour_rate}/hr</Text>
+        <Ionicons
+          name="cash-outline"
+          size={16}
+          color={colors.gray}
+          style={[styles.icon, { marginLeft: 20 }]}
+        />
+        <Text style={styles.infoText}>{item.rate}/hr</Text>
       </View>
 
       {/* Payment Type */}
       <View style={styles.infoRow}>
-        <Ionicons name="card-outline" size={16} color={colors.gray} style={styles.icon} />
+        <Ionicons
+          name="card-outline"
+          size={16}
+          color={colors.gray}
+          style={styles.icon}
+        />
         <Text style={styles.infoText}>{item.payment_type || 'N/A'}</Text>
       </View>
     </TouchableOpacity>
@@ -63,7 +87,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 12,
     borderWidth: 1,
-    borderLeftWidth:1,
+    borderLeftWidth: 1,
     borderColor: colors.primary,
     padding: 12,
     marginVertical: 8,
