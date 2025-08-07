@@ -1,16 +1,15 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-import HomeScreen from '../views/screens/Dashboard/HomeScreen';
+import HomeScreen from '../views/screens/Dashboard/ConsumerHomeScreen';
 import ServicesScreen from '../views/screens/Dashboard/ServiceScreen';
-import TaskScreen from '../views/screens/Dashboard/TaskScreen';
+import TaskScreen from '../views/screens/Dashboard/JobsScreen';
 import ProfileScreen from '../views/screens/Dashboard/ProfileScreen';
 import colors from '../config/colors';
 
 const Tab = createBottomTabNavigator();
 
-const DashboardNavigator = () => {
+const ConsumerTabNavigator = () => {
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -55,4 +54,4 @@ const DashboardNavigator = () => {
   );
 };
 
-export default DashboardNavigator;
+export default ConsumerTabNavigator;

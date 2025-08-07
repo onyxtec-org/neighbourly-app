@@ -14,7 +14,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../../../redux/slices/categoriesSlice';
 import colors from '../../../config/colors';
-
+import SearchBar from '../../components/SearchBar';
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { categories, status } = useSelector(state => state.categories);
@@ -104,14 +104,7 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-const SearchBar = ({ placeholder, onPress }) => (
-  <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-    <View style={styles.searchBar}>
-      <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
-      <Text style={styles.searchInput}>{placeholder}</Text>
-    </View>
-  </TouchableOpacity>
-);
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
@@ -124,7 +117,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
-  searchContainer: {
+   searchContainer: {
     padding: 16,
   },
   locationContainer: { flexDirection: 'row', alignItems: 'center' },
@@ -171,23 +164,7 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
   },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f1f1f1',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  searchIcon: { marginRight: 8, color: colors.primary },
-  searchInput: { flex: 1, fontSize: 16, color: 'gray' },
-  categoryHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    marginTop: 8,
-  },
+
   seeAllText: {
     fontSize: 14,
     color: colors.primary,

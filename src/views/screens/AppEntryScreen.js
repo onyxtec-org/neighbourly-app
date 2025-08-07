@@ -5,7 +5,7 @@ import StartupSVG from '../../assets/icons/startup.svg';
 import { useDispatch } from 'react-redux';
 import { fetchUserProfile } from '../../redux/slices/auth/profileSlice';
 import storage from '../../app/storage';
-
+import { setMyServices } from '../../redux/slices/servicesSlice';
 const AppEntryScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   useEffect(() => {
@@ -23,12 +23,21 @@ const AppEntryScreen = ({ navigation }) => {
           console.log('No token found → Navigating to Login');
           navigation.replace('Login');
         } else if (!user) {
-          console.log('User missing or no account → Navigating to WelcomeScreen');
+          console.log(
+            'User missing or no account → Navigating to WelcomeScreen',
+          );
           navigation.replace('Welcome');
-        } 
-        else if (token && user) {
-          dispatch(fetchUserProfile(user.id)); // ✅ Re-hydrate Redux
-          navigation.replace('Dashboard');
+        } else if (token && user) {
+          dispatch(setMyServices(user.services));
+
+          const result = await dispatch(fetchUserProfile(user.id)); // ✅ Re-hydrate Redux
+
+          if (fetchUserProfile.fulfilled.match(result)) {
+            navigation.replace('DashboardRouter');
+          } else {
+            console.log('Failed to fetch profile:', result.payload);
+            navigation.replace('Login'); // or error fallback
+          }
         }
       } catch (err) {
         console.log('Error while checking login:', err);
@@ -42,13 +51,17 @@ const AppEntryScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* App Logo */}
-     <View style={styles.imageContainer}>
-             <StartupSVG width={150} height={150} />
-           </View>
+      <View style={styles.imageContainer}>
+        <StartupSVG width={150} height={150} />
+      </View>
       {/* App Name */}
       <Text style={styles.appName}>Neighbourly</Text>
       {/* Loader */}
-      <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
+      <ActivityIndicator
+        size="large"
+        color={colors.primary}
+        style={styles.loader}
+      />
     </View>
   );
 };

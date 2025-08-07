@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import formApiClient from '../../api/formApiClient'; // <-- 👈 new import
+import client from '../../api/client';
 import storage from '../../app/storage';
 
 export const createJob = createAsyncThunk(
@@ -34,7 +35,20 @@ export const createJob = createAsyncThunk(
   }
 );
 
-
+export const getJobs = createAsyncThunk(
+  'job/getJob',
+  async ( { rejectWithValue }) => {
+    try {
+      const response = await client.post('/jobs');
+      return response.data;
+    } catch (error) {
+        console.log('Get Job Error:', error);
+      return rejectWithValue(
+        error.response?.data || { message: 'Something went wrong' }
+      );
+    }
+  }
+);
 
 const jobSlice = createSlice({
   name: 'job',
@@ -42,9 +56,11 @@ const jobSlice = createSlice({
     loading: false,
     success: false,
     error: null,
+    jobs: [],
   },
   reducers: {
     resetJobState: (state) => {
+      state.jobs=[];
       state.loading = false;
       state.success = false;
       state.error = null;
@@ -63,6 +79,21 @@ const jobSlice = createSlice({
         state.error = null;
       })
       .addCase(createJob.rejected, (state, action) => {
+        state.loading = false;
+        state.success = false;
+        state.error = action.payload?.message || 'Error creating job';
+      })
+       .addCase(getJobs.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(getJobs.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+        state.error = null;
+      })
+      .addCase(getJobs.rejected, (state, action) => {
         console.log('❌ Job Creation Failed:', action.payload || action.error);
         state.loading = false;
         state.success = false;

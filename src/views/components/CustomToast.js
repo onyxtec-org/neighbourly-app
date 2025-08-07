@@ -80,7 +80,7 @@ const CustomToast = ({
         {typeof message === 'string'
           ? message
           : message?.message || 'Something went wrong'}
-      </Text>{' '}
+      </Text>
     </Animated.View>
   );
 };

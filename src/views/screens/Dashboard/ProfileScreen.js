@@ -11,15 +11,28 @@ import {
   Platform,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice';
+import {
+  fetchUserProfile,
+  switchUserProfile,
+} from '../../../redux/slices/auth/profileSlice';
 import { logoutUser } from '../../../redux/thunks/auth/logoutThunk';
+import { setUserRole } from '../../../redux/slices/auth/profileSlice';
 import CustomToast from '../../components/CustomToast';
+import CustomPopup from '../../components/CustomPopup';
+import colors from '../../../config/colors';
 import config from '../../../config';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-
+import storage from '../../../app/storage';
+import { setMyServices } from '../../../redux/slices/servicesSlice';
 const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const nav = useNavigation(); // for logout navigation
+  const [deletePopupVisible, setDeletePopupVisible] = useState(false);
+  const handleDeleteAccount = () => {
+    console.log('🗑 Account deletion confirmed');
+    setDeletePopupVisible(false);
+    // Dispatch delete thunk or navigate here
+  };
 
   const login = useSelector(state => state.login);
   const {
@@ -34,7 +47,7 @@ const ProfileScreen = ({ navigation }) => {
   const [shouldNavigate, setShouldNavigate] = useState(false);
 
   const showToast = (msg, type = 'success') => {
-    console.log('✅ Showing toast:', msg);
+    console.log(' Showing toast:', msg);
     setToastMessage(msg);
     setToastType(type);
     setToastVisible(true);
@@ -56,6 +69,12 @@ const ProfileScreen = ({ navigation }) => {
               if (logoutUser.fulfilled.match(result)) {
                 showToast(result.payload || 'Logout successful', 'success');
                 setShouldNavigate(true);
+                nav.dispatch(
+                  CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }],
+                  }),
+                );
               } else {
                 throw new Error(result.payload || 'Logout failed');
               }
@@ -65,7 +84,7 @@ const ProfileScreen = ({ navigation }) => {
           },
         },
       ],
-      { cancelable: true }
+      { cancelable: true },
     );
   };
 
@@ -74,24 +93,45 @@ const ProfileScreen = ({ navigation }) => {
 
     if (shouldNavigate) {
       setShouldNavigate(false);
-      nav.dispatch(
+    }
+  };
+
+  const handleSwitchProfile = async () => {
+    const newRole = profileUser?.role === 'provider' ? 'consumer' : 'provider';
+    const body = {
+      role: newRole,
+    };
+    try {
+      const result = await dispatch(switchUserProfile(body)).unwrap();
+      await storage.storeUser(result.user);
+
+      console.log(' Switched profile:', result.user);
+      if (result.user.services) {
+        dispatch(setMyServices(result.user.services));
+      } else {
+        dispatch(setMyServices([]));
+      }
+      dispatch(setUserRole(newRole));
+      // Now reset and return to AppEntryScreen
+      navigation.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{ name: 'Login' }],
-        })
+          routes: [{ name: 'AppEntry' }],
+        }),
       );
+    } catch (error) {
+      console.log(' Failed to switch:', error);
     }
   };
 
   useEffect(() => {
+    console.log('login user', login);
+
     if (login?.user?.id) {
-      console.log(
-        '📦 Dispatching fetchUserProfile with userId:',
-        login.user.id,
-      );
+      console.log('Dispatching fetchUserProfile with userId:', login.user.id);
       dispatch(fetchUserProfile(login.user.id));
     } else {
-      console.log('🚫 Skipped fetching user profile – user ID not available');
+      console.log('Skipped fetching user profile – user ID not available');
     }
   }, [dispatch, login.user?.id]);
 
@@ -105,10 +145,10 @@ const ProfileScreen = ({ navigation }) => {
   }
 
   if (profileStatus === 'failed') {
-    console.log('❌ Profile fetch failed:', profileError);
+    console.log(' Profile fetch failed:', profileError);
   }
 
-  console.log('✅ profileUser data from redux:', profileUser);
+  console.log('profileUser data from redux:', profileUser);
 
   return (
     <View style={profileStyles.container}>
@@ -127,9 +167,9 @@ const ProfileScreen = ({ navigation }) => {
               }}
               style={profileStyles.profileImage}
               onLoadStart={() => console.log('📤 Loading image...')}
-              onLoad={() => console.log('✅ Image loaded successfully')}
+              onLoad={() => console.log(' Image loaded successfully')}
               onError={e => {
-                console.log('❌ Image failed to load');
+                console.log('Image failed to load');
                 console.log('Error:', e.nativeEvent.error);
                 console.log(
                   'Image URL attempted:',
@@ -154,7 +194,7 @@ const ProfileScreen = ({ navigation }) => {
             onPress={() => navigation.navigate('AccountScreen')}
           >
             <View>
-              <Text style={profileStyles.menuItemText}>Account</Text>
+              <Text style={profileStyles.menuItemText}>Profile Details</Text>
               <Text style={profileStyles.menuItemSubText}>
                 {profileUser?.email || 'user@example.com'}
               </Text>
@@ -163,13 +203,13 @@ const ProfileScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           {[
-            'Account Security',
             'Change Password',
+            'Notifications Settings',
+            'Delete Account',
             'Payment',
-            'Promos',
-            'Notifications',
             'Support',
-            'About',
+            'Privacy Policy',
+            'Terms of Service',
           ].map((item, index) => (
             <TouchableOpacity
               key={index}
@@ -177,6 +217,14 @@ const ProfileScreen = ({ navigation }) => {
               onPress={() => {
                 if (item === 'Change Password') {
                   navigation.navigate('ChangePasswordScreen');
+                } else if (item === 'Notifications Settings') {
+                  navigation.navigate('NotificationSettings');
+                } else if (item === 'Delete Account') {
+                  setDeletePopupVisible(true);
+                } else if (item === 'Privacy Policy') {
+                  navigation.navigate('PrivacyPolicy');
+                } else if (item === 'Terms of Service') {
+                  navigation.navigate('TermsandconditionScreen');
                 } else {
                   console.log(`${item} pressed`);
                 }
@@ -189,17 +237,27 @@ const ProfileScreen = ({ navigation }) => {
         </View>
 
         <View style={profileStyles.menuSection}>
-          <TouchableOpacity style={profileStyles.centeredMenuItem}>
+          <TouchableOpacity
+            style={profileStyles.centeredMenuItem}
+            onPress={handleSwitchProfile}
+          >
             <Text style={profileStyles.centeredMenuItemText}>
-              Become Tasker
+              {profileUser.role === 'provider'
+                ? 'Swtich to Consumer'
+                : 'Become a Provider'}
             </Text>
           </TouchableOpacity>
 
           <View style={profileStyles.dividerLine} />
 
           <View style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
-            <TouchableOpacity onPress={handleLogout} style={{ alignItems: 'center' }}>
-              <Text style={{ fontSize: 16, fontWeight: '500', color: '#DC2626' }}>
+            <TouchableOpacity
+              onPress={handleLogout}
+              style={{ alignItems: 'center' }}
+            >
+              <Text
+                style={{ fontSize: 16, fontWeight: '500', color: '#DC2626' }}
+              >
                 Logout
               </Text>
             </TouchableOpacity>
@@ -213,10 +271,21 @@ const ProfileScreen = ({ navigation }) => {
         type={toastType}
         onHide={handleToastHide}
       />
+      <CustomPopup
+        visible={deletePopupVisible}
+        onClose={() => setDeletePopupVisible(false)}
+        title="Delete Account"
+        message="Are you sure you want to delete your account? This action cannot be undone."
+        icon="trash-outline"
+        iconColor="#DC2626"
+        cancelText="Cancel"
+        confirmText="Delete"
+        onCancel={() => setDeletePopupVisible(false)}
+        onConfirm={handleDeleteAccount}
+      />
     </View>
   );
 };
-
 
 // Styles for ProfileScreen
 const profileStyles = StyleSheet.create({

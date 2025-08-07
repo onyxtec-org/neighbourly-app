@@ -14,10 +14,13 @@ const NoRecordFound = ({ message, marginTop = 0, iconHeight = 160 }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
+container: {
+  //flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 20,
+},
+
   message: {
     marginTop: 10,
     color: colors.primary, // Replace with your primary color

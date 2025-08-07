@@ -56,7 +56,7 @@ const CategoryDetailsScreen = ({ route, navigation }) => {
           <Ionicons name="arrow-back" size={24} color={colors.dark} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Category Details</Text>
-        <View style={styles.iconButton} /> {/* Spacer */}
+        <View style={styles.iconButton} /> 
       </View>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* Header with Back Button and Category Name */}
