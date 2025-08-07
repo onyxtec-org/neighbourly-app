@@ -5,12 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  ScrollView,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import ImageInputList from '../../components/FormComponents/imageinpulist';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Formik } from 'formik';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as Yup from 'yup';
 import CustomToast from '../../components/CustomToast';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -24,16 +24,17 @@ const validationSchema = Yup.object().shape({
   title: Yup.string().required('Title is required'),
   description: Yup.string().required('Description is required'),
   budget: Yup.string().required('Rate per hour is required'),
-  no_of_hours: Yup.string().when('price_type', (priceType, schema) => {
-    return priceType === 'per_hour'
-      ? schema.required('Estimated time is required')
-      : schema.nullable();
-  }),
+  no_of_hours: Yup.string().when('price_type', {
+    is: 'per_hour',
+    then: schema => schema.required('Number of hours is required'),
+    otherwise: schema => schema.nullable(),
+  }),  
   location: Yup.string().required('Location is required'),
   startTime: Yup.string().required('Start time is required'),
 
   estimated_time: Yup.string().required('Estimated time is required'),
   price_type: Yup.string().required('Job type is required'),
+  payment_type: Yup.string().required('Payment type is required'),
   custom_estimated_time: Yup.string().when(
     'estimated_time',
     (value, schema) => {
@@ -46,7 +47,7 @@ const validationSchema = Yup.object().shape({
   ),
 
   images: Yup.array()
-    .min(0, 'At least one image is required')
+    .min(1, 'At least one image is required')
     .required('Please add at least one image'),
 });
 
@@ -83,21 +84,10 @@ const JobCreateScreen = ({ navigation, route }) => {
   ]);
   const [paymentTypeItems, setPaymentTypeItems] = useState([
     { label: 'Cash', value: 'cash' },
-    { label: 'E-Payment', value: 'epayment' },
+    { label: 'E-Payment', value: 'e-payment' },
   ]);
   const jobState = useSelector(state => state.job);
   const { loading, error, success } = jobState;
-
-  // useEffect(() => {
-  //   if (success) {
-  //     alert('✅ Job Created!');
-  //     dispatch(resetJobState());
-  //     navigation.goBack();
-  //   } else if (error) {
-  //     alert(`❌ ${error}`);
-  //     dispatch(resetJobState());
-  //   }
-  // }, [success, error, dispatch, navigation]);
 
   useEffect(() => {
     if (success) {
@@ -129,17 +119,18 @@ const JobCreateScreen = ({ navigation, route }) => {
   const handleSubmit = async values => {
     try {
       console.log('📤 Submitting Job with values:', values);
-  
+
       const formData = new FormData();
-  
-      const finalEstimatedTime = values.estimated_time === 'Custom'
-        ? values.custom_estimated_time
-        : values.estimated_time;
-  
+
+      const finalEstimatedTime =
+        values.estimated_time === 'Custom'
+          ? values.custom_estimated_time
+          : values.estimated_time;
+
       const rate = parseFloat(values.budget);
       const noOfHours = parseFloat(values.no_of_hours || 1);
       const budget = rate * noOfHours;
-  
+
       // Append form fields
       formData.append('service_id', serviceId);
       formData.append('title', values.title);
@@ -149,16 +140,16 @@ const JobCreateScreen = ({ navigation, route }) => {
       formData.append('location_lng', '-74.0060'); // ⚠️ Replace with dynamic value
       formData.append('starts_at', values.startTime);
       formData.append('ends_at', '2026-01-01 00:00:00');
-  
+
       if (jobTypeValue === 'per_hour') {
         formData.append('no_of_hours', values.no_of_hours);
       }
-  
+
       formData.append('price_type', jobTypeValue);
       formData.append('estimated_time', finalEstimatedTime);
       formData.append('rate', rate.toString());
       formData.append('payment_type', paymentTypeValue);
-  
+
       console.log('🧾 Form Data Before Media:', {
         service_id: serviceId,
         title: values.title,
@@ -175,68 +166,27 @@ const JobCreateScreen = ({ navigation, route }) => {
         budget: budget,
         payment_type: paymentTypeValue,
       });
-  
+
       mediaList.forEach((file, index) => {
-        const isVideo = file.uri.endsWith('.mp4');
-        const type = file.type || (isVideo ? 'video/mp4' : 'image/jpeg');
-        const name = file.name || `media_${index}.${isVideo ? 'mp4' : 'jpg'}`;
-  
-        console.log(`📎 Attaching File ${index}:`, { uri: file.uri, type, name });
-  
+        const uri = file.uri;
+        const name = uri.split('/').pop() || `media_${index}`;
+        const ext = name.split('.').pop();
+        const isVideo = ext === 'mp4';
+        const type = isVideo ? 'video/mp4' : `image/${ext}`;
+
         formData.append('attachments[]', {
-          uri: file.uri,
-          type,
+          uri,
           name,
+          type,
         });
       });
-  
+
       console.log('🚀 Dispatching job creation...');
       dispatch(createJob(formData));
     } catch (error) {
       console.log('❌ Error in handleSubmit:', error);
     }
   };
-  
-
-  // const handleSubmit = async values => {
-  //   console.log('📤 Submitting Job with values:', values);
-
-  //   const formData = new FormData();
-  
-  //   formData.append('service_id', serviceId);
-  //   formData.append('title', values.title);
-  //   formData.append('description', values.description);
-  //   formData.append('location', values.location);
-  //   formData.append('location_lat', '8878'); // Replace with actual lat
-  //   formData.append('location_lng', '88787'); // Replace with actual lng
-  //   formData.append('starts_at', values.startTime); // Format: YYYY-MM-DD HH:mm
-  //   formData.append('ends_at', '2026-01-01 00:00:00'); // Make sure it's > start
-  
-  //   if (jobTypeValue === 'per_hour') {
-  //     formData.append('no_of_hours', values.no_of_hours);
-  //   }
-  
-  //   formData.append('price_type', jobTypeValue);
-  //   formData.append(
-  //     'estimated_time',
-  //     values.estimated_time === 'Custom'
-  //       ? values.custom_estimated_time
-  //       : values.estimated_time,
-  //   );
-  //   formData.append('rate', values.budget.toString());
-  //   formData.append('payment_type', paymentTypeValue);
-  
-  //   mediaList.forEach((file) => {
-  //     formData.append('attachments[]', {
-  //       uri: file.uri,
-  //       type: file.type || (file.uri.endsWith('.mp4') ? 'video/mp4' : 'image/jpeg'),
-  //       name: file.name || `media.${file.uri.endsWith('.mp4') ? 'mp4' : 'jpg'}`,
-  //     });
-  //   });
-  
-  //   dispatch(createJob(formData));
-  // };
-  
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -261,13 +211,38 @@ const JobCreateScreen = ({ navigation, route }) => {
           locationLng: '',
           startTime: '',
           no_of_hours: '',
+          payment_type: '',
           price_type: 'per_hour',
           estimated_time: '',
           custom_estimated_time: '',
           images: [],
         }}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit}
+        onSubmit={(values, { setTouched }) => {
+          const touchedFields = {
+            title: true,
+            description: true,
+            budget: true,
+            location: true,
+            startTime: true,
+            estimated_time: true,
+            price_type: true,
+            payment_type: true,
+            no_of_hours: true,
+            images: true,
+          };
+
+          if (values.price_type === 'per_hour') {
+            touchedFields.no_of_hours = true;
+          }
+        
+          if (values.estimated_time === 'Custom') {
+            touchedFields.custom_estimated_time = true;
+          }
+
+          setTouched(touchedFields);
+          handleSubmit(values);
+        }}
       >
         {({
           handleChange,
@@ -279,19 +254,11 @@ const JobCreateScreen = ({ navigation, route }) => {
           setFieldValue,
           setFieldTouched,
         }) => (
-          <KeyboardAwareScrollView
+          <ScrollView
             contentContainerStyle={styles.container}
-            enableOnAndroid
-            // extraScrollHeight={Platform.OS === 'android' ? 0 : 10}
             keyboardShouldPersistTaps="handled"
-            // showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
           >
-            {/* // <KeyboardAwareScrollView
-          //   contentContainerStyle={styles.container}
-          //   enableOnAndroid
-          //   extraScrollHeight={0}
-          //   keyboardShouldPersistTaps="handled"
-          // > */}
             <View style={styles.serviceInfo}>
               <View style={styles.iconCircle} />
               <Text style={styles.serviceName}>{serviceName}</Text>
@@ -365,15 +332,14 @@ const JobCreateScreen = ({ navigation, route }) => {
                 label="Number of Hour"
                 required
                 keyboardType="numeric"
-                value={values.noofhours}
+                value={values.no_of_hours}
                 onChangeText={handleChange('no_of_hours')}
                 onBlur={handleBlur('no_of_hours')}
                 placeholder="Enter number of hour"
-                error={touched.noofhours && errors.noofhours}
+                error={touched.no_of_hours && errors.no_of_hours}
               />
             )}
 
-            {/* START TIME FIELD WITH CALENDAR ICON */}
             <TouchableOpacity
               onPress={() => {
                 setPickerField('startTime');
@@ -458,10 +424,13 @@ const JobCreateScreen = ({ navigation, route }) => {
                   ]}
                   onPress={() => {
                     setFieldValue('estimated_time', option);
-                    setFieldTouched('estimated_time', true);
                     if (option !== 'Custom') {
                       setFieldValue('custom_estimated_time', '');
                     }
+                    setTimeout(
+                      () => setFieldTouched('estimated_time', true),
+                      0,
+                    );
                   }}
                 >
                   <Text
@@ -526,9 +495,13 @@ const JobCreateScreen = ({ navigation, route }) => {
                 setPaymentTypeOpen(o);
                 setJobTypeOpen(false); // Close the other dropdown
               }}
-              setValue={setPaymentTypeValue}
+              setValue={val => {
+                setPaymentTypeValue(val);
+                setFieldValue('payment_type', val); // <-- this syncs with Formik
+              }}
               setItems={setPaymentTypeItems}
               placeholder="Select payment type"
+              error={touched.payment_type && errors.payment_type}
               required
               zIndex={2000}
             />
@@ -550,7 +523,7 @@ const JobCreateScreen = ({ navigation, route }) => {
               textStyle={styles.buttonText}
               IconName="briefcase"
             />
-          </KeyboardAwareScrollView>
+          </ScrollView>
         )}
       </Formik>
       <CustomToast

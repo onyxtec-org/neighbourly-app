@@ -1,28 +1,31 @@
 // components/CustomDropdown.js
 
-import React from "react";
-import { View, Text, StyleSheet, Platform } from "react-native";
-import DropDownPicker from "react-native-dropdown-picker";
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import React from 'react';
+import { View, Text, StyleSheet, Platform } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const isAndroid = Platform.OS === "android";
+const isAndroid = Platform.OS === 'android';
 
 const CustomDropdown = ({
-  label = "",
+  label = '',
   open,
   value,
   items,
   setOpen,
   setValue,
   setItems,
-  placeholder = "Select an option",
+  placeholder = 'Select an option',
   multiple = false,
-  mode = "BADGE",
-  listMode = "SCROLLVIEW",
+  mode = 'BADGE',
+  listMode = 'SCROLLVIEW',
   disabled = false,
   required = false,
-  customIcon = "chevron-down",
+  customIcon = 'chevron-down',
   zIndex = 1000,
   styleOverrides = {},
   ...props
@@ -47,9 +50,7 @@ const CustomDropdown = ({
         style={[styles.dropdown, styleOverrides]}
         dropDownContainerStyle={styles.dropdownContainer}
         ArrowDownIconComponent={() =>
-          !disabled && (
-            <Ionicons name={customIcon} size={20} color="#999" />
-          )
+          !disabled && <Ionicons name={customIcon} size={20} color="#999" />
         }
         disabled={disabled}
         multiple={multiple}
@@ -58,35 +59,42 @@ const CustomDropdown = ({
         textStyle={styles.text}
         {...props}
       />
+
+      {props.error && <Text style={styles.errorText}>{props.error}</Text>}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginBottom: hp("2%"),
+    marginBottom: hp('2%'),
   },
   label: {
     fontSize: 14,
     color: '#333',
-    marginBottom: hp("0.5%"),
+    marginBottom: hp('0.5%'),
   },
   required: {
-    color: "red",
+    color: 'red',
   },
   dropdown: {
-    borderColor: "#ccc",
+    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 8,
-    minHeight: hp("5.5%"),
+    minHeight: hp('5.5%'),
     paddingHorizontal: 13,
   },
   dropdownContainer: {
-    borderColor: "#ccc",
+    borderColor: '#ccc',
   },
   text: {
-    fontSize: hp("1.8%"),
-    color: "#333",
+    fontSize: hp('1.8%'),
+    color: '#333',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 5,
   },
 });
 
