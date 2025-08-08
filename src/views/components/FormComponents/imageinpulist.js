@@ -40,7 +40,10 @@ function ImageInputList({ imageUris = [], onRemoveImage, onAddImage }) {
         <View style={styles.container}>
           {/* Upload Button */}
           <View style={[styles.image, styles.dottedBox]}>
-            <ImageInput onChangeImage={(file) => onAddImage(file)} />
+            <ImageInput 
+            onChangeImage={(file) => onAddImage(file)} 
+            currentCount={imageUris.length}
+            />
           </View>
 
           {/* Uploaded Media */}
@@ -78,7 +81,7 @@ function ImageInputList({ imageUris = [], onRemoveImage, onAddImage }) {
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginVertical: 10,
+    marginTop: 10,
   },
   countText: {
     fontSize: 14,

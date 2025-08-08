@@ -18,15 +18,18 @@ import {
 } from '../../redux/slices/jobDetailSlice';
 import Video from 'react-native-video';
 import config from '../../config';
+import colors from '../../config/colors';
+import CreateOfferPopup from '../screens/CreateOfferPopup';
 const { width } = Dimensions.get('window'); // Get screen width for responsive images
 
 const JobDetailsScreen = ({ navigation, route }) => {
-  const jobId = 4;
-  const userType = 'consumer';
+  const { jobId } = route.params;
+  const role = 'provider';
   const flatListRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const dispatch = useDispatch();
   const { job, loading, error } = useSelector(state => state.jobDetail);
+  const [showOffer, setShowOffer] = useState(false);
 
   useEffect(() => {
     dispatch(fetchJobDetails(jobId));
@@ -61,7 +64,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
     setActiveIndex(currentIndex);
   };
   console.log('Job Attachments:', job.attachments);
-
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Header Section */}
@@ -92,33 +94,25 @@ const JobDetailsScreen = ({ navigation, route }) => {
 
       <ScrollView contentContainerStyle={styles.container}>
         {/* Job Title (Above Image Carousel) */}
-        <Text
-          style={styles.jobTitle}
-          numberOfLines={1} // Restrict to a single line
-          ellipsizeMode="tail" // Add "..." at the end if truncated
-        >
-          {job.title}
-        </Text>
 
         <View style={styles.mediaContainer}>
           <FlatList
-            data={(job?.attachments || []).filter(
-              item => item && item.file_path && item.file_type,
-            )}
+            data={job?.attachments || []}
             ref={flatListRef}
-            // data={job.attachments}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             onMomentumScrollEnd={onScrollEnd}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => {
-              if (!item || !item.file_path || !item.file_type) {
-                return null; // Skip if item is invalid
+              if (!item || !item.attachment || !item.file_type) {
+                return null; // Skip if invalid
               }
 
-              const url = `${config.imageURL}${item.file_path}`;
-              const isVideo = item.file_type?.includes('video');
+              const url = `${config.attachmentimageURL}${item.attachment}`;
+              console.log('Attachment URL:', url);
+
+              const isVideo = item.file_type.includes('video');
 
               return isVideo ? (
                 <Video
@@ -126,10 +120,13 @@ const JobDetailsScreen = ({ navigation, route }) => {
                   style={styles.carouselImage}
                   resizeMode="cover"
                   controls
-                  paused
                 />
               ) : (
-                <Image source={{ uri: url }} style={styles.carouselImage} />
+                <Image
+                  source={{ uri: url }}
+                  style={styles.carouselImage}
+                  resizeMode="cover"
+                />
               );
             }}
             getItemLayout={(data, index) => ({
@@ -138,6 +135,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
               index,
             })}
           />
+
           {job.attachments.length > 1 && (
             <>
               {/* Pagination Dots */}
@@ -172,11 +170,22 @@ const JobDetailsScreen = ({ navigation, route }) => {
             </>
           )}
         </View>
+        <Text
+          style={styles.jobTitle}
+          numberOfLines={1} // Restrict to a single line
+          ellipsizeMode="tail" // Add "..." at the end if truncated
+        >
+          {job.title}
+        </Text>
+        <View style={styles.descriptionCard}>
+          <Text style={styles.sectionHeading}>Job Description</Text>
+          <Text style={styles.jobDescription}>{job.description}</Text>
+        </View>
 
+        
         {/* Main Details Card (Start Date, Estimated Time, Payment Type, Location, Price, Buttons) */}
         <View style={styles.mainDetailsCard}>
           {/* Start Date */}
-          {/* Consumer Info Row */}
           <View style={styles.userRow}>
             <TouchableOpacity
               onPress={() =>
@@ -188,7 +197,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
             >
               <Image
                 source={{
-                  uri: `${config.imageURL}/user/${job.consumer?.image}`,
+                  uri: `${config.userimageURL}${job.consumer?.image}`,
                 }}
                 style={styles.userImage}
               />
@@ -218,9 +227,9 @@ const JobDetailsScreen = ({ navigation, route }) => {
               <Ionicons name="hourglass-outline" size={18} color="#666" />
               <View style={styles.infoTextContainer}>
                 <Text style={styles.infoLabel}>Estimated Time</Text>
-                <Text style={styles.infoText}>{job.estimated_time}</Text>
+                <Text style={styles.infoText}>{job.no_of_hours} hrs</Text>
               </View>
-            </View>
+            </View> 
           </View>
 
           {/* Estimated Time & Payment Type (Grouped) */}
@@ -254,7 +263,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
           </View>
 
           {/* Action Buttons (Small, Text-Based) */}
-          {userType === 'consumer' ? (
+          {role === 'consumer' ? (
             <TouchableOpacity style={styles.textButton}>
               <Text style={styles.textButtonText}>View Interested Persons</Text>
             </TouchableOpacity>
@@ -266,6 +275,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 <Text style={styles.textButtonText}>Ignore</Text>
               </TouchableOpacity>
               <TouchableOpacity
+                onPress={() => setShowOffer(true)}
                 style={[styles.textButton, styles.filledButton]}
               >
                 <Text style={[styles.textButtonText, styles.filledButtonText]}>
@@ -277,10 +287,13 @@ const JobDetailsScreen = ({ navigation, route }) => {
         </View>
 
         {/* Description Section (At the very bottom) */}
-        <View style={styles.descriptionCard}>
-          <Text style={styles.sectionHeading}>Job Description</Text>
-          <Text style={styles.jobDescription}>{job.description}</Text>
-        </View>
+      
+        <CreateOfferPopup
+          visible={showOffer}
+          onClose={() => setShowOffer(false)}
+          userJobId={job.id}
+          priceType={job.price_type}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -342,11 +355,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: '#e0e0e0',
   },
-  // carouselImage: {
-  //   width: width,
-  //   height: '100%',
-  //   resizeMode: 'cover',
-  // },
   paginationDotsContainer: {
     position: 'absolute',
     bottom: 10, // Reduced space
@@ -515,13 +523,13 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     justifyContent: 'space-between',
   },
-  
+
   userInfoTouchable: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  
+
   userImage: {
     width: 40,
     height: 40,
@@ -529,29 +537,17 @@ const styles = StyleSheet.create({
     marginRight: 12,
     backgroundColor: '#ccc', // fallback color
   },
-  
+
   userInfo: {
     flexShrink: 1,
   },
-  
+
   userName: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
   },
-  
-  // chatButton: {
-  //   backgroundColor: '#007BFF',
-  //   paddingHorizontal: 16,
-  //   paddingVertical: 8,
-  //   borderRadius: 6,
-  // },
-  
-  // textButtonText: {
-  //   color: '#fff',
-  //   fontWeight: 'bold',
-  // },
-  
+
   mediaWrapper: {
     width: width,
     height: 250,

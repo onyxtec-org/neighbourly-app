@@ -13,6 +13,7 @@ import verifyForgetOtpReducer from './slices/auth/verifyForgotOtpSlice';
 import resetForgotPasswordreducer from './slices/auth/resetPasswordSlice';
 import jobDetailReducer from './slices/jobDetailSlice';
 import jobReducer from './slices/jobSlice';
+import offerReducer from './slices/offerSlice';
 
 const store = configureStore({
   reducer: {
@@ -28,7 +29,9 @@ const store = configureStore({
     verifyForgotOtp : verifyForgetOtpReducer,
     resetPassword : resetForgotPasswordreducer,
     job: jobReducer, 
-    jobDetail: jobDetailReducer,  },
+    jobDetail: jobDetailReducer, 
+    offer: offerReducer,
+  },
 });
 
 export default store;

@@ -11,24 +11,48 @@ import {
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-function ImageInput({ onChangeImage }) {
+function ImageInput({ onChangeImage , currentCount}) {
   const [uploading, setUploading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
+  // const handlePickImageFromGallery = () => {
+  //   setUploading(true);
+  //   launchImageLibrary({ mediaType: "mixed" }, (response) => {
+  //     setUploading(false);
+  //     setModalVisible(false);
+  //     if (!response.didCancel && !response.errorCode && response.assets?.length) {
+  //       const asset = response.assets[0];
+  //       onChangeImage({
+  //         uri: asset.uri,
+  //         type: asset.type?.startsWith("video") ? "video" : "image",
+  //       });
+  //     }
+  //   });
+  // };
   const handlePickImageFromGallery = () => {
     setUploading(true);
-    launchImageLibrary({ mediaType: "mixed" }, (response) => {
-      setUploading(false);
-      setModalVisible(false);
-      if (!response.didCancel && !response.errorCode && response.assets?.length) {
-        const asset = response.assets[0];
-        onChangeImage({
-          uri: asset.uri,
-          type: asset.type?.startsWith("video") ? "video" : "image",
-        });
+    
+    launchImageLibrary(
+      { 
+        mediaType: "mixed", 
+        selectionLimit: Math.max(1, 10 - currentCount) // remaining slots
+      },
+      (response) => {
+        setUploading(false);
+        setModalVisible(false);
+  
+        if (!response.didCancel && !response.errorCode && response.assets?.length) {
+          const files = response.assets.map(asset => ({
+            uri: asset.uri,
+            type: asset.type?.startsWith("video") ? "video" : "image",
+          }));
+  
+          files.forEach(file => onChangeImage(file));
+        }
       }
-    });
+    );
   };
+  
 
   const handlePickImageFromCamera = () => {
     setUploading(true);

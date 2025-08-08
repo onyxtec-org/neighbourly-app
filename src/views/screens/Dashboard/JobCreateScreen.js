@@ -18,17 +18,16 @@ import CustomDropdown from '../../components/customdropdown';
 import colors from '../../../config/colors';
 import AppButton from '../../components/AppButton';
 import CustomTextInput from '../../components/CustomTextInput';
-import { createJob, resetJobState } from '../../../redux/slices/jobSlice';
+import {
+  createJob,
+  resetJobState,
+  getJobs,
+} from '../../../redux/slices/jobSlice';
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Title is required'),
   description: Yup.string().required('Description is required'),
   budget: Yup.string().required('Rate per hour is required'),
-  no_of_hours: Yup.string().when('price_type', {
-    is: 'per_hour',
-    then: schema => schema.required('Number of hours is required'),
-    otherwise: schema => schema.nullable(),
-  }),  
   location: Yup.string().required('Location is required'),
   startTime: Yup.string().required('Start time is required'),
 
@@ -68,11 +67,12 @@ const JobCreateScreen = ({ navigation, route }) => {
   const [toastType, setToastType] = useState('success');
 
   const handleAddMedia = (file, setFieldValue) => {
-    const newList = [...mediaList, file];
-    setMediaList(newList);
-    setFieldValue('images', newList);
+    setMediaList(prevList => {
+      const newList = [...prevList, file];
+      setFieldValue('images', newList);
+      return newList;
+    });
   };
-
   const handleRemoveMedia = (fileToRemove, setFieldValue) => {
     const updatedList = mediaList.filter(file => file.uri !== fileToRemove.uri);
     setMediaList(updatedList);
@@ -96,6 +96,7 @@ const JobCreateScreen = ({ navigation, route }) => {
       setToastMessage('Job Created!');
       setToastType('success');
       setToastVisible(true);
+      dispatch(getJobs());
 
       setTimeout(() => {
         dispatch(resetJobState());
@@ -128,8 +129,7 @@ const JobCreateScreen = ({ navigation, route }) => {
           : values.estimated_time;
 
       const rate = parseFloat(values.budget);
-      const noOfHours = parseFloat(values.no_of_hours || 1);
-      const budget = rate * noOfHours;
+      // const noOfHours = parseFloat(values.no_of_hours || 1);
 
       // Append form fields
       formData.append('service_id', serviceId);
@@ -146,7 +146,7 @@ const JobCreateScreen = ({ navigation, route }) => {
       }
 
       formData.append('price_type', jobTypeValue);
-      formData.append('estimated_time', finalEstimatedTime);
+      formData.append('no_of_hours', finalEstimatedTime);
       formData.append('rate', rate.toString());
       formData.append('payment_type', paymentTypeValue);
 
@@ -159,11 +159,11 @@ const JobCreateScreen = ({ navigation, route }) => {
         location_lng: '-74.0060',
         starts_at: values.startTime,
         ends_at: '2026-01-01 00:00:00',
-        no_of_hours: values.no_of_hours,
+        // no_of_hours: values.no_of_hours,
         price_type: jobTypeValue,
-        estimated_time: finalEstimatedTime,
+        no_of_hours: finalEstimatedTime,
         rate: rate,
-        budget: budget,
+        // budget: budget,
         payment_type: paymentTypeValue,
       });
 
@@ -210,7 +210,6 @@ const JobCreateScreen = ({ navigation, route }) => {
           locationLat: '',
           locationLng: '',
           startTime: '',
-          no_of_hours: '',
           payment_type: '',
           price_type: 'per_hour',
           estimated_time: '',
@@ -232,10 +231,6 @@ const JobCreateScreen = ({ navigation, route }) => {
             images: true,
           };
 
-          if (values.price_type === 'per_hour') {
-            touchedFields.no_of_hours = true;
-          }
-        
           if (values.estimated_time === 'Custom') {
             touchedFields.custom_estimated_time = true;
           }
@@ -273,13 +268,12 @@ const JobCreateScreen = ({ navigation, route }) => {
               onAddImage={file => handleAddMedia(file, setFieldValue)}
               onRemoveImage={file => handleRemoveMedia(file, setFieldValue)}
             />
-
             {touched.images && errors.images && (
               <Text style={{ color: 'red', marginBottom: 10 }}>
                 {errors.images}
               </Text>
             )}
-
+            <View style={{ marginTop: 10 }} />
             <CustomTextInput
               label="Job Title"
               required
@@ -326,19 +320,6 @@ const JobCreateScreen = ({ navigation, route }) => {
               required
               zIndex={3000}
             />
-
-            {jobTypeValue === 'per_hour' && (
-              <CustomTextInput
-                label="Number of Hour"
-                required
-                keyboardType="numeric"
-                value={values.no_of_hours}
-                onChangeText={handleChange('no_of_hours')}
-                onBlur={handleBlur('no_of_hours')}
-                placeholder="Enter number of hour"
-                error={touched.no_of_hours && errors.no_of_hours}
-              />
-            )}
 
             <TouchableOpacity
               onPress={() => {
@@ -411,21 +392,29 @@ const JobCreateScreen = ({ navigation, route }) => {
             </Text>
             <View style={styles.optionContainer}>
               {[
-                '1 hour to 2 hours',
-                '2 hours to 5 hours',
-                '5 hours to 10 hours',
+                '1 hour',
+                '2 hours',
+                '3 hours',
+                '4 hours',
+                '5 hours',
                 'Custom',
               ].map(option => (
                 <TouchableOpacity
                   key={option}
                   style={[
                     styles.optionButton,
-                    values.estimated_time === option && styles.selectedOption,
+                    (option === 'Custom'
+                      ? values.estimated_time === 'Custom'
+                      : values.estimated_time === parseFloat(option)) &&
+                      styles.selectedOption,
                   ]}
                   onPress={() => {
-                    setFieldValue('estimated_time', option);
                     if (option !== 'Custom') {
+                      const numericValue = parseFloat(option);
+                      setFieldValue('estimated_time', numericValue);
                       setFieldValue('custom_estimated_time', '');
+                    } else {
+                      setFieldValue('estimated_time', 'Custom');
                     }
                     setTimeout(
                       () => setFieldTouched('estimated_time', true),
@@ -436,7 +425,9 @@ const JobCreateScreen = ({ navigation, route }) => {
                   <Text
                     style={[
                       styles.optionText,
-                      values.estimated_time === option &&
+                      (option === 'Custom'
+                        ? values.estimated_time === 'Custom'
+                        : values.estimated_time === parseFloat(option)) &&
                         styles.selectedOptionText,
                     ]}
                   >
@@ -580,6 +571,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
     marginBottom: 10,
+    marginTop: 10,
   },
   optionButton: {
     borderWidth: 1,

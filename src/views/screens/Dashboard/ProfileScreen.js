@@ -33,8 +33,9 @@ const ProfileScreen = ({ navigation }) => {
     setDeletePopupVisible(false);
     // Dispatch delete thunk or navigate here
   };
+  const userId = useSelector(state => state.login?.user?.id);
+  const loading = useSelector(state => state.login?.loading);
 
-  const login = useSelector(state => state.login);
   const {
     user: profileUser,
     status: profileStatus,
@@ -124,18 +125,17 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
+  
   useEffect(() => {
-    console.log('login user', login);
-
-    if (login?.user?.id) {
-      console.log('Dispatching fetchUserProfile with userId:', login.user.id);
-      dispatch(fetchUserProfile(login.user.id));
+    if (userId) {
+      console.log('Dispatching fetchUserProfile with userId:', userId);
+      dispatch(fetchUserProfile(userId));
     } else {
       console.log('Skipped fetching user profile – user ID not available');
     }
-  }, [dispatch, login.user?.id]);
+  }, [dispatch, userId]);
 
-  if (login.loading || profileStatus === 'loading') {
+  if (loading || profileStatus === 'loading') {
     console.log('⏳ Loading state active');
     return (
       <View style={profileStyles.centered}>
@@ -162,7 +162,7 @@ const ProfileScreen = ({ navigation }) => {
             <Image
               source={{
                 uri: profileUser?.image
-                  ? `${config.imageURL}${profileUser.image}`
+                  ? `${config.userimageURL}${profileUser.image}`
                   : 'https://placehold.co/96x96/e0e0e0/000000?text=Profile',
               }}
               style={profileStyles.profileImage}
@@ -173,7 +173,7 @@ const ProfileScreen = ({ navigation }) => {
                 console.log('Error:', e.nativeEvent.error);
                 console.log(
                   'Image URL attempted:',
-                  `${config.imageURL}${profileUser?.image}`,
+                  `${config.userimageURL}${profileUser?.image}`,
                 );
               }}
             />

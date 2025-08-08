@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,  } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -6,47 +6,61 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 import colors from '../../../config/colors';
 import JobListings from '../../components/JobComponents/JobListings';
+import { getJobs } from '../../../redux/slices/jobSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectJobsByStatus } from '../../../redux/selectors/jobSelector';
+import { useNavigation } from '@react-navigation/native';
 
 const JobsScreen = () => {
+  const navigation = useNavigation();
+  // const role = useSelector(state => state.auth.user?.role);
+
+  const dispatch = useDispatch();
+  const handleJobPress = (jobId) => {
+    navigation.navigate('JobDetailsScreen', { jobId  });
+  };
   const [activeTab, setActiveTab] = useState('pending');
 
-  const pendingJobs = [
-    {
-      title: 'Plumbing job',
-      description: 'ihsbvjbvbd gbghnhtntnty',
-      hour_rate: '$10',
-      duration: '2 hours',
-      status: 'pending',
-      payment_type: 'cash',
-    },
-    {
-      title: 'Cleaning job',
-      description: 'ihsbvjbvbd gbghnhtntnty',
-      hour_rate: '$20',
-      duration: '3 hours',
-      status: 'pending',
-      payment_type: 'e-pay',
-    },
-  ];
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(getJobs());
+    }, [dispatch])
+  );
+  const pendingJobs = useSelector(selectJobsByStatus('pending'));
+  const inProgressJobs = useSelector(selectJobsByStatus('in_progress'));
 
-  const inProgressJobs = [
-   
-  ];
-
-  const completedJobs = [
-    
-  ];
+  const completedJobs = useSelector(selectJobsByStatus('completed'));
 
   const renderJobs = () => {
     switch (activeTab) {
       case 'pending':
-        return <JobListings data={pendingJobs} emptyMessage={'No pending jobs'} />;
+        return (
+          <JobListings 
+          data={pendingJobs} 
+          emptyMessage={'No pending jobs'} 
+          onJobPress={handleJobPress}
+          />
+        );
       case 'inProgress':
-        return <JobListings data={inProgressJobs} emptyMessage={'No in Progress jobs'}/>;
+        return (
+          <JobListings
+            data={inProgressJobs}
+            emptyMessage={'No in Progress jobs'}
+            onJobPress={handleJobPress}
+          />
+        );
       case 'completed':
-        return <JobListings data={completedJobs} emptyMessage={'No Completed jobs'}/>;
+        return (
+          <JobListings
+            data={completedJobs}
+            emptyMessage={'No Completed jobs'}
+            onJobPress={handleJobPress}
+          />
+        );
       default:
         return null;
     }

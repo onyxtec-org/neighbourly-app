@@ -96,9 +96,6 @@ const HomeScreen = ({ navigation }) => {
             />
           )}
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate('JobDetailsScreen')}>
-              <Text style={styles.seeAllText}>See All</Text>
-            </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
   );
