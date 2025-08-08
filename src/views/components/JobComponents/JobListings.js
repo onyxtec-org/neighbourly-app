@@ -3,8 +3,8 @@ import { View, StyleSheet, Image, Text,FlatList } from 'react-native';
 import JobCard from './JobCard';
 import NoRecordFound from '../NoRecordFound';
 
-function JobListings({ data ,emptyMessage}) {
-  const renderItem = ({ item }) => <JobCard item={item} />;
+function JobListings({ data ,emptyMessage , onJobPress}) {
+  const renderItem = ({ item }) => <JobCard item={item} onPress={onJobPress} />;
   const ListEmptyComponent = () => {
     return (
       <View>

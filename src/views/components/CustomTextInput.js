@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const CustomTextInput = ({
@@ -12,7 +18,11 @@ const CustomTextInput = ({
   required = false,
   error = '',
   style = {},
-  showEyeIcon = true, // ✅ optional prop
+  showEyeIcon = true,
+  maxLength,
+  showCharCount = false,
+  rightIcon = null,
+  onRightIconPress = null,
   ...rest
 }) => {
   const [hidePassword, setHidePassword] = useState(secureTextEntry);
@@ -22,6 +32,11 @@ const CustomTextInput = ({
   };
 
   const showPasswordToggle = secureTextEntry && showEyeIcon;
+
+  const handleTextChange = (text) => {
+    const trimmed = text.replace(/^\s+/, ''); // Trim starting spaces
+    onChangeText(trimmed);
+  };
 
   return (
     <View style={styles.container}>
@@ -35,16 +50,18 @@ const CustomTextInput = ({
       <View style={[styles.inputWrapper, error ? styles.errorInput : null]}>
         <TextInput
           value={value}
-          onChangeText={text => onChangeText(text.replace(/^\s+/, ''))}
+          onChangeText={handleTextChange}
           placeholder={placeholder}
           secureTextEntry={hidePassword}
-          placeholderTextColor="#999" 
+          placeholderTextColor="#999"
           keyboardType={keyboardType}
+          maxLength={maxLength}
           style={[styles.input, style]}
           {...rest}
         />
 
-        {showPasswordToggle && (
+        {/* Right-side icon: password toggle or custom icon */}
+        {showPasswordToggle ? (
           <TouchableOpacity onPress={togglePasswordVisibility}>
             <Ionicons
               name={hidePassword ? 'eye-off' : 'eye'}
@@ -53,10 +70,26 @@ const CustomTextInput = ({
               style={styles.icon}
             />
           </TouchableOpacity>
-        )}
+        ) : rightIcon ? (
+          <TouchableOpacity onPress={onRightIconPress}>
+            <View style={styles.icon}>{rightIcon}</View>
+          </TouchableOpacity>
+        ) : null}
       </View>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      <View style={styles.footerRow}>
+        {error ? (
+          <Text style={styles.errorText}>{error}</Text>
+        ) : (
+          <View />
+        )}
+
+        {maxLength && showCharCount && (
+          <Text style={styles.charCount}>
+            {value?.length || 0}/{maxLength}
+          </Text>
+        )}
+      </View>
     </View>
   );
 };
@@ -70,6 +103,9 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     fontSize: 14,
     color: '#333',
+  },
+  required: {
+    color: 'red',
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -92,13 +128,20 @@ const styles = StyleSheet.create({
   errorInput: {
     borderColor: 'red',
   },
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
   errorText: {
     color: 'red',
-    marginTop: 4,
     fontSize: 13,
   },
-  required: {
-    color: 'red',
+  charCount: {
+    fontSize: 12,
+    color: '#888',
+    textAlign: 'right',
   },
 });
 

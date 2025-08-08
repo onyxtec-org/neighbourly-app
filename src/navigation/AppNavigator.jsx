@@ -23,6 +23,7 @@ import DashboardRouter from './DashboardRouter';
 import NotificationSettingsScreen from '../views/screens/Dashboard/NotificationSettingsScreen'; // Import NotificationSettingsScreen
 import PrivacyPolicyScreen from '../views/screens/Dashboard/PrivacyPolicyScreen'; // Import PrivacyPolicyScreen
 import TermsandconditionScreen from '../views/screens/Dashboard/TermsandconditionScreen'; // Import TermsandconditionScreen
+import JobDetailsScreen from '../views/screens/JobDetailsScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -44,7 +45,7 @@ const AppNavigator = () => {
         <Stack.Screen name="JobCreateScreen" component={JobCreateScreen} />
         <Stack.Screen name="CategoryDetailsScreen" component={CategoryDetailsScreen} />
         {/* <Stack.Screen name="ProfileManager" component={ProfileManagerScreen} /> */}
-
+        
         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
         <Stack.Screen name="AccountScreen" component={AccountScreen} />
         <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
@@ -54,7 +55,7 @@ const AppNavigator = () => {
         <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
         <Stack.Screen name="TermsandconditionScreen" component={TermsandconditionScreen} />
-
+        <Stack.Screen name="JobDetailsScreen" component={JobDetailsScreen} />
 
 
         

@@ -22,7 +22,7 @@ const ProviderHomeScreen = ({ navigation }) => {
     if (myServices.length === 0) {
       navigation.navigate('ServicesSelection');
     }
-  }, []);
+  }, [myServices.length, navigation]);
 
   const dispatch = useDispatch();
   const { categories, status } = useSelector(state => state.categories);

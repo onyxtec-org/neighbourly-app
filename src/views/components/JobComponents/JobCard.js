@@ -13,15 +13,11 @@ import StatusBox from './StatusBox';
 
 const isAndroid = Platform.OS === 'android';
 
-function JobCard({ item }) {
+function JobCard({ item, onPress }) {
   const navigation = useNavigation();
 
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={() => console.log('Job clicked')}
-      activeOpacity={0.9}
-    >
+    <TouchableOpacity style={styles.container} onPress={() => onPress(item.id)}>
       {/* Header: Title and Status */}
       <View style={styles.header}>
         <Text style={styles.title}>{item.title}</Text>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState,  } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -6,20 +6,30 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 import colors from '../../../config/colors';
 import JobListings from '../../components/JobComponents/JobListings';
 import { getJobs } from '../../../redux/slices/jobSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectJobsByStatus } from '../../../redux/selectors/jobSelector';
-const JobsScreen = () => {
-  const dispatch = useDispatch();
+import { useNavigation } from '@react-navigation/native';
 
+const JobsScreen = () => {
+  const navigation = useNavigation();
+  // const role = useSelector(state => state.auth.user?.role);
+
+  const dispatch = useDispatch();
+  const handleJobPress = (jobId) => {
+    navigation.navigate('JobDetailsScreen', { jobId  });
+  };
   const [activeTab, setActiveTab] = useState('pending');
 
-  useEffect(() => {
-    dispatch(getJobs());
-  }, [dispatch]);
-
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(getJobs());
+    }, [dispatch])
+  );
   const pendingJobs = useSelector(selectJobsByStatus('pending'));
   const inProgressJobs = useSelector(selectJobsByStatus('in_progress'));
 
@@ -29,13 +39,18 @@ const JobsScreen = () => {
     switch (activeTab) {
       case 'pending':
         return (
-          <JobListings data={pendingJobs} emptyMessage={'No pending jobs'} />
+          <JobListings 
+          data={pendingJobs} 
+          emptyMessage={'No pending jobs'} 
+          onJobPress={handleJobPress}
+          />
         );
       case 'inProgress':
         return (
           <JobListings
             data={inProgressJobs}
             emptyMessage={'No in Progress jobs'}
+            onJobPress={handleJobPress}
           />
         );
       case 'completed':
@@ -43,6 +58,7 @@ const JobsScreen = () => {
           <JobListings
             data={completedJobs}
             emptyMessage={'No Completed jobs'}
+            onJobPress={handleJobPress}
           />
         );
       default:
