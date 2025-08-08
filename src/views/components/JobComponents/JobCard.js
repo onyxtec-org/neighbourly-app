@@ -18,69 +18,98 @@ function JobCard({ item, onPress }) {
 
   return (
     <TouchableOpacity style={styles.container} onPress={() => onPress(item.id)}>
-      {/* Header: Title and Status */}
-      <View style={styles.header}>
+      <View style={styles.contentContainer}>
         <Text style={styles.title}>{item.title}</Text>
-        <StatusBox
-          color={colors.statusColors(item.status)}
-          text={item.status}
-        />
-      </View>
 
-      {/* Description */}
-      <View style={styles.descriptionContainer}>
-        <Ionicons
-          name="document-text-outline"
-          size={16}
-          color={colors.gray}
-          style={styles.icon}
-        />
-        <Text numberOfLines={3} ellipsizeMode="tail" style={styles.description}>
-          {item.description}
-        </Text>
-      </View>
+        {/* Description */}
+        <View style={styles.descriptionContainer}>
+          <Ionicons
+            name="document-text-outline"
+            size={16}
+            color={colors.gray}
+            style={styles.icon}
+          />
+          <Text
+             numberOfLines={1}
+            ellipsizeMode="tail"
+            style={styles.description}
+          >
+            {item.description}
+          </Text>
+        </View>
 
-      {/* Duration and Rate */}
-      <View style={styles.infoRow}>
-        {item.price_type !== 'fixed' && (
-          <>
-            <Ionicons
-              name="time-outline"
-              size={16}
-              color={colors.gray}
-              style={styles.icon}
-            />
-            <Text style={styles.infoText}>{item.no_of_hours}</Text>
-          </>
-        )}
+        {/* Duration and Rate */}
+        <View style={styles.infoRow}>
+     
+            <>
+              <Ionicons
+                name="time-outline"
+                size={16}
+                color={colors.gray}
+                style={styles.icon}
+              />
+              <Text style={styles.infoText}>{item.price_type==='fixed'?item.estimated_time:item.no_of_hours}</Text>
+            </>
+          
 
-        <Ionicons
-          name="cash-outline"
-          size={16}
-          color={colors.gray}
-          style={[styles.icon, { marginLeft: 20 }]}
-        />
-        <Text style={styles.infoText}>{item.rate}/hr</Text>
-      </View>
+          <Ionicons
+            name="cash-outline"
+            size={16}
+            color={colors.gray}
+            style={[styles.icon, { marginLeft: 20 }]}
+          />
+          <Text style={styles.infoText}>{item.rate}/hr</Text>
+        </View>
 
-      {/* Payment Type */}
-      <View style={styles.infoRow}>
-        <Ionicons
-          name="card-outline"
-          size={16}
-          color={colors.gray}
-          style={styles.icon}
-        />
-        <Text style={styles.infoText}>{item.payment_type || 'N/A'}</Text>
+        {/* Payment Type */}
+        <View style={styles.infoRow}>
+          <Ionicons
+            name="card-outline"
+            size={16}
+            color={colors.gray}
+            style={styles.icon}
+          />
+          <Text style={styles.infoText}>{item.payment_type || 'N/A'}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Ionicons
+            name="briefcase-outline"
+            size={16}
+            color={colors.gray}
+            style={styles.icon}
+          />
+          <Text style={styles.infoText}>{item.service.name || 'N/A'}</Text>
+        </View>
       </View>
-          <View style={styles.infoRow}>
-        <Ionicons
-          name="briefcase-outline"
-          size={16}
-          color={colors.gray}
-          style={styles.icon}
-        />
-        <Text style={styles.infoText}>{item.service.name || 'N/A'}</Text>
+      <View style={styles.header}>
+        <View>
+          <StatusBox
+            color={colors.statusColors(item.status)}
+            text={item.status}
+          />
+          {/* Action Buttons */}
+          <View style={styles.actionsRow}>
+            <TouchableOpacity
+              style={[
+                styles.checkCircle,
+                { borderColor: colors.checkGreen, marginRight: 5 },
+              ]}
+              onPress={() => console.log('Interested in job')}
+            >
+              <Ionicons name="checkmark" size={20} color={colors.checkGreen} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.checkCircle, { borderColor: colors.checkRed }]}
+              onPress={() => console.log('Not interested in job')}
+            >
+              <Ionicons
+                name="close-outline"
+                size={20}
+                color={colors.checkRed}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -97,11 +126,14 @@ const styles = StyleSheet.create({
     padding: 12,
     marginVertical: 8,
     backgroundColor: colors.white,
-  },
-  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+  },
+  header: {
+    width: '25%',
+  },
+  contentContainer: {
+    width: '75%',
   },
   title: {
     fontWeight: '700',
@@ -132,6 +164,31 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 16,
     color: colors.medium,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 12,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  actionText: {
+    marginLeft: 6,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  checkCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

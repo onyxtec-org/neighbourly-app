@@ -7,19 +7,22 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { useSelector } from 'react-redux';
 import { ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import config from '../../../config';
 import { useFocusEffect } from '@react-navigation/native';
 import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice'; // <-- Import this
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useCallback, useState } from 'react';
 import ZoomableImage from '../../components/ZoomableImage';
 
 const AccountScreen = ({ navigation }) => {
   const [imageLoading, setImageLoading] = useState(false);
+  const { myServices } = useSelector(state => state.services);
+const {
+    user: profileUser,
 
+  } = useSelector(state => state.profile);
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.profile || {});
 
@@ -119,6 +122,34 @@ const AccountScreen = ({ navigation }) => {
             </View>
           </View>
         </View>
+        {/* My Services Card */}
+       {profileUser.role==='provider' && <View style={styles.card}>
+          <Text style={styles.cardTitle}>My Services</Text>
+          {myServices && myServices.length > 0 ? (
+            myServices.map((service, index) => (
+              <View key={index}>
+                <View style={styles.infoRow}>
+                  <Icon name="construct-outline" size={20} color="#888" />
+                  <View style={styles.textContainer}>
+                    <Text style={styles.value}>
+                      {service.name || 'Unnamed Service'}
+                    </Text>
+                  </View>
+                </View>
+                {index < myServices.length - 1 && (
+                  <View style={styles.divider} />
+                )}
+              </View>
+            ))
+          ) : (
+            <View style={styles.infoRow}>
+              <Icon name="alert-circle-outline" size={20} color="#888" />
+              <View style={styles.textContainer}>
+                <Text style={styles.value}>No services found</Text>
+              </View>
+            </View>
+          )}
+        </View>}
       </View>
     </ScrollView>
   );
