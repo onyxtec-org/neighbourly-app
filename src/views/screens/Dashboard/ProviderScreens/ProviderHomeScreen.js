@@ -3,26 +3,32 @@ import {
   View,
   Text,
   TouchableOpacity,
-  FlatList,
   StyleSheet,
   Keyboard,
   TouchableWithoutFeedback,
-  ActivityIndicator,
   Image,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../../../../redux/slices/categoriesSlice';
 import colors from '../../../../config/colors';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 const ProviderHomeScreen = ({ navigation }) => {
   const { myServices } = useSelector(state => state.services);
+console.log('my services',myServices);
 
-  useEffect(() => {
-    if (myServices.length === 0) {
-      navigation.navigate('ServicesSelection');
-    }
-  }, [myServices.length, navigation]);
+  useFocusEffect(
+    useCallback(() => {
+      if (myServices.length === 0) {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'VerifyUser' }],
+        });
+      }
+    }, [myServices, navigation])
+  );
 
   const dispatch = useDispatch();
   const { categories, status } = useSelector(state => state.categories);
@@ -81,7 +87,7 @@ const ProviderHomeScreen = ({ navigation }) => {
 
         {/* Category Header */}
         <View style={styles.categoryHeader}>
-          <Text style={styles.helpText}>My services</Text>
+          <Text style={styles.helpText}>Welcome to Provider Dashboard</Text>
           {categories.length > 4 && (
             <TouchableOpacity
               onPress={() => navigation.navigate('AllCategoriesScreen')}
@@ -91,22 +97,7 @@ const ProviderHomeScreen = ({ navigation }) => {
           )}
         </View>
 
-        {/* Categories */}
-        <View style={styles.content}>
-          {status === 'loading' ? (
-            <ActivityIndicator size="large" color={colors.primary} />
-          ) : (
-            <FlatList
-              data={categories.length > 4 ? categories.slice(0, 4) : categories}
-              horizontal
-              keyExtractor={item => item.id.toString()}
-              renderItem={renderCategory}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 8 }}
-              style={{ maxHeight: 180 }}
-            />
-          )}
-        </View>
+    
       </View>
     </TouchableWithoutFeedback>
   );
@@ -172,6 +163,13 @@ const styles = StyleSheet.create({
   seeAllText: {
     fontSize: 14,
     color: colors.primary,
+  },
+    categoryHeader: {
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
   },
 });
 

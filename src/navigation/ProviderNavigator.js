@@ -2,18 +2,19 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ProviderHomeScreen from '../views/screens/Dashboard/ProviderScreens/ProviderHomeScreen';
 import ServicesSelectScreen from '../views/screens/Dashboard/ProviderScreens/ServicesSelectScreen';
-import { NavigationContainer } from '@react-navigation/native';
+import VerfiyUserScreen from '../views/screens/Dashboard/VerfiyUserScreen';
 const Stack = createNativeStackNavigator();
 
 const ProviderNavigator = () => {
   return (
-      <Stack.Navigator
-        initialRouteName="HomeScreen"
-        screenOptions={{ headerShown: false }}
-      >
-        <Stack.Screen name="HomeScreen" component={ProviderHomeScreen} />
-        <Stack.Screen name="ServicesSelection" component={ServicesSelectScreen} />
-      </Stack.Navigator>
+    <Stack.Navigator
+      initialRouteName="HomeScreen"
+      screenOptions={{ headerShown: false }}
+    >
+      <Stack.Screen name="HomeScreen" component={ProviderHomeScreen} />
+      <Stack.Screen name="ServicesSelection" component={ServicesSelectScreen} />
+      <Stack.Screen name="VerifyUser" component={VerfiyUserScreen} />
+    </Stack.Navigator>
   );
 };
 

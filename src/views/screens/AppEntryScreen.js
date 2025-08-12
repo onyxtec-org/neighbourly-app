@@ -15,24 +15,29 @@ const AppEntryScreen = ({ navigation }) => {
         await new Promise(resolve => setTimeout(resolve, 2000));
         const user = await storage.getUser();
         const token = await storage.getToken();
-
+        
         console.log('Retrieved token from AsyncStorage:', token);
         console.log('Retrieved user from AsyncStorage:', user);
 
-        if (!token) {
+        if (!token || !user) {
           console.log('No token found → Navigating to Login');
           navigation.replace('Login');
-        } else if (!user) {
-          console.log(
-            'User missing or no account → Navigating to WelcomeScreen',
-          );
-          navigation.replace('Welcome');
-        } else if (token && user) {
-          dispatch(setMyServices(user.services));
-
+        }
+        // else 
+        //   if (!user) {
+        //   console.log(
+        //     'User missing or no account → Navigating to WelcomeScreen',
+        //   );
+        //   navigation.replace('Welcome');
+        // }
+         else if (token && user) {
+          
+          
+          
           const result = await dispatch(fetchUserProfile(user.id)); // ✅ Re-hydrate Redux
-
+          
           if (fetchUserProfile.fulfilled.match(result)) {
+            dispatch(setMyServices(user.services || []));
             navigation.replace('DashboardRouter');
           } else {
             console.log('Failed to fetch profile:', result.payload);

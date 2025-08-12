@@ -15,9 +15,19 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../../../config/colors';
 import NoRecordFound from '../../components/NoRecordFound';
 
-const SearchScreen = ({ navigation }) => {
+const SearchScreen = ({ navigation, route }) => {
+  const { type ,onSelect } = route.params || {};
+  const handleItemPress = (item) => {
+    if (onSelect) {
+      onSelect(item); // Send data back
+    }
+    navigation.goBack(); // Go back to SelectionScreen
+  };
+
   const dispatch = useDispatch();
-  const { services, status, categoryMap } = useSelector(state => state.services);
+  const { services, status, categoryMap } = useSelector(
+    state => state.services,
+  );
   const [query, setQuery] = useState('');
 
   useEffect(() => {
@@ -25,9 +35,10 @@ const SearchScreen = ({ navigation }) => {
   }, [dispatch]);
 
   const filteredResults = query.trim()
-    ? services.filter(item =>
-        item.name.toLowerCase().includes(query.toLowerCase()) ||
-        item.description.toLowerCase().includes(query.toLowerCase())
+    ? services.filter(
+        item =>
+          item.name.toLowerCase().includes(query.toLowerCase()) ||
+          item.description.toLowerCase().includes(query.toLowerCase()),
       )
     : [];
 
@@ -37,7 +48,10 @@ const SearchScreen = ({ navigation }) => {
     <SafeAreaView style={styles.safeArea}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.iconButton}
+        >
           <Ionicons name="arrow-back" size={24} color={colors.dark} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Search Services</Text>
@@ -60,7 +74,11 @@ const SearchScreen = ({ navigation }) => {
       {/* Results */}
       <View style={styles.resultsContainer}>
         {status === 'loading' ? (
-          <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
+          <ActivityIndicator
+            size="large"
+            color={colors.primary}
+            style={styles.loader}
+          />
         ) : hasSearched && filteredResults.length === 0 ? (
           <NoRecordFound message="No results found!" marginTop={30} />
         ) : (
@@ -69,14 +87,25 @@ const SearchScreen = ({ navigation }) => {
             keyExtractor={item => item.id}
             contentContainerStyle={{ paddingBottom: 20 }}
             renderItem={({ item }) => {
-              const categoryName = categoryMap[item.category_id] || 'Uncategorized';
+              const categoryName =
+                categoryMap[item.category_id] || 'Uncategorized';
               return (
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('JobCreateScreen', { service: item })}
+                  onPress={() => {
+                    type === 'selection'
+                      ? handleItemPress(item)
+                      : navigation.navigate('JobCreateScreen', {
+                          service: item,
+                        });
+                  }}
                   style={styles.card}
                 >
                   <View style={styles.iconCircle}>
-                    <Ionicons name={item.icon} size={24} color={colors.primary} />
+                    <Ionicons
+                      name={item.icon}
+                      size={24}
+                      color={colors.primary}
+                    />
                   </View>
                   <View style={styles.cardContent}>
                     <Text style={styles.cardTitle}>{item.name}</Text>
@@ -130,7 +159,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textMedium,
     marginTop: 4,
-  },  
+  },
   searchInput: {
     flex: 1,
     fontSize: 16,

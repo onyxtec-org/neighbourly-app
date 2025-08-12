@@ -66,7 +66,7 @@ const ProfileScreen = ({ navigation }) => {
           onPress: async () => {
             try {
               const result = await dispatch(logoutUser());
-
+              
               if (logoutUser.fulfilled.match(result)) {
                 showToast(result.payload || 'Logout successful', 'success');
                 setShouldNavigate(true);
@@ -231,7 +231,7 @@ const ProfileScreen = ({ navigation }) => {
             <Text style={profileStyles.centeredMenuItemText}>
               {profileUser.role === 'provider'
                 ? 'Swtich to Consumer'
-                : 'Become a Provider'}
+                : 'Switch to Provider'}
             </Text>
           </TouchableOpacity>
 

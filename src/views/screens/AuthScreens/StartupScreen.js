@@ -45,7 +45,7 @@ const StartupScreen = ({ navigation, route }) => {
 
         <AppButton
           title="Login"
-          onPress={() => navigation.navigate('Login')}
+          onPress={() => navigation.navigate('Login',{ accountType })}
           btnStyles={styles.secondaryButton}
           textStyle={styles.secondaryButtonText}
           IconName="login"

@@ -18,7 +18,6 @@ import ZoomableImage from '../../components/ZoomableImage';
 
 const AccountScreen = ({ navigation }) => {
   const [imageLoading, setImageLoading] = useState(false);
-  const { myServices } = useSelector(state => state.services);
 const {
     user: profileUser,
 
@@ -123,33 +122,6 @@ const {
           </View>
         </View>
         {/* My Services Card */}
-       {profileUser.role==='provider' && <View style={styles.card}>
-          <Text style={styles.cardTitle}>My Services</Text>
-          {myServices && myServices.length > 0 ? (
-            myServices.map((service, index) => (
-              <View key={index}>
-                <View style={styles.infoRow}>
-                  <Icon name="construct-outline" size={20} color="#888" />
-                  <View style={styles.textContainer}>
-                    <Text style={styles.value}>
-                      {service.name || 'Unnamed Service'}
-                    </Text>
-                  </View>
-                </View>
-                {index < myServices.length - 1 && (
-                  <View style={styles.divider} />
-                )}
-              </View>
-            ))
-          ) : (
-            <View style={styles.infoRow}>
-              <Icon name="alert-circle-outline" size={20} color="#888" />
-              <View style={styles.textContainer}>
-                <Text style={styles.value}>No services found</Text>
-              </View>
-            </View>
-          )}
-        </View>}
       </View>
     </ScrollView>
   );

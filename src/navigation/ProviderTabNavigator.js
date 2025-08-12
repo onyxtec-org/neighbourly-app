@@ -1,11 +1,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import ServicesScreen from '../views/screens/Dashboard/ServiceScreen';
 import JobsScreen from '../views/screens/Dashboard/JobsScreen';
 import ProfileScreen from '../views/screens/Dashboard/ProfileScreen';
 import colors from '../config/colors';
 import ProviderNavigator from './ProviderNavigator';
+import MyServicesScreen from '../views/screens/Dashboard/ProviderScreens/MyServicesScreen';
 const Tab = createBottomTabNavigator();
 
 const ProviderTabNavigator = () => {
@@ -25,8 +25,8 @@ const ProviderTabNavigator = () => {
             case 'Jobs':
               iconName = 'checkmark-done-outline';
               break;
-            case 'Notifications':
-              iconName = 'notifications-outline';
+            case 'MyServices':
+              iconName = 'construct-outline';
               break;
             case 'Profile':
               iconName = 'person-outline';
@@ -47,7 +47,7 @@ const ProviderTabNavigator = () => {
       })}
     >
       <Tab.Screen name="Dashboard" component={ProviderNavigator} />
-      <Tab.Screen name="Notifications" component={ServicesScreen} />
+      <Tab.Screen name="MyServices" component={MyServicesScreen} />
       <Tab.Screen name="Jobs" component={JobsScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>

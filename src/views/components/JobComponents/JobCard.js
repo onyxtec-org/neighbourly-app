@@ -19,7 +19,9 @@ function JobCard({ item, onPress }) {
   return (
     <TouchableOpacity style={styles.container} onPress={() => onPress(item.id)}>
       <View style={styles.contentContainer}>
-        <Text style={styles.title}>{item.title}</Text>
+        <Text numberOfLines={1} ellipsizeMode="tail" style={styles.title}>
+          {item.title}
+        </Text>
 
         {/* Description */}
         <View style={styles.descriptionContainer}>
@@ -30,7 +32,7 @@ function JobCard({ item, onPress }) {
             style={styles.icon}
           />
           <Text
-             numberOfLines={1}
+            numberOfLines={1}
             ellipsizeMode="tail"
             style={styles.description}
           >
@@ -40,17 +42,15 @@ function JobCard({ item, onPress }) {
 
         {/* Duration and Rate */}
         <View style={styles.infoRow}>
-     
-            <>
-              <Ionicons
-                name="time-outline"
-                size={16}
-                color={colors.gray}
-                style={styles.icon}
-              />
-              <Text style={styles.infoText}>{item.price_type==='fixed'?item.estimated_time:item.no_of_hours}</Text>
-            </>
-          
+          <>
+            <Ionicons
+              name="time-outline"
+              size={16}
+              color={colors.gray}
+              style={styles.icon}
+            />
+            <Text style={styles.infoText}>{item.no_of_hours}</Text>
+          </>
 
           <Ionicons
             name="cash-outline"
@@ -58,7 +58,12 @@ function JobCard({ item, onPress }) {
             color={colors.gray}
             style={[styles.icon, { marginLeft: 20 }]}
           />
-          <Text style={styles.infoText}>{item.rate}/hr</Text>
+          <Text style={styles.infoText}>
+            {Number(item.rate) % 1 === 0
+              ? Number(item.rate).toFixed(0)
+              : Number(item.rate).toString()}{' '}
+            {item.price_type === 'fixed' ? '' : '/hr'}
+          </Text>
         </View>
 
         {/* Payment Type */}
