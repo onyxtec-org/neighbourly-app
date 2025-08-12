@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import formApiClient from '../../api/formApiClient'; // <-- 👈 new import
-import client from '../../api/client';
+import apiClient from '../../api/client';
 import storage from '../../app/storage';
 
 export const createJob = createAsyncThunk(
@@ -39,7 +39,7 @@ export const getJobs = createAsyncThunk(
   'job/getJob',
   async ( _ ,{ rejectWithValue }) => {
     try {
-      const response = await client.get('/jobs');
+      const response = await apiClient.get('/jobs');
       console.log('jobs data',response.data);
       
       return response.data;

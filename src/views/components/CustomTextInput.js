@@ -18,6 +18,7 @@ const CustomTextInput = ({
   required = false,
   error = '',
   style = {},
+  showError=true,
   showEyeIcon = true,
   maxLength,
   showCharCount = false,
@@ -90,6 +91,8 @@ const CustomTextInput = ({
           </Text>
         )}
       </View>
+
+      {showError && error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 };

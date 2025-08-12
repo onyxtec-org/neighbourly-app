@@ -166,6 +166,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.primary,
   },
+    categoryHeader: {
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+  },
 });
 
 export default HomeScreen;

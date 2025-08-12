@@ -7,19 +7,21 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { useSelector } from 'react-redux';
 import { ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import config from '../../../config';
 import { useFocusEffect } from '@react-navigation/native';
 import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice'; // <-- Import this
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useCallback, useState } from 'react';
 import ZoomableImage from '../../components/ZoomableImage';
 
 const AccountScreen = ({ navigation }) => {
   const [imageLoading, setImageLoading] = useState(false);
+const {
+    user: profileUser,
 
+  } = useSelector(state => state.profile);
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.profile || {});
 
@@ -119,6 +121,7 @@ const AccountScreen = ({ navigation }) => {
             </View>
           </View>
         </View>
+        {/* My Services Card */}
       </View>
     </ScrollView>
   );
