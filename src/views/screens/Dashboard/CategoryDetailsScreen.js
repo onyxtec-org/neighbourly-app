@@ -11,11 +11,16 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../../../config/colors';
+import { useDispatch } from 'react-redux'; // Import useDispatch
+import {
+  resetJobState,
+} from '../../../redux/slices/jobSlice';
 
 const CategoryDetailsScreen = ({ route, navigation }) => {
   const { category } = route.params;
-
+  const dispatch = useDispatch();
   const handleServicePress = service => {
+    dispatch(resetJobState());
     navigation.navigate('JobCreateScreen', {
       serviceId: service.id,
       serviceName: service.name,
@@ -59,10 +64,7 @@ const CategoryDetailsScreen = ({ route, navigation }) => {
         <View style={styles.iconButton} /> 
       </View>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Header with Back Button and Category Name */}
-
-        {/* Top Services */}
-        {/* Popular Services List View */}
+      
         {category.services?.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Popular Services</Text>

@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Dimensions,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,17 +21,19 @@ import Video from 'react-native-video';
 import config from '../../config';
 import colors from '../../config/colors';
 import CreateOfferPopup from '../screens/CreateOfferPopup';
-const { width } = Dimensions.get('window'); // Get screen width for responsive images
+const { width } = Dimensions.get('window');
+const CARD_HEIGHT = 250;
 
 const JobDetailsScreen = ({ navigation, route }) => {
-  const { jobId } = route.params;
-  const role = 'provider';
+  const { jobId , role} = route.params;
+  console.log('role', role);
   const flatListRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [playingIndex, setPlayingIndex] = useState(null);
+  const [loadingStates, setLoadingStates] = useState({});
   const dispatch = useDispatch();
   const { job, loading, error } = useSelector(state => state.jobDetail);
   const [showOffer, setShowOffer] = useState(false);
-
   useEffect(() => {
     dispatch(fetchJobDetails(jobId));
 
@@ -42,27 +45,38 @@ const JobDetailsScreen = ({ navigation, route }) => {
   if (loading) return <Text>Loading...</Text>;
   if (error) return <Text>Error: {error}</Text>;
   if (!job) return <Text>No job data found.</Text>;
-  // Function to scroll to the next image in the carousel
-  const scrollNext = () => {
-    const nextIndex = (activeIndex + 1) % job.attachments.length;
-    flatListRef.current.scrollToIndex({ animated: true, index: nextIndex });
-    setActiveIndex(nextIndex);
+  const onScrollEnd = e => {
+    const index = Math.round(e.nativeEvent.contentOffset.x / width);
+    setActiveIndex(index);
+    setPlayingIndex(null);
   };
 
-  // Function to scroll to the previous image in the carousel
   const scrollPrev = () => {
-    const prevIndex =
-      (activeIndex - 1 + job.attachments.length) % job.attachments.length;
-    flatListRef.current.scrollToIndex({ animated: true, index: prevIndex });
-    setActiveIndex(prevIndex);
+    if (activeIndex > 0) {
+      flatListRef.current.scrollToIndex({
+        index: activeIndex - 1,
+        animated: true,
+      });
+    }
   };
 
-  // Update active index when the user scrolls the FlatList
-  const onScrollEnd = event => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const currentIndex = Math.round(contentOffsetX / width);
-    setActiveIndex(currentIndex);
+  const scrollNext = () => {
+    if (activeIndex < job.attachments.length - 1) {
+      flatListRef.current.scrollToIndex({
+        index: activeIndex + 1,
+        animated: true,
+      });
+    }
   };
+
+  const onLoadStart = index => {
+    setLoadingStates(prev => ({ ...prev, [index]: true }));
+  };
+
+  const onLoadEnd = index => {
+    setLoadingStates(prev => ({ ...prev, [index]: false }));
+  };
+
   console.log('Job Attachments:', job.attachments);
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -95,7 +109,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
       <ScrollView contentContainerStyle={styles.container}>
         {/* Job Title (Above Image Carousel) */}
 
-        <View style={styles.mediaContainer}>
+        <View style={styles.mediaCard}>
           <FlatList
             data={job?.attachments || []}
             ref={flatListRef}
@@ -104,62 +118,124 @@ const JobDetailsScreen = ({ navigation, route }) => {
             showsHorizontalScrollIndicator={false}
             onMomentumScrollEnd={onScrollEnd}
             keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => {
-              if (!item || !item.attachment || !item.file_type) {
-                return null; // Skip if invalid
-              }
-
-              const url = `${config.attachmentimageURL}${item.attachment}`;
-              console.log('Attachment URL:', url);
-
-              const isVideo = item.file_type.includes('video');
-
-              return isVideo ? (
-                <Video
-                  source={{ uri: url }}
-                  style={styles.carouselImage}
-                  resizeMode="cover"
-                  controls
-                />
-              ) : (
-                <Image
-                  source={{ uri: url }}
-                  style={styles.carouselImage}
-                  resizeMode="cover"
-                />
-              );
-            }}
             getItemLayout={(data, index) => ({
               length: width,
               offset: width * index,
               index,
             })}
+            renderItem={({ item, index }) => {
+              if (!item || !item.attachment || !item.file_type) return null;
+
+              const url = `${config.attachmentimageURL}${item.attachment}`;
+              const isVideo = item.file_type.includes('video');
+              const isPlaying = playingIndex === index;
+              const isLoading = loadingStates[index];
+
+              if (isVideo) {
+                return (
+                  <TouchableOpacity
+                    style={styles.mediaContainer}
+                    onPress={() => setPlayingIndex(index)}
+                    activeOpacity={1}
+                  >
+                    {!isPlaying && (
+                      <>
+                        <Image
+                          source={{ uri: url + '?thumbnail' }} // your thumbnail url here
+                          style={styles.carouselImage}
+                          resizeMode="cover"
+                          onLoadStart={() => onLoadStart(index)}
+                          onLoadEnd={() => onLoadEnd(index)}
+                        />
+                        {isLoading && (
+                          <ActivityIndicator
+                            size="large"
+                            color="#fff"
+                            style={styles.loadingIndicator}
+                          />
+                        )}
+                        <Ionicons
+                          name="play-circle"
+                          size={64}
+                          color="rgba(255,255,255,0.8)"
+                          style={styles.playIcon}
+                        />
+                      </>
+                    )}
+
+                    {isPlaying && (
+                      <Video
+                        source={{ uri: url }}
+                        style={styles.carouselImage}
+                        resizeMode="cover"
+                        controls
+                        paused={!isPlaying}
+                        onLoadStart={() => onLoadStart(index)}
+                        onLoad={() => onLoadEnd(index)}
+                      />
+                    )}
+                    {isPlaying && isLoading && (
+                      <ActivityIndicator
+                        size="large"
+                        color="#fff"
+                        style={styles.loadingIndicator}
+                      />
+                    )}
+                  </TouchableOpacity>
+                );
+              }
+
+              // For images:
+              return (
+                <View style={styles.mediaContainer}>
+                  <Image
+                    source={{ uri: url }}
+                    style={styles.carouselImage}
+                    resizeMode="cover"
+                    onLoadStart={() => onLoadStart(index)}
+                    onLoadEnd={() => onLoadEnd(index)}
+                  />
+                  {isLoading && (
+                    <ActivityIndicator
+                      size="large"
+                      color="#fff"
+                      style={styles.loadingIndicator}
+                    />
+                  )}
+                </View>
+              );
+            }}
           />
 
+          {/* Pagination Dots */}
+          {job.attachments.length > 1 && (
+            <View style={styles.paginationDotsContainer}>
+              {job.attachments.map((_, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.paginationDot,
+                    activeIndex === index && styles.paginationDotActive,
+                  ]}
+                />
+              ))}
+            </View>
+          )}
+
+          {/* Left/Right Arrows */}
           {job.attachments.length > 1 && (
             <>
-              {/* Pagination Dots */}
-              <View style={styles.paginationDotsContainer}>
-                {job.attachments.map((_, index) => (
-                  <View
-                    key={index}
-                    style={[
-                      styles.paginationDot,
-                      activeIndex === index && styles.paginationDotActive,
-                    ]}
-                  />
-                ))}
-              </View>
-              {/* Navigation Arrows */}
               <TouchableOpacity
                 onPress={scrollPrev}
                 style={[styles.arrowButton, styles.arrowLeft]}
+                activeOpacity={0.7}
               >
                 <Ionicons name="chevron-back-outline" size={30} color="#fff" />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={scrollNext}
                 style={[styles.arrowButton, styles.arrowRight]}
+                activeOpacity={0.7}
               >
                 <Ionicons
                   name="chevron-forward-outline"
@@ -170,49 +246,20 @@ const JobDetailsScreen = ({ navigation, route }) => {
             </>
           )}
         </View>
-        <Text
-          style={styles.jobTitle}
-          numberOfLines={1} // Restrict to a single line
-          ellipsizeMode="tail" // Add "..." at the end if truncated
-        >
-          {job.title}
-        </Text>
-        <View style={styles.descriptionCard}>
-          <Text style={styles.sectionHeading}>Job Description</Text>
-          <Text style={styles.jobDescription}>{job.description}</Text>
-        </View>
+        {/* Just show job title without “Title” label */}
+        <Text style={styles.jobTitle}>{job.title}</Text>
 
-        
+        {/* Divider line for separation */}
+        <View style={styles.divider} />
+
+        {/* Description section heading */}
+        <Text style={styles.sectionHeading}>Description</Text>
+
+        {/* Description text */}
+        <Text style={styles.jobDescription}>{job.description}</Text>
         {/* Main Details Card (Start Date, Estimated Time, Payment Type, Location, Price, Buttons) */}
         <View style={styles.mainDetailsCard}>
           {/* Start Date */}
-          <View style={styles.userRow}>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate('AccountScreen', {
-                  userId: job.consumer?.id,
-                })
-              }
-              style={styles.userInfoTouchable}
-            >
-              <Image
-                source={{
-                  uri: `${config.userimageURL}${job.consumer?.image}`,
-                }}
-                style={styles.userImage}
-              />
-              <View style={styles.userInfo}>
-                <Text style={styles.userName}>
-                  {job.consumer?.name || 'Unknown User'}
-                </Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.chatButton}>
-              <Text style={styles.textButtonText}>Chat</Text>
-            </TouchableOpacity>
-          </View>
-
           <View style={styles.rowWrapper}>
             <View style={[styles.infoItem]}>
               <Ionicons name="calendar-outline" size={18} color="#666" />
@@ -229,7 +276,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 <Text style={styles.infoLabel}>Estimated Time</Text>
                 <Text style={styles.infoText}>{job.no_of_hours} hrs</Text>
               </View>
-            </View> 
+            </View>
           </View>
 
           {/* Estimated Time & Payment Type (Grouped) */}
@@ -237,19 +284,44 @@ const JobDetailsScreen = ({ navigation, route }) => {
             <View style={styles.infoItem}>
               <Ionicons name="wallet-outline" size={18} color="#666" />
               <View style={styles.infoTextContainer}>
+                <Text style={styles.infoLabel}>Price Type</Text>
+                <Text style={styles.infoText}>
+                  {job.price_type === 'perhour' ? 'Per hour' : job.price_type}
+                </Text>
+              </View>
+            </View>
+
+            {job.price_type === 'fixed' ? (
+              <View style={styles.infoItem}>
+                <Ionicons name="wallet-outline" size={18} color="#666" />
+                <View style={styles.infoTextContainer}>
+                  <Text style={styles.infoLabel}>Amount</Text>
+                  <Text style={styles.infoText}>${parseFloat(job.rate)}</Text>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.pricingContainer}>
+                <Text style={styles.priceText}>
+                  ${job.rate}
+                  <Text style={styles.perText}> / hr</Text>
+                </Text>
+                <Text style={styles.estimatedTotal}>
+                  Estimated Total: $
+                  {(parseFloat(job.rate) * parseFloat(job.no_of_hours)).toFixed(
+                    2,
+                  )}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.rowWrapper}>
+            <View style={styles.infoItem}>
+              <Ionicons name="wallet-outline" size={18} color="#666" />
+              <View style={styles.infoTextContainer}>
                 <Text style={styles.infoLabel}>Payment Type</Text>
                 <Text style={styles.infoText}>{job.payment_type}</Text>
               </View>
-            </View>
-            <View style={styles.pricingContainer}>
-              <Text style={styles.priceText}>
-                ${job.rate}
-                <Text style={styles.perText}> / hr</Text>
-              </Text>
-              <Text style={styles.estimatedTotal}>
-                Estimated Total: $
-                {parseFloat(job.rate) * parseFloat(job.no_of_hours)}
-              </Text>
             </View>
           </View>
 
@@ -285,9 +357,40 @@ const JobDetailsScreen = ({ navigation, route }) => {
             </View>
           )}
         </View>
+        <View style={styles.mainDetailsCard}>
+          <View>
+            <Text style={styles.sectionHeading}>Consumer</Text>
+          </View>
+          <View style={styles.userRow}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('AccountScreen', {
+                  userId: job.consumer?.id,
+                })
+              }
+              style={styles.userInfoTouchable}
+            >
+              <Image
+                source={{
+                  uri: `${config.userimageURL}${job.consumer?.image}`,
+                }}
+                style={styles.userImage}
+              />
+              <View style={styles.userInfo}>
+                <Text style={styles.userName}>
+                  {job.consumer?.name || 'Unknown User'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.chatButton}>
+              <Text style={styles.textButtonText}>Chat</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
         {/* Description Section (At the very bottom) */}
-      
+
         <CreateOfferPopup
           visible={showOffer}
           onClose={() => setShowOffer(false)}
@@ -302,7 +405,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ffffff', // Light background for the whole screen
+    backgroundColor: '#ffffff',
   },
   header: {
     height: 60,
@@ -310,7 +413,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 14, // Slightly reduced padding
+    paddingVertical: 14,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#ebebeb',
@@ -318,10 +421,10 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
   },
   backButton: {
-    width: 30, // Ensures the title remains centered
+    width: 30,
   },
   headerTitle: {
-    fontSize: 18, // Smaller header title
+    fontSize: 18,
     fontWeight: '700',
     color: '#333',
   },
@@ -336,79 +439,23 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   container: {
-    paddingBottom: 20, // Add padding at the bottom for scroll
-  },
-  jobTitle: {
-    fontSize: 18, // Reduced from 26
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    marginHorizontal: 15,
-    marginTop: 15, // Space from header
-    marginBottom: 15, // Space before image carousel
-    // These two properties handle single-line truncation with ellipsis
-    flexShrink: 1, // Allow text to shrink
-  },
-  mediaContainer: {
-    width: width,
-    height: width * 0.6, // Slightly shorter images for more compact look
-    marginBottom: 15, // Reduced space
-    position: 'relative',
-    backgroundColor: '#e0e0e0',
-  },
-  paginationDotsContainer: {
-    position: 'absolute',
-    bottom: 10, // Reduced space
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  paginationDot: {
-    width: 7, // Smaller dots
-    height: 7,
-    borderRadius: 3.5,
-    backgroundColor: 'rgba(255,255,255,0.5)',
-    marginHorizontal: 3, // Reduced space
-  },
-  paginationDotActive: {
-    backgroundColor: '#fff',
-    width: 9, // Slightly larger active dot
-    height: 9,
-    borderRadius: 4.5,
-  },
-  arrowButton: {
-    position: 'absolute',
-    top: '50%',
-    transform: [{ translateY: -20 }], // Smaller vertical adjustment
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    padding: 6, // Smaller padding
-    borderRadius: 20, // Smaller circular button
-    width: 40, // Smaller width
-    height: 40, // Smaller height
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  arrowLeft: {
-    left: 8, // Reduced space
-  },
-  arrowRight: {
-    right: 8, // Reduced space
+    paddingBottom: 20,
   },
   mainDetailsCard: {
     backgroundColor: '#fff',
-    borderRadius: 12, // Slightly smaller border radius
+    borderRadius: 12,
     marginHorizontal: 15,
-    padding: 18, // Slightly reduced padding
-    elevation: 4, // Slightly less shadow
+    padding: 18,
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
-    marginBottom: 15, // Reduced space before description card
+    marginBottom: 15,
   },
   infoGrid: {
-    marginBottom: 15, // Space before pricing
-    paddingBottom: 10, // Padding before pricing
+    marginBottom: 15,
+    paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
@@ -420,81 +467,79 @@ const styles = StyleSheet.create({
   infoItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8, // Reduced space between items
-    flexShrink: 1, // Allows text to shrink
+    marginBottom: 8,
+    flexShrink: 1,
   },
   infoItemFullWidth: {
-    width: '100%', // For items that should take full width
+    width: '100%',
     marginBottom: 10,
   },
   infoTextContainer: {
-    marginLeft: 10, // Reduced margin
+    marginLeft: 10,
     flexShrink: 1,
   },
   infoLabel: {
-    fontSize: 12, // Smaller label font
+    fontSize: 12,
     color: '#888',
     fontWeight: '500',
     marginBottom: 2,
   },
   infoText: {
-    fontSize: 14, // Smaller text font
+    fontSize: 14,
     color: '#333',
     fontWeight: '600',
     flexWrap: 'wrap',
   },
   pricingContainer: {
-    paddingVertical: 12, // Reduced padding
+    paddingVertical: 12,
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    marginBottom: 15, // Space before buttons
+    marginBottom: 15,
   },
   priceText: {
-    fontSize: 18, // Reduced from 36
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#27ae60',
   },
   perText: {
-    fontSize: 16, // Reduced from 18
+    fontSize: 16,
     color: '#7f8c8d',
     fontWeight: 'normal',
   },
   estimatedTotal: {
-    fontSize: 12, // Reduced from 18
+    fontSize: 12,
     color: '#555',
-    marginTop: 5, // Reduced margin
+    marginTop: 5,
     fontWeight: '500',
   },
   textButton: {
     paddingVertical: 10,
     paddingHorizontal: 15,
-    borderRadius: 8, // Slightly less rounded
+    borderRadius: 8,
     alignItems: 'center',
-    borderColor: '#3498db', // Blue border for primary action
+    borderColor: '#3498db',
     borderWidth: 1,
-    marginTop: 10, // Space from pricing
+    marginTop: 10,
   },
   chatButton: {
     paddingVertical: 5,
     paddingHorizontal: 10,
-    borderRadius: 8, // Slightly less rounded
+    borderRadius: 8,
     alignItems: 'center',
-    borderColor: '#3498db', // Blue border for primary action
+    borderColor: '#3498db',
     borderWidth: 1,
-    marginTop: 10, // Space from pricing
+    marginTop: 10,
     marginRight: 10,
   },
   textButtonText: {
-    color: '#3498db', // Blue text for primary action
+    color: '#3498db',
     fontWeight: '600',
-    fontSize: 15, // Smaller button text
+    fontSize: 15,
   },
   textButtonRow: {
     flexDirection: 'row',
     marginTop: 5,
-    justifyContent: 'center', // 👈 Keeps buttons close
-    gap: 50, // 👈 adds space between buttons (if supported in your React Native version)
+    justifyContent: 'center',
+    gap: 50,
   },
   filledButton: {
     backgroundColor: '#3498db',
@@ -502,21 +547,7 @@ const styles = StyleSheet.create({
   filledButtonText: {
     color: '#fff',
   },
-  descriptionCard: {
-    padding: 15,
-  },
-  sectionHeading: {
-    fontSize: 18, // Reduced from 20
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8, // Reduced margin
-  },
-  jobDescription: {
-    fontSize: 14, // Reduced from 16
-    color: '#555',
-    lineHeight: 22, // Adjusted line height
-    textAlign: 'justify',
-  },
+
   userRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -535,7 +566,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 25,
     marginRight: 12,
-    backgroundColor: '#ccc', // fallback color
+    backgroundColor: '#ccc',
   },
 
   userInfo: {
@@ -571,11 +602,120 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+  jobTitle: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#2c3e50',
+    marginHorizontal: 15,
+    marginTop: 20,
+    marginBottom: 8,
+  },
+
+  sectionHeading: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#7f8c8d', // lighter grey for subtle heading
+    marginHorizontal: 15,
+    marginBottom: 6,
+    textTransform: 'uppercase', // subtle uppercase for professional look
+    letterSpacing: 1,
+  },
+
+  jobDescription: {
+    fontSize: 16,
+    color: '#555',
+    lineHeight: 24,
+    marginHorizontal: 15,
+    marginBottom: 20,
+    textAlign: 'justify',
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: '#ecf0f1', // light grey divider
+    marginHorizontal: 15,
+    marginBottom: 10,
+  },
+
+  mediaCard: {
+    width: width,
+    height: CARD_HEIGHT,
+    backgroundColor: '#000',
+    borderBottomRightRadius: 15,
+    borderBottomLeftRadius: 15,
+    borderTopRightRadius: 15,
+    borderTopLeftRadius: 15,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    marginTop: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+  },
+  mediaContainer: {
+    width: width,
+    height: CARD_HEIGHT,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+  },
   carouselImage: {
     width: width,
-    height: 250,
-    resizeMode: 'cover',
-    zIndex: 1,
+    height: CARD_HEIGHT,
+  },
+  playIcon: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -32 }, { translateY: -32 }],
+    zIndex: 2,
+  },
+  paginationDotsContainer: {
+    position: 'absolute',
+    bottom: 10,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 4,
+  },
+  loadingIndicator: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginLeft: -15,
+    marginTop: -15,
+    zIndex: 3,
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#85c1e9',
+    marginHorizontal: 4,
+  },
+  paginationDotActive: {
+    backgroundColor: '#3498db',
+  },
+  arrowButton: {
+    position: 'absolute',
+    top: '50%',
+    padding: 2,
+    backgroundColor: '#3498db',
+    zIndex: 10,
+  },
+  arrowLeft: {
+    left: 10,
+    color: '#3498db',
+    transform: [{ translateY: -15 }],
+  },
+  arrowRight: {
+    right: 10,
+    color: '#3498db',
+    transform: [{ translateY: -15 }],
   },
 });
 

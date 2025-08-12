@@ -19,10 +19,10 @@ import { logoutUser } from '../../../redux/thunks/auth/logoutThunk';
 import { setUserRole } from '../../../redux/slices/auth/profileSlice';
 import CustomToast from '../../components/CustomToast';
 import CustomPopup from '../../components/CustomPopup';
-import colors from '../../../config/colors';
 import config from '../../../config';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import storage from '../../../app/storage';
+import ZoomableImage from '../../components/ZoomableImage';
 import { setMyServices } from '../../../redux/slices/servicesSlice';
 const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -159,23 +159,10 @@ const ProfileScreen = ({ navigation }) => {
       <ScrollView contentContainerStyle={profileStyles.scrollViewContent}>
         <View style={profileStyles.profileInfoSection}>
           <View style={profileStyles.profileImageContainer}>
-            <Image
-              source={{
-                uri: profileUser?.image
-                  ? `${config.userimageURL}${profileUser.image}`
-                  : 'https://placehold.co/96x96/e0e0e0/000000?text=Profile',
-              }}
-              style={profileStyles.profileImage}
-              onLoadStart={() => console.log('📤 Loading image...')}
-              onLoad={() => console.log(' Image loaded successfully')}
-              onError={e => {
-                console.log('Image failed to load');
-                console.log('Error:', e.nativeEvent.error);
-                console.log(
-                  'Image URL attempted:',
-                  `${config.userimageURL}${profileUser?.image}`,
-                );
-              }}
+          <ZoomableImage
+               uri={profileUser?.image ? `${config.userimageURL}${profileUser.image}` : null}
+                placeholderUri="https://placehold.co/96x96/e0e0e0/000000?text=Profile"
+                style={profileStyles.profileImage}
             />
           </View>
           <Text style={profileStyles.profileName}>

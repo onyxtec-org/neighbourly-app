@@ -65,6 +65,7 @@ const JobCreateScreen = ({ navigation, route }) => {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const handleAddMedia = (file, setFieldValue) => {
     setMediaList(prevList => {
@@ -90,7 +91,7 @@ const JobCreateScreen = ({ navigation, route }) => {
   const { loading, error, success } = jobState;
 
   useEffect(() => {
-    if (success) {
+    if (success && hasSubmitted ) {
       console.log('✅ Job successfully created.');
 
       setToastMessage('Job Created!');
@@ -100,7 +101,7 @@ const JobCreateScreen = ({ navigation, route }) => {
 
       setTimeout(() => {
         dispatch(resetJobState());
-        navigation.goBack();
+        navigation.pop();
       }, 1200);
     } else if (error) {
       console.log('❌ Job creation error received from state:', error);
@@ -115,9 +116,10 @@ const JobCreateScreen = ({ navigation, route }) => {
         dispatch(resetJobState());
       }, 1500);
     }
-  }, [success, error, dispatch, navigation]);
+  }, [success, error, dispatch, navigation, hasSubmitted]);
 
   const handleSubmit = async values => {
+    setHasSubmitted(true);
     try {
       console.log('📤 Submitting Job with values:', values);
 
