@@ -1,9 +1,9 @@
 import Config from "react-native-config";
 
 export default {
-  baseURL: "https://258fd8fc9e7e.ngrok-free.app/api",
-  userimageURL: "https://258fd8fc9e7e.ngrok-free.app/storage/user/",
-  attachmentimageURL: "https://258fd8fc9e7e.ngrok-free.app/storage/attachments/",
+  baseURL: "https://n.onyxtec.io/api",
+  userimageURL: "https://n.onyxtec.io/storage/user/",
+  attachmentimageURL: "https://n.onyxtec.io/storage/attachments/",
 
 };
 

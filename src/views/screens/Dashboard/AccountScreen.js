@@ -15,6 +15,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice'; // <-- Import this
 import { useDispatch } from 'react-redux';
 import { useCallback, useState } from 'react';
+import ZoomableImage from '../../components/ZoomableImage';
 
 const AccountScreen = ({ navigation }) => {
   const [imageLoading, setImageLoading] = useState(false);
@@ -57,21 +58,11 @@ const AccountScreen = ({ navigation }) => {
             alignItems: 'center',
           }}
         >
-          <Image
-            source={{
-              uri: user?.image
-                ? `${config.imageURL}${user.image}`
-                : 'https://placehold.co/96x96/e0e0e0/000000?text=Profile',
-            }}
-            style={styles.profileImage}
-            onLoadStart={() => setImageLoading(true)}
-            onLoadEnd={() => setImageLoading(false)}
-            onError={e => {
-              console.log('❌ Image failed to load');
-              console.log('Error:', e.nativeEvent.error);
-              setImageLoading(false);
-            }}
-          />
+        <ZoomableImage
+  uri={user?.image ? `${config.userimageURL}${user.image}` : null}
+  placeholderUri="https://placehold.co/96x96/e0e0e0/000000?text=Profile"
+  style={styles.profileImage}
+/>
           {imageLoading && (
             <ActivityIndicator
               size="small"

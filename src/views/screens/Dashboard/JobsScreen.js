@@ -17,11 +17,11 @@ import { useNavigation } from '@react-navigation/native';
 
 const JobsScreen = () => {
   const navigation = useNavigation();
-  // const role = useSelector(state => state.auth.user?.role);
 
   const dispatch = useDispatch();
+
   const handleJobPress = (jobId) => {
-    navigation.navigate('JobDetailsScreen', { jobId  });
+    navigation.navigate('JobDetailsScreen', { jobId, });
   };
   const [activeTab, setActiveTab] = useState('pending');
 
