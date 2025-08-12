@@ -1,4 +1,4 @@
-import React, { useState,  } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -14,7 +14,7 @@ import JobListings from '../../components/JobComponents/JobListings';
 import { getJobs } from '../../../redux/slices/jobSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectJobsByStatus } from '../../../redux/selectors/jobSelector';
-
+import { useNavigation } from '@react-navigation/native';
 const tabs = [
   { key: 'new', label: 'New Requests' },
   { key: 'pending', label: 'Pending' },
