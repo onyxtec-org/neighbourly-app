@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -21,12 +21,17 @@ import Video from 'react-native-video';
 import config from '../../config';
 import colors from '../../config/colors';
 import CreateOfferPopup from '../screens/CreateOfferPopup';
+import Header from '../components/Header';
+import { useFocusEffect } from '@react-navigation/native';
+import { updateJobStatus } from '../../redux/slices/UpdateJobStatusSlice';
+import CustomToast from '../components/CustomToast';
+import AppActivityIndicator from '../components/AppActivityIndicator';
 const { width } = Dimensions.get('window');
 const CARD_HEIGHT = 250;
 
 const JobDetailsScreen = ({ navigation, route }) => {
-  const { jobId , role} = route.params;
-  console.log('role', role);
+  const { jobId, userRole, status, item } = route.params;
+  console.log('role', userRole, status);
   const flatListRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [playingIndex, setPlayingIndex] = useState(null);
@@ -34,14 +39,60 @@ const JobDetailsScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const { job, loading, error } = useSelector(state => state.jobDetail);
   const [showOffer, setShowOffer] = useState(false);
-  useEffect(() => {
-    dispatch(fetchJobDetails(jobId));
+  const [inProgress, setInProgress] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success');
+  const [isLoading, setIsLoading] = useState(false);
 
-    return () => {
-      dispatch(clearJobDetails());
-    };
-  }, [dispatch, jobId]);
+  const showToast = (message, type = 'success') => {
+    setToastMessage(message);
+    setToastType(type);
+    setToastVisible(true);
+  };
+  const statusChange = async () => {
 
+    setIsLoading(true);
+    try {
+      const res = await dispatch(
+        updateJobStatus({
+          jobId: jobId,
+          status: status === 'my_jobs' ? 'in_progress' : 'completed',
+        }),
+      );
+      
+      if (res?.payload.statusCode === 200) {
+        setIsLoading(false);
+
+        if (status === 'my_jobs') {
+          setInProgress(true);
+        } else {
+          setCompleted(true);
+        }
+        showToast(res?.payload.message, 'success');
+      } else {
+        setIsLoading(false);
+
+        showToast(res?.payload.message, 'error');
+      }
+    } catch (error) {
+      issetIsLoadingoading(false);
+
+      showToast('something went wrong', 'success');
+    }
+    //status==='my_jobs'?setInProgress(true):setCompleted(true);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchJobDetails(jobId));
+
+      return () => {
+        dispatch(clearJobDetails());
+      };
+    }, [dispatch, jobId]),
+  );
   if (loading) return <Text>Loading...</Text>;
   if (error) return <Text>Error: {error}</Text>;
   if (!job) return <Text>No job data found.</Text>;
@@ -77,34 +128,14 @@ const JobDetailsScreen = ({ navigation, route }) => {
     setLoadingStates(prev => ({ ...prev, [index]: false }));
   };
 
-  console.log('Job Attachments:', job.attachments);
+  const onInterestedPersonPress = () => {
+    const offers = item.offers;
+    navigation.navigate('OffersScreen', { offers });
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Header Section */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-
-        <Text style={styles.headerTitle}>Job Details</Text>
-
-        <View style={styles.iconGroup}>
-          <TouchableOpacity onPress={() => console.log('Bookmark pressed')}>
-            <Ionicons
-              name="bookmark-outline"
-              size={22}
-              color="#333"
-              style={styles.iconSpacing}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => console.log('Share pressed')}>
-            <Ionicons name="share-social-outline" size={22} color="#333" />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Header title={'Job details'} />
 
       <ScrollView contentContainerStyle={styles.container}>
         {/* Job Title (Above Image Carousel) */}
@@ -247,7 +278,46 @@ const JobDetailsScreen = ({ navigation, route }) => {
           )}
         </View>
         {/* Just show job title without “Title” label */}
-        <Text style={styles.jobTitle}>{job.title}</Text>
+        <View style={styles.headerRow}>
+          <Text style={styles.jobTitle}>{job.title}</Text>
+          {status === 'my_jobs' && userRole==='provider' &&(
+            <TouchableOpacity
+              style={[
+                styles.progressButton,
+                {
+                  backgroundColor: inProgress
+                    ? colors.inProgress
+                    : colors.pending,
+                },
+              ]}
+              onPress={statusChange}
+              disabled={inProgress}
+            >
+              <Text style={styles.progressButtonText}>
+                {inProgress ? 'In Progress' : 'Mark as In Progress'}
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {status === 'in_progress' && userRole==='provider' && (
+            <TouchableOpacity
+              style={[
+                styles.progressButton,
+                {
+                  backgroundColor: completed
+                    ? colors.completed
+                    : colors.inProgress,
+                },
+              ]}
+              onPress={statusChange}
+              disabled={completed}
+            >
+              <Text style={styles.progressButtonText}>
+                {completed ? 'Completed' : 'Mark as Complete'}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
         {/* Divider line for separation */}
         <View style={styles.divider} />
@@ -335,26 +405,33 @@ const JobDetailsScreen = ({ navigation, route }) => {
           </View>
 
           {/* Action Buttons (Small, Text-Based) */}
-          {role === 'consumer' ? (
-            <TouchableOpacity style={styles.textButton}>
+          {userRole === 'consumer' ? (
+            <TouchableOpacity
+              style={styles.textButton}
+              onPress={onInterestedPersonPress}
+            >
               <Text style={styles.textButtonText}>View Interested Persons</Text>
             </TouchableOpacity>
           ) : (
-            <View style={styles.textButtonRow}>
-              <TouchableOpacity
-                style={[styles.textButton, { marginRight: 10 }]}
-              >
-                <Text style={styles.textButtonText}>Ignore</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setShowOffer(true)}
-                style={[styles.textButton, styles.filledButton]}
-              >
-                <Text style={[styles.textButtonText, styles.filledButtonText]}>
-                  Interested
-                </Text>
-              </TouchableOpacity>
-            </View>
+            status === 'new' && (
+              <View style={styles.textButtonRow}>
+                <TouchableOpacity
+                  style={[styles.textButton, { marginRight: 10 }]}
+                >
+                  <Text style={styles.textButtonText}>Ignore</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setShowOffer(true)}
+                  style={[styles.textButton, styles.filledButton]}
+                >
+                  <Text
+                    style={[styles.textButtonText, styles.filledButtonText]}
+                  >
+                    Interested
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )
           )}
         </View>
         <View style={styles.mainDetailsCard}>
@@ -389,6 +466,12 @@ const JobDetailsScreen = ({ navigation, route }) => {
           </View>
         </View>
 
+        <CustomToast
+          visible={toastVisible}
+          message={toastMessage}
+          type={toastType}
+          onHide={() => setToastVisible(false)}
+        />
         {/* Description Section (At the very bottom) */}
 
         <CreateOfferPopup
@@ -397,6 +480,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
           userJobId={job.id}
           priceType={job.price_type}
         />
+        {isLoading && <AppActivityIndicator />}
       </ScrollView>
     </SafeAreaView>
   );
@@ -716,6 +800,32 @@ const styles = StyleSheet.create({
     right: 10,
     color: '#3498db',
     transform: [{ translateY: -15 }],
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center', // better alignment
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  jobTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    flexShrink: 1, // prevent overflow
+  },
+  progressButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  progressButtonText: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  completeButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
   },
 });
 

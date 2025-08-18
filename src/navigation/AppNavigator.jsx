@@ -24,6 +24,7 @@ import NotificationSettingsScreen from '../views/screens/Dashboard/NotificationS
 import PrivacyPolicyScreen from '../views/screens/Dashboard/PrivacyPolicyScreen'; // Import PrivacyPolicyScreen
 import TermsandconditionScreen from '../views/screens/Dashboard/TermsandconditionScreen'; // Import TermsandconditionScreen
 import JobDetailsScreen from '../views/screens/JobDetailsScreen';
+import OfferListScreen from '../views/screens/Dashboard/OffersScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -56,6 +57,7 @@ const AppNavigator = () => {
         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
         <Stack.Screen name="TermsandconditionScreen" component={TermsandconditionScreen} />
         <Stack.Screen name="JobDetailsScreen" component={JobDetailsScreen} />
+        <Stack.Screen name="OffersScreen" component={OfferListScreen} />
 
 
         

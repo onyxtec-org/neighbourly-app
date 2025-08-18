@@ -20,6 +20,7 @@ const CreateOfferPopup = ({
   onClose,
   userJobId,
   priceType = 'hourly',
+  onOfferSent,
 }) => {
   const [proposedTime, setProposedTime] = useState('');
   const [rate, setRate] = useState('');
@@ -67,6 +68,7 @@ const CreateOfferPopup = ({
           setHasOffered(true); // prevent multiple submissions
           showToast('Offer sent successfully!', 'success');
           onClose();
+          onOfferSent?.(); 
           setProposedTime('');
           setRate('');
           setErrors({});
