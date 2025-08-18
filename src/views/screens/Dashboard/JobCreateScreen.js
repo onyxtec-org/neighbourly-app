@@ -74,6 +74,15 @@ const JobCreateScreen = ({ navigation, route }) => {
       return newList;
     });
   };
+  const parseDate = (dateStr) => {
+    // Expects "DD/MM/YYYY HH:mm"
+    const [datePart, timePart] = dateStr.split(' ');
+    const [day, month, year] = datePart.split('/').map(Number);
+    const [hours, minutes] = timePart.split(':').map(Number);
+  
+    return new Date(year, month - 1, day, hours, minutes);
+  };
+  
   const handleRemoveMedia = (fileToRemove, setFieldValue) => {
     const updatedList = mediaList.filter(file => file.uri !== fileToRemove.uri);
     setMediaList(updatedList);
@@ -140,12 +149,17 @@ const JobCreateScreen = ({ navigation, route }) => {
       formData.append('location', values.location);
       formData.append('location_lat', '40.7128'); // ⚠️ Replace with dynamic value
       formData.append('location_lng', '-74.0060'); // ⚠️ Replace with dynamic value
-      formData.append('starts_at', values.startTime);
-      formData.append('ends_at', '2026-01-01 00:00:00');
+      // formData.append('starts_at', values.startTime);
+      const startDate = parseDate(values.startTime);
+      formData.append(
+        'starts_at',
+        startDate.toISOString().slice(0, 19).replace('T', ' ')
+      );
+            formData.append('ends_at', '2026-01-01 00:00:00');
 
-      if (jobTypeValue === 'per_hour') {
-        formData.append('no_of_hours', values.no_of_hours);
-      }
+      // if (jobTypeValue === 'per_hour') {
+      //   formData.append('no_of_hours', values.no_of_hours);
+      // }
 
       formData.append('price_type', jobTypeValue);
       formData.append('no_of_hours', finalEstimatedTime);

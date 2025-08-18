@@ -1,9 +1,9 @@
 import Config from "react-native-config";
 
 export default {
-  baseURL: "https://n.onyxtec.io/api",
-  userimageURL: "https://n.onyxtec.io/storage/user/",
-  attachmentimageURL: "https://n.onyxtec.io/storage/attachments/",
+  baseURL: "https://nbl.onyxtec.io/api",
+  userimageURL: "https://nbl.onyxtec.io/storage/user/",
+  attachmentimageURL: "https://nbl.onyxtec.io/storage/attachments/",
 
 };
 

@@ -77,7 +77,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
         showToast(res?.payload.message, 'error');
       }
     } catch (error) {
-      issetIsLoadingoading(false);
+      setIsLoading(false);
 
       showToast('something went wrong', 'success');
     }
@@ -806,11 +806,6 @@ const styles = StyleSheet.create({
     alignItems: 'center', // better alignment
     justifyContent: 'space-between',
     marginBottom: 12,
-  },
-  jobTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    flexShrink: 1, // prevent overflow
   },
   progressButton: {
     paddingVertical: 6,
