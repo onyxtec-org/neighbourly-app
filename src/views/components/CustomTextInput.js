@@ -92,7 +92,7 @@ const CustomTextInput = ({
         )}
       </View>
 
-      {showError && error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {/* {showError && error ? <Text style={styles.errorText}>{error}</Text> : null} */}
     </View>
   );
 };

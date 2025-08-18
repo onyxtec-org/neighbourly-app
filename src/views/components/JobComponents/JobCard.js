@@ -5,21 +5,42 @@ import {
   TouchableOpacity,
   Platform,
   Text,
+  useWindowDimensions,
 } from 'react-native';
 import colors from '../../../config/colors';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import StatusBox from './StatusBox';
+import { useSelector } from 'react-redux';
 
 const isAndroid = Platform.OS === 'android';
 
-function JobCard({ item, onPress }) {
+function JobCard({ item, onPress, onInterestedPress, onRejectedPress,status }) {
   const navigation = useNavigation();
+  const { width, height } = useWindowDimensions();
+
+
+
+  const { user: profileUser } = useSelector(state => state.profile);
+
+  // Dynamic sizes based on screen width
+  const cardHeight = height * 0.23; // 23% of screen height
+  const titleFont = width * 0.06; // ~6% of width
+  const textFont = width * 0.04; // ~4% of width
+  const iconSize = width * 0.045; // icon size relative to width
+  const checkBtnSize = width * 0.1; // 10% of width
 
   return (
-    <TouchableOpacity style={styles.container} onPress={() => onPress(item.id)}>
-      <View style={styles.contentContainer}>
-        <Text numberOfLines={1} ellipsizeMode="tail" style={styles.title}>
+    <TouchableOpacity
+      style={[styles.container, { height: cardHeight }]}
+      onPress={() => onPress(item.id,status,item)}
+    >
+      <View style={[styles.contentContainer, { width: '75%' }]}>
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={[styles.title, { fontSize: titleFont }]}
+        >
           {item.title}
         </Text>
 
@@ -27,14 +48,14 @@ function JobCard({ item, onPress }) {
         <View style={styles.descriptionContainer}>
           <Ionicons
             name="document-text-outline"
-            size={16}
+            size={iconSize}
             color={colors.gray}
             style={styles.icon}
           />
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
-            style={styles.description}
+            style={[styles.description, { fontSize: textFont }]}
           >
             {item.description}
           </Text>
@@ -42,23 +63,23 @@ function JobCard({ item, onPress }) {
 
         {/* Duration and Rate */}
         <View style={styles.infoRow}>
-          <>
-            <Ionicons
-              name="time-outline"
-              size={16}
-              color={colors.gray}
-              style={styles.icon}
-            />
-            <Text style={styles.infoText}>{item.no_of_hours}</Text>
-          </>
+          <Ionicons
+            name="time-outline"
+            size={iconSize}
+            color={colors.gray}
+            style={styles.icon}
+          />
+          <Text style={[styles.infoText, { fontSize: textFont }]}>
+            {item.no_of_hours}
+          </Text>
 
           <Ionicons
             name="cash-outline"
-            size={16}
+            size={iconSize}
             color={colors.gray}
             style={[styles.icon, { marginLeft: 20 }]}
           />
-          <Text style={styles.infoText}>
+          <Text style={[styles.infoText, { fontSize: textFont }]}>
             {Number(item.rate) % 1 === 0
               ? Number(item.rate).toFixed(0)
               : Number(item.rate).toString()}{' '}
@@ -70,50 +91,81 @@ function JobCard({ item, onPress }) {
         <View style={styles.infoRow}>
           <Ionicons
             name="card-outline"
-            size={16}
+            size={iconSize}
             color={colors.gray}
             style={styles.icon}
           />
-          <Text style={styles.infoText}>{item.payment_type || 'N/A'}</Text>
+          <Text style={[styles.infoText, { fontSize: textFont }]}>
+            {item.payment_type || 'N/A'}
+          </Text>
         </View>
+
         <View style={styles.infoRow}>
           <Ionicons
             name="briefcase-outline"
-            size={16}
+            size={iconSize}
             color={colors.gray}
             style={styles.icon}
           />
-          <Text style={styles.infoText}>{item.service.name || 'N/A'}</Text>
+          <Text style={[styles.infoText, { fontSize: textFont }]}>
+            {item.service.name || 'N/A'}
+          </Text>
         </View>
       </View>
+
       <View style={styles.header}>
         <View>
           <StatusBox
             color={colors.statusColors(item.status)}
             text={item.status}
           />
+
           {/* Action Buttons */}
-          <View style={styles.actionsRow}>
-            <TouchableOpacity
-              style={[
-                styles.checkCircle,
-                { borderColor: colors.checkGreen, marginRight: 5 },
-              ]}
-              onPress={() => console.log('Interested in job')}
-            >
-              <Ionicons name="checkmark" size={20} color={colors.checkGreen} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.checkCircle, { borderColor: colors.checkRed }]}
-              onPress={() => console.log('Not interested in job')}
-            >
-              <Ionicons
-                name="close-outline"
-                size={20}
-                color={colors.checkRed}
-              />
-            </TouchableOpacity>
-          </View>
+          {profileUser.role === 'provider' && item.my_offer===null && (
+            <View style={styles.actionsRow}>
+              <TouchableOpacity
+                style={[
+                  styles.checkCircle,
+                  {
+                    borderColor: colors.checkGreen,
+                    marginRight: 5,
+                    width: checkBtnSize,
+                    height: checkBtnSize,
+                    borderRadius: checkBtnSize / 2,
+                  },
+                ]}
+                onPress={() => {
+                  onInterestedPress(item.id,item.price_type);
+                }}
+              >
+                <Ionicons
+                  name="checkmark"
+                  size={iconSize}
+                  color={colors.checkGreen}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.checkCircle,
+                  {
+                    borderColor: colors.checkRed,
+                    width: checkBtnSize,
+                    height: checkBtnSize,
+                    borderRadius: checkBtnSize / 2,
+                  },
+                ]}
+                onPress={() => {
+                  onRejectedPress(item.id, 'rejected');
+                }}
+              >
+                <Ionicons
+                  name="close-outline"
+                  size={iconSize}
+                  color={colors.checkRed}
+                />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </View>
     </TouchableOpacity>
@@ -122,7 +174,6 @@ function JobCard({ item, onPress }) {
 
 const styles = StyleSheet.create({
   container: {
-    height: isAndroid ? 180 : 190,
     width: '100%',
     borderRadius: 12,
     borderWidth: 1,
@@ -142,7 +193,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: '700',
-    fontSize: 24,
     color: colors.primary,
     flexShrink: 1,
     marginRight: 8,
@@ -153,7 +203,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   description: {
-    fontSize: 16,
     color: colors.dark,
     flex: 1,
     marginLeft: 5,
@@ -167,7 +216,6 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   infoText: {
-    fontSize: 16,
     color: colors.medium,
   },
   actionsRow: {
@@ -175,22 +223,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 12,
   },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-  actionText: {
-    marginLeft: 6,
-    fontSize: 14,
-    fontWeight: '500',
-  },
   checkCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
     borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',

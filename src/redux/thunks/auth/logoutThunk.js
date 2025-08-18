@@ -7,16 +7,12 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = await storage.getToken();
+      const fcmToken = await storage.geFcmToken();
 
       if (token) {
         await apiClient.post(
-          '/logout',
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          '/logout',{token:fcmToken}
+         
         );
       }
 
@@ -37,5 +33,5 @@ export const logoutUser = createAsyncThunk(
 
       return rejectWithValue('Logout failed');
     }
-  }
+  },
 );

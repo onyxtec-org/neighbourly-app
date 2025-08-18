@@ -17,7 +17,7 @@ import { useCallback } from 'react';
 
 const ProviderHomeScreen = ({ navigation }) => {
   const { myServices } = useSelector(state => state.services);
-console.log('my services',myServices);
+console.log('my servicesss',myServices);
 
   useFocusEffect(
     useCallback(() => {

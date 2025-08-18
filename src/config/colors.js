@@ -32,7 +32,7 @@ const colors = {
     switch (type) {
       case 'pending':
         return this.pending;
-      case 'in progress':
+      case 'in_progress':
         return this.inProgress;
       case 'completed':
         return this.completed;
