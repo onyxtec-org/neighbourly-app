@@ -111,12 +111,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
               marginBottom: 16,
               borderRadius: 6,
             }}
-            style={{
-              width: '60%',
-              height: 24,
-              marginBottom: 16,
-              borderRadius: 6,
-            }}
+  
           />
 
           {/* Fake image/video carousel */}
@@ -128,12 +123,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
               marginBottom: 20,
               borderRadius: 12,
             }}
-            style={{
-              width: '100%',
-              height: 220,
-              marginBottom: 20,
-              borderRadius: 12,
-            }}
+           
           />
 
           {/* Fake text lines */}
@@ -147,12 +137,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 marginBottom: 12,
                 borderRadius: 4,
               }}
-              style={{
-                width: '100%',
-                height: 18,
-                marginBottom: 12,
-                borderRadius: 4,
-              }}
+             
             />
           ))}
         </ScrollView>
@@ -487,7 +472,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
           </View>
 
           {/* Action Buttons (Small, Text-Based) */}
-          {userRole === 'consumer' && Number(item?.offers?.length) > 0 ? (
+          {userRole === 'consumer' && Number(item?.offers?.length) > 0 && item.accepted_offer===null? (
             <TouchableOpacity
               style={styles.textButton}
               onPress={onInterestedPersonPress}

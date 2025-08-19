@@ -123,7 +123,7 @@ const ProfileScreen = ({ navigation }) => {
                     console.error('Logout cleanup failed:', err);
                     showToast('Something went wrong during logout', 'error');
                   }
-                }, 1200);
+                }, 0);
               } else {
                 setIsLoading(false);
 
