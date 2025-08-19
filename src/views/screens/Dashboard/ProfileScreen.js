@@ -16,7 +16,7 @@ import {
   switchUserProfile,
 } from '../../../redux/slices/auth/profileSlice';
 import { logoutUser } from '../../../redux/thunks/auth/logoutThunk';
-import { setUserRole } from '../../../redux/slices/auth/profileSlice';
+import { setUserRole , deleteAccount} from '../../../redux/slices/auth/profileSlice';
 import CustomToast from '../../components/CustomToast';
 import CustomPopup from '../../components/CustomPopup';
 import config from '../../../config';
@@ -28,11 +28,36 @@ const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const nav = useNavigation(); // for logout navigation
   const [deletePopupVisible, setDeletePopupVisible] = useState(false);
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     console.log('🗑 Account deletion confirmed');
     setDeletePopupVisible(false);
-    // Dispatch delete thunk or navigate here
+  
+    try {
+      const result = await dispatch(deleteAccount());
+  
+      if (deleteAccount.fulfilled.match(result)) {
+        // Logout also to clear redux states
+        await dispatch(logoutUser());
+        const showToast = (msg, type = 'success') => {
+          setToastMessage(msg);
+          setToastType(type);
+          setToastVisible(true);
+        };
+        showToast('Account deleted successfully', 'success');
+        nav.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+          }),
+        );
+      } else {
+        throw new Error(result.payload || 'Failed to delete account');
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to delete account', 'error');
+    }
   };
+  
   const userId = useSelector(state => state.login?.user?.id);
   const loading = useSelector(state => state.login?.loading);
 

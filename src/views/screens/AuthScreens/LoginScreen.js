@@ -48,7 +48,7 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
       duration: 600,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [fadeAnim]);
 
   useEffect(() => {
     if (success && user && token) {
@@ -91,19 +91,7 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Close Button */}
-      {/* <CrossIconButton
-        onPress={() => {
-          if (navigation.canGoBack()) {
-            navigation.goBack();
-          } else {
-            navigation.navigate('Welcome');
-          }
-        }}
-        size={22}
-        color="#212529"
-        style={styles.closeButton}
-      /> */}
+      
 
       {/* Animated Logo */}
       <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>

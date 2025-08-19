@@ -25,11 +25,13 @@ import PrivacyPolicyScreen from '../views/screens/Dashboard/PrivacyPolicyScreen'
 import TermsandconditionScreen from '../views/screens/Dashboard/TermsandconditionScreen'; // Import TermsandconditionScreen
 import JobDetailsScreen from '../views/screens/JobDetailsScreen';
 import OfferListScreen from '../views/screens/Dashboard/OffersScreen';
+import { navigationRef } from '../navigation/NavigationService'; // adjust path
+
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator initialRouteName="AppEntry" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="AppEntry" component={AppEntryScreen} />
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
