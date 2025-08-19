@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderRadius: 12,
-    backgroundColor: '#f8f9fa',
+    //backgroundColor: '#f8f9fa',
     paddingHorizontal: 12,
   },
   loginButton: {

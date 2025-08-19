@@ -158,8 +158,7 @@ const ServicesSelectScreen = ({ navigation, route }) => {
     ]); // also add to selected
     setCustomService('');
     setShowCustomInput(false);
-    console.log('new servie',newService);
-    
+    console.log('new servie', newService);
   };
 
   const selectedSearch = service => {
@@ -197,13 +196,13 @@ const ServicesSelectScreen = ({ navigation, route }) => {
       const result = await dispatch(addServices(body)).unwrap();
 
       if (result.statusCode === 200) {
-        await storage.storeUser(result.data.user)
+        await storage.storeUser(result.data.user);
         dispatch(setMyServices(result.data.user.services));
         setIsLoading(false);
         setToastMessage(result.message);
         setToastType('success');
         setToastVisible(true);
-        
+
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
@@ -427,17 +426,15 @@ const ServicesSelectScreen = ({ navigation, route }) => {
             >
               <Text style={styles.logButtonText}>Add services</Text>
             </TouchableOpacity>
-
-            <CustomToast
-              visible={toastVisible}
-              message={toastMessage}
-              type={toastType}
-              onHide={() => setToastVisible(false)}
-            />
           </View>
-      {isLoading && <AppActivityIndicator />}
-
+          {isLoading && <AppActivityIndicator />}
         </ScrollView>
+        <CustomToast
+          visible={toastVisible}
+          message={toastMessage}
+          type={toastType}
+          onHide={() => setToastVisible(false)}
+        />
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );

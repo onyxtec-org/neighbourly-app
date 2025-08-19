@@ -1,5 +1,5 @@
 // export default CreateOfferPopup;
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -30,6 +30,10 @@ const CreateOfferPopup = ({
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
   const [hasOffered, setHasOffered] = useState(false);
+
+  useEffect(() => {
+    setHasOffered(false);
+  }, [userJobId]);
 
   const dispatch = useDispatch();
   const { loading } = useSelector(state => state.offers || state.offer || {});

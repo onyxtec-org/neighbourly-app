@@ -16,12 +16,7 @@ export const logoutUser = createAsyncThunk(
         );
       }
 
-      const tokenRemoved = await storage.removeToken();
-      const userRemoved = await storage.removeUser();
-
-      if (!tokenRemoved || !userRemoved) {
-        throw new Error('Failed to clear local storage');
-      }
+     
 
       return 'Logout successful';
     } catch (error) {

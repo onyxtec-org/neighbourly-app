@@ -7,17 +7,21 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Image,
+  FlatList,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCategories } from '../../../../redux/slices/categoriesSlice';
 import colors from '../../../../config/colors';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
-
+import { selectJobsByTab } from '../../../../redux/selectors/jobSelector';
+import { getJobs } from '../../../../redux/slices/jobSlice';
 const ProviderHomeScreen = ({ navigation }) => {
   const { myServices } = useSelector(state => state.services);
-console.log('my servicesss',myServices);
+  const myJobs = useSelector(selectJobsByTab('my_jobs', 'provider'));
+  const dispatch = useDispatch();
+
+  console.log('myjobs---', myJobs);
 
   useFocusEffect(
     useCallback(() => {
@@ -27,37 +31,31 @@ console.log('my servicesss',myServices);
           routes: [{ name: 'VerifyUser' }],
         });
       }
-    }, [myServices, navigation])
+
+      dispatch(getJobs());
+    }, [myServices, navigation]),
   );
 
-  const dispatch = useDispatch();
-  const { categories, status } = useSelector(state => state.categories);
-
-  useEffect(() => {
-    dispatch(fetchCategories());
-  }, [dispatch]);
-
-  const renderCategory = ({ item }) => (
+  const renderJob = ({ item }) => (
     <TouchableOpacity
-      style={styles.cardContainer}
+      style={styles.jobCard}
       onPress={() =>
-        navigation.navigate('CategoryDetailsScreen', { category: item })
+        navigation.navigate('JobDetailsScreen', {
+          jobId: item.id,
+          userRole: 'provider', // ✅ only if available in your job object
+          status: 'my_jobs',
+          item, // passing the whole job object if needed
+        })
       }
     >
-      <View style={styles.cardImageWrapper}>
-        <Image
-          source={{
-            uri: item.image?.trim()
-              ? item.image
-              : 'https://via.placeholder.com/300x200.png?text=No+Image',
-          }}
-          style={styles.cardImage}
-          resizeMode="cover"
-        />
-      </View>
-      <View style={styles.cardLabel}>
-        <Text style={styles.categoryName}>{item.name}</Text>
-      </View>
+      <Text style={styles.jobTitle}>{item.title}</Text>
+      <Text style={styles.jobService}>
+        Service: {item.service?.name || 'N/A'}
+      </Text>
+      <Text style={styles.jobLocation}>📍 {item.location}</Text>
+      <Text>Status: {item.status}</Text>
+      <Text>Budget: ${item.budget}</Text>
+      <Text>Consumer: {item.consumer?.name || 'Unknown'}</Text>
     </TouchableOpacity>
   );
 
@@ -85,19 +83,20 @@ console.log('my servicesss',myServices);
           </TouchableOpacity>
         </View>
 
-        {/* Category Header */}
-        <View style={styles.categoryHeader}>
-          <Text style={styles.helpText}>Welcome to Provider Dashboard</Text>
-          {categories.length > 4 && (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('AllCategoriesScreen')}
-            >
-              <Text style={styles.seeAllText}>See All</Text>
-            </TouchableOpacity>
+        {/* My Jobs Section */}
+        <View style={{ flex: 1, paddingHorizontal: 16, marginTop: 16 }}>
+          <Text style={styles.helpText}>My Jobs</Text>
+          {myJobs?.length > 0 ? (
+            <FlatList
+              data={myJobs}
+              keyExtractor={item => item.id.toString()}
+              renderItem={renderJob}
+              contentContainerStyle={{ paddingBottom: 20 }}
+            />
+          ) : (
+            <Text>No jobs found.</Text>
           )}
         </View>
-
-    
       </View>
     </TouchableWithoutFeedback>
   );
@@ -164,12 +163,36 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.primary,
   },
-    categoryHeader: {
+  categoryHeader: {
     paddingHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 12,
+  },
+  jobCard: {
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  jobTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  jobService: {
+    fontSize: 14,
+    color: '#555',
+  },
+  jobLocation: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 6,
   },
 });
 

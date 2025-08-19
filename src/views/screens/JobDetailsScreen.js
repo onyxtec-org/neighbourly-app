@@ -36,6 +36,7 @@ const CARD_HEIGHT = 250;
 const JobDetailsScreen = ({ navigation, route }) => {
   const { jobId, userRole, status, item } = route.params;
   console.log('role', userRole, status);
+  console.log('item', item);
   const flatListRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [playingIndex, setPlayingIndex] = useState(null);
@@ -64,6 +65,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
           status: status === 'my_jobs' ? 'in_progress' : 'completed',
         }),
       );
+
 
       if (res?.payload.statusCode === 200) {
         setIsLoading(false);
@@ -109,11 +111,23 @@ const JobDetailsScreen = ({ navigation, route }) => {
               marginBottom: 16,
               borderRadius: 6,
             }}
+            style={{
+              width: '60%',
+              height: 24,
+              marginBottom: 16,
+              borderRadius: 6,
+            }}
           />
 
           {/* Fake image/video carousel */}
           <ShimmerPlaceholder
             LinearGradient={LinearGradient}
+            style={{
+              width: '100%',
+              height: 220,
+              marginBottom: 20,
+              borderRadius: 12,
+            }}
             style={{
               width: '100%',
               height: 220,
@@ -133,12 +147,19 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 marginBottom: 12,
                 borderRadius: 4,
               }}
+              style={{
+                width: '100%',
+                height: 18,
+                marginBottom: 12,
+                borderRadius: 4,
+              }}
             />
           ))}
         </ScrollView>
       </SafeAreaView>
     );
   }
+  if (error) return <Text>Error: {error}</Text>;
   if (error) return <Text>Error: {error}</Text>;
   if (!job) return <Text>No job data found.</Text>;
   const onScrollEnd = e => {
@@ -481,6 +502,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 >
                   <Text style={styles.textButtonText}>Ignore</Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
                   onPress={() => setShowOffer(true)}
                   style={[styles.textButton, styles.filledButton]}
