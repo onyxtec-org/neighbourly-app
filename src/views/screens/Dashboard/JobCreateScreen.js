@@ -99,33 +99,9 @@ const JobCreateScreen = ({ navigation, route }) => {
   const jobState = useSelector(state => state.job);
   const { loading, error, success } = jobState;
 
-  useEffect(() => {
-    if (success && hasSubmitted ) {
-      console.log('✅ Job successfully created.');
-
-      setToastMessage('Job Created!');
-      setToastType('success');
-      setToastVisible(true);
-      dispatch(getJobs());
-
-      setTimeout(() => {
-        dispatch(resetJobState());
-        navigation.pop();
-      }, 1200);
-    } else if (error) {
-      console.log('❌ Job creation error received from state:', error);
-
-      const message =
-        error?.toString() || 'Job creation failed. Please try again.';
-      setToastMessage(`❌ ${message}`);
-      setToastType('error');
-      setToastVisible(true);
-
-      setTimeout(() => {
-        dispatch(resetJobState());
-      }, 1500);
-    }
-  }, [success, error, dispatch, navigation, hasSubmitted]);
+  // useEffect(() => {
+ 
+  // }, [success, error, dispatch, navigation, hasSubmitted]);
 
   const handleSubmit = async values => {
     setHasSubmitted(true);
@@ -198,7 +174,34 @@ const JobCreateScreen = ({ navigation, route }) => {
       });
 
       console.log('🚀 Dispatching job creation...');
-      dispatch(createJob(formData));
+      const reponse=await dispatch(createJob(formData));
+      
+
+         if (reponse.payload.success ) {
+      console.log('✅ Job successfully created.');
+
+      setToastMessage('Job Created!');
+      setToastType('success');
+      setToastVisible(true);
+      dispatch(getJobs());
+
+      setTimeout(() => {
+        dispatch(resetJobState());
+        navigation.pop();
+      }, 1200);
+    } else if (error) {
+      console.log('❌ Job creation error received from state:', error);
+
+      const message =
+        error?.toString() || 'Job creation failed. Please try again.';
+      setToastMessage(`❌ ${message}`);
+      setToastType('error');
+      setToastVisible(true);
+
+      setTimeout(() => {
+        dispatch(resetJobState());
+      }, 1500);
+    }
     } catch (error) {
       console.log('❌ Error in handleSubmit:', error);
     }

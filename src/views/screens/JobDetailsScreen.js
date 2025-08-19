@@ -36,6 +36,7 @@ const CARD_HEIGHT = 250;
 const JobDetailsScreen = ({ navigation, route }) => {
   const { jobId, userRole, status, item } = route.params;
   console.log('role', userRole, status);
+  console.log('item', item);
   const flatListRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [playingIndex, setPlayingIndex] = useState(null);
@@ -64,6 +65,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
           status: status === 'my_jobs' ? 'in_progress' : 'completed',
         }),
       );
+
 
       if (res?.payload.statusCode === 200) {
         setIsLoading(false);
@@ -109,6 +111,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
               marginBottom: 16,
               borderRadius: 6,
             }}
+  
           />
 
           {/* Fake image/video carousel */}
@@ -120,6 +123,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
               marginBottom: 20,
               borderRadius: 12,
             }}
+           
           />
 
           {/* Fake text lines */}
@@ -133,12 +137,14 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 marginBottom: 12,
                 borderRadius: 4,
               }}
+             
             />
           ))}
         </ScrollView>
       </SafeAreaView>
     );
   }
+  if (error) return <Text>Error: {error}</Text>;
   if (error) return <Text>Error: {error}</Text>;
   if (!job) return <Text>No job data found.</Text>;
   const onScrollEnd = e => {
@@ -466,7 +472,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
           </View>
 
           {/* Action Buttons (Small, Text-Based) */}
-          {userRole === 'consumer' && Number(item?.offers?.length) > 0 ? (
+          {userRole === 'consumer' && Number(item?.offers?.length) > 0 && item.accepted_offer===null? (
             <TouchableOpacity
               style={styles.textButton}
               onPress={onInterestedPersonPress}
@@ -481,6 +487,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 >
                   <Text style={styles.textButtonText}>Ignore</Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
                   onPress={() => setShowOffer(true)}
                   style={[styles.textButton, styles.filledButton]}

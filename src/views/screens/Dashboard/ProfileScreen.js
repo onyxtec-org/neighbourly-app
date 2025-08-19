@@ -16,7 +16,10 @@ import {
   switchUserProfile,
 } from '../../../redux/slices/auth/profileSlice';
 import { logoutUser } from '../../../redux/thunks/auth/logoutThunk';
-import { setUserRole , deleteAccount} from '../../../redux/slices/auth/profileSlice';
+import {
+  setUserRole,
+  deleteAccount,
+} from '../../../redux/slices/auth/profileSlice';
 import CustomToast from '../../components/CustomToast';
 import CustomPopup from '../../components/CustomPopup';
 import config from '../../../config';
@@ -24,6 +27,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import storage from '../../../app/storage';
 import ZoomableImage from '../../components/ZoomableImage';
 import { setMyServices } from '../../../redux/slices/servicesSlice';
+import AppActivityIndicator from '../../components/AppActivityIndicator';
 const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const nav = useNavigation(); // for logout navigation
@@ -31,10 +35,10 @@ const ProfileScreen = ({ navigation }) => {
   const handleDeleteAccount = async () => {
     console.log('🗑 Account deletion confirmed');
     setDeletePopupVisible(false);
-  
+
     try {
       const result = await dispatch(deleteAccount());
-  
+
       if (deleteAccount.fulfilled.match(result)) {
         // Logout also to clear redux states
         await dispatch(logoutUser());
@@ -57,7 +61,7 @@ const ProfileScreen = ({ navigation }) => {
       showToast(err.message || 'Failed to delete account', 'error');
     }
   };
-  
+
   const userId = useSelector(state => state.login?.user?.id);
   const loading = useSelector(state => state.login?.loading);
 
@@ -71,6 +75,7 @@ const ProfileScreen = ({ navigation }) => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
   const [shouldNavigate, setShouldNavigate] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const showToast = (msg, type = 'success') => {
     console.log(' Showing toast:', msg);
@@ -89,22 +94,44 @@ const ProfileScreen = ({ navigation }) => {
           text: 'Logout',
           style: 'destructive',
           onPress: async () => {
+            setIsLoading(true);
             try {
               const result = await dispatch(logoutUser());
-              
-              if (logoutUser.fulfilled.match(result)) {
-                showToast(result.payload || 'Logout successful', 'success');
+              console.log('resulg logout--', result);
+
+              if (result.payload === 'Logout successful') {
+                showToast('Logout successful', 'success');
                 setShouldNavigate(true);
-                nav.dispatch(
-                  CommonActions.reset({
-                    index: 0,
-                    routes: [{ name: 'Login' }],
-                  }),
-                );
+
+                setTimeout(async () => {
+                  try {
+                    setIsLoading(false);
+
+                    nav.dispatch(
+                      CommonActions.reset({
+                        index: 0,
+                        routes: [{ name: 'Login' }],
+                      }),
+                    );
+                    const tokenRemoved = await storage.removeToken();
+                    const userRemoved = await storage.removeUser();
+
+                    if (!tokenRemoved || !userRemoved) {
+                      throw new Error('Failed to clear local storage');
+                    }
+                  } catch (err) {
+                    console.error('Logout cleanup failed:', err);
+                    showToast('Something went wrong during logout', 'error');
+                  }
+                }, 0);
               } else {
+                setIsLoading(false);
+
                 throw new Error(result.payload || 'Logout failed');
               }
             } catch (err) {
+              setIsLoading(false);
+
               showToast(err.message || 'Logout failed', 'error');
             }
           },
@@ -150,7 +177,6 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
-  
   useEffect(() => {
     if (userId) {
       console.log('Dispatching fetchUserProfile with userId:', userId);
@@ -184,10 +210,14 @@ const ProfileScreen = ({ navigation }) => {
       <ScrollView contentContainerStyle={profileStyles.scrollViewContent}>
         <View style={profileStyles.profileInfoSection}>
           <View style={profileStyles.profileImageContainer}>
-          <ZoomableImage
-               uri={profileUser?.image ? `${config.userimageURL}${profileUser.image}` : null}
-                placeholderUri="https://placehold.co/96x96/e0e0e0/000000?text=Profile"
-                style={profileStyles.profileImage}
+            <ZoomableImage
+              uri={
+                profileUser?.image
+                  ? `${config.userimageURL}${profileUser.image}`
+                  : null
+              }
+              placeholderUri="https://placehold.co/96x96/e0e0e0/000000?text=Profile"
+              style={profileStyles.profileImage}
             />
           </View>
           <Text style={profileStyles.profileName}>
@@ -295,6 +325,7 @@ const ProfileScreen = ({ navigation }) => {
         onCancel={() => setDeletePopupVisible(false)}
         onConfirm={handleDeleteAccount}
       />
+      {isLoading && <AppActivityIndicator />}
     </View>
   );
 };
