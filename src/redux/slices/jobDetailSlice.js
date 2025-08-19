@@ -8,6 +8,7 @@ export const fetchJobDetails = createAsyncThunk(
     try {
       const response = await apiClient.get(`/jobs/${jobId}`);
       if (response.data.success) {
+        console.log('Job details fetched successfully:', response.data.data.job);
         return response.data.data.job;
       } else {
         return rejectWithValue(response.data.message || 'Failed to fetch job details');

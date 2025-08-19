@@ -94,29 +94,57 @@ const NotificationService = {
     }
   },
 
-  async handleNotificationRedirection(data) {
+  async handleNotificationRedirection(rawData) {
     try {
-      console.log('🔀 Redirecting based on notification data:', data);
-  
+      this.stepLog('Redirection invoked with raw data', rawData);
+
+      const data = rawData || {};
+      const type = data?.type;
       const jobId = data?.jobId || data?.job_id;
-  
-      // ✅ Get latest role from Redux state
+      const offerId = data?.offerId || data?.offer_id;
+
+      // Pull fresh role from Redux every time
       const state = store.getState();
-      const userRole = state?.profile?.user?.role || 'consumer'; // fallback if not available
-  
-      if (data?.type === 'job_created' && jobId) {
-        navigate('JobDetailsScreen', {
-          jobId,
-          userRole, // ✅ dynamic role
-          status: data?.status || 'pending',
-          item: data?.item || {},
-        });
+      const userRole = state?.profile?.user?.role || 'consumer';
+
+      this.stepLog('Extracted params', { type, jobId, offerId, userRole });
+
+      switch (type) {
+        case 'job_created':
+          if (jobId) {
+            const params = {
+              jobId,
+              userRole,
+              status: data?.status || 'pending',
+              item: data?.item || {},
+            };
+            this.stepLog('➡️ Navigating to JobDetailsScreen with params', params);
+            navigate('JobDetailsScreen', params);
+          } else {
+            this.stepLog('⚠️ job_created missing jobId – no navigation');
+          }
+          break;
+
+        case 'offer_created':
+          // Navigate to OffersScreen; pass offerId if provided for deep-linking
+          if (offerId) {
+            const params = { offerId, origin: 'notification' };
+            this.stepLog('➡️ Navigating to OffersScreen (specific offer)', params);
+            navigate('OffersScreen', params);
+          } else {
+            this.stepLog('➡️ Navigating to OffersScreen (no specific offerId)');
+            navigate('OffersScreen');
+          }
+          break;
+
+        default:
+          this.stepLog('ℹ️ Unknown or missing notification type – no navigation', { type });
+          break;
       }
     } catch (error) {
-      console.log('❌ Notification redirection error:', error);
+      this.stepLog('❌ Notification redirection error', error);
     }
-  }
-
+  },
 };
 
 export default NotificationService;
