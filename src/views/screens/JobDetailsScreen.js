@@ -14,11 +14,13 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
 import LinearGradient from 'react-native-linear-gradient';
+import StatusBox from '../components/JobComponents/StatusBox';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchJobDetails,
   clearJobDetails,
 } from '../../redux/slices/jobDetailSlice';
+import ZoomableImage from '../components/ZoomableImage';
 import Video from 'react-native-video';
 import config from '../../config';
 import colors from '../../config/colors';
@@ -54,7 +56,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
     setToastVisible(true);
   };
   const statusChange = async () => {
-
     setIsLoading(true);
     try {
       const res = await dispatch(
@@ -63,7 +64,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
           status: status === 'my_jobs' ? 'in_progress' : 'completed',
         }),
       );
-      
+
       if (res?.payload.statusCode === 200) {
         setIsLoading(false);
 
@@ -102,28 +103,43 @@ const JobDetailsScreen = ({ navigation, route }) => {
           {/* Fake title */}
           <ShimmerPlaceholder
             LinearGradient={LinearGradient}
-            style={{ width: '60%', height: 24, marginBottom: 16, borderRadius: 6 }}
+            style={{
+              width: '60%',
+              height: 24,
+              marginBottom: 16,
+              borderRadius: 6,
+            }}
           />
-  
+
           {/* Fake image/video carousel */}
           <ShimmerPlaceholder
             LinearGradient={LinearGradient}
-            style={{ width: '100%', height: 220, marginBottom: 20, borderRadius: 12 }}
+            style={{
+              width: '100%',
+              height: 220,
+              marginBottom: 20,
+              borderRadius: 12,
+            }}
           />
-  
+
           {/* Fake text lines */}
           {[1, 2, 3].map(i => (
             <ShimmerPlaceholder
               key={i}
               LinearGradient={LinearGradient}
-              style={{ width: '100%', height: 18, marginBottom: 12, borderRadius: 4 }}
+              style={{
+                width: '100%',
+                height: 18,
+                marginBottom: 12,
+                borderRadius: 4,
+              }}
             />
           ))}
         </ScrollView>
       </SafeAreaView>
     );
   }
-   if (error) return <Text>Error: {error}</Text>;
+  if (error) return <Text>Error: {error}</Text>;
   if (!job) return <Text>No job data found.</Text>;
   const onScrollEnd = e => {
     const index = Math.round(e.nativeEvent.contentOffset.x / width);
@@ -161,7 +177,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
     const offers = item.offers;
     navigation.navigate('OffersScreen', { offers });
   };
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <Header title={'Job details'} />
@@ -170,6 +185,14 @@ const JobDetailsScreen = ({ navigation, route }) => {
         {/* Job Title (Above Image Carousel) */}
 
         <View style={styles.mediaCard}>
+          {job?.status && (
+            <View style={styles.statusOverlay}>
+              <StatusBox
+                color={colors.statusColors(item.status)}
+                text={item.status}
+              />
+            </View>
+          )}
           <FlatList
             data={job?.attachments || []}
             ref={flatListRef}
@@ -201,7 +224,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
                     {!isPlaying && (
                       <>
                         <Image
-                          source={{ uri: url + '?thumbnail' }} // your thumbnail url here
+                          source={{ uri: url + '?thumbnail' }}
                           style={styles.carouselImage}
                           resizeMode="cover"
                           onLoadStart={() => onLoadStart(index)}
@@ -248,12 +271,10 @@ const JobDetailsScreen = ({ navigation, route }) => {
               // For images:
               return (
                 <View style={styles.mediaContainer}>
-                  <Image
-                    source={{ uri: url }}
+                  <ZoomableImage
+                    uri={url}
+                    placeholderUri="https://placehold.co/600x400/e0e0e0/000000?text=Image"
                     style={styles.carouselImage}
-                    resizeMode="cover"
-                    onLoadStart={() => onLoadStart(index)}
-                    onLoadEnd={() => onLoadEnd(index)}
                   />
                   {isLoading && (
                     <ActivityIndicator
@@ -265,10 +286,16 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 </View>
               );
             }}
+            // 👇 Default placeholder when no media
+            ListEmptyComponent={() => (
+              <View style={styles.emptyMedia}>
+                <Ionicons name="image-outline" size={48} color="#999" />
+              </View>
+            )}
           />
 
           {/* Pagination Dots */}
-          {job.attachments.length > 1 && (
+          {job?.attachments?.length > 1 && (
             <View style={styles.paginationDotsContainer}>
               {job.attachments.map((_, index) => (
                 <View
@@ -283,7 +310,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
           )}
 
           {/* Left/Right Arrows */}
-          {job.attachments.length > 1 && (
+          {job?.attachments?.length > 1 && (
             <>
               <TouchableOpacity
                 onPress={scrollPrev}
@@ -306,46 +333,14 @@ const JobDetailsScreen = ({ navigation, route }) => {
             </>
           )}
         </View>
-        {/* Just show job title without “Title” label */}
-        <View style={styles.headerRow}>
-          <Text style={styles.jobTitle}>{job.title}</Text>
-          {status === 'my_jobs' && userRole==='provider' &&(
-            <TouchableOpacity
-              style={[
-                styles.progressButton,
-                {
-                  backgroundColor: inProgress
-                    ? colors.inProgress
-                    : colors.pending,
-                },
-              ]}
-              onPress={statusChange}
-              disabled={inProgress}
-            >
-              <Text style={styles.progressButtonText}>
-                {inProgress ? 'In Progress' : 'Mark as In Progress'}
-              </Text>
-            </TouchableOpacity>
-          )}
 
-          {status === 'in_progress' && userRole==='provider' && (
-            <TouchableOpacity
-              style={[
-                styles.progressButton,
-                {
-                  backgroundColor: completed
-                    ? colors.completed
-                    : colors.inProgress,
-                },
-              ]}
-              onPress={statusChange}
-              disabled={completed}
-            >
-              <Text style={styles.progressButtonText}>
-                {completed ? 'Completed' : 'Mark as Complete'}
-              </Text>
-            </TouchableOpacity>
-          )}
+        {/* Just show job title without “Title” label */}
+
+        <View style={styles.headerRow}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.heading}>Job Title</Text>
+            <Text style={styles.jobTitle}>{job.title}</Text>
+          </View>
         </View>
 
         {/* Divider line for separation */}
@@ -422,6 +417,43 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 <Text style={styles.infoText}>{job.payment_type}</Text>
               </View>
             </View>
+            {status === 'my_jobs' && userRole === 'provider' && (
+              <TouchableOpacity
+                style={[
+                  styles.progressButton,
+                  {
+                    backgroundColor: inProgress
+                      ? colors.inProgress
+                      : colors.pending,
+                  },
+                ]}
+                onPress={statusChange}
+                disabled={inProgress}
+              >
+                <Text style={styles.progressButtonText}>
+                  {inProgress ? 'In Progress' : 'Mark as In Progress'}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {status === 'in_progress' && userRole === 'provider' && (
+              <TouchableOpacity
+                style={[
+                  styles.progressButton,
+                  {
+                    backgroundColor: completed
+                      ? colors.completed
+                      : colors.inProgress,
+                  },
+                ]}
+                onPress={statusChange}
+                disabled={completed}
+              >
+                <Text style={styles.progressButtonText}>
+                  {completed ? 'Completed' : 'Mark as Complete'}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Location (Separate) */}
@@ -434,7 +466,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
           </View>
 
           {/* Action Buttons (Small, Text-Based) */}
-          {userRole === 'consumer' ? (
+          {userRole === 'consumer' && Number(item?.offers?.length) > 0 ? (
             <TouchableOpacity
               style={styles.textButton}
               onPress={onInterestedPersonPress}
@@ -463,38 +495,90 @@ const JobDetailsScreen = ({ navigation, route }) => {
             )
           )}
         </View>
-        <View style={styles.mainDetailsCard}>
-          <View>
-            <Text style={styles.sectionHeading}>Consumer</Text>
+        {userRole === 'provider' ? (
+          // Show Consumer Section
+          <View style={styles.mainDetailsCard}>
+            <View>
+              <Text style={styles.sectionHeading}>Consumer</Text>
+            </View>
+            <View style={styles.userRow}>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('AccountScreen', {
+                    userId: job.consumer?.id,
+                  })
+                }
+                style={styles.userInfoTouchable}
+              >
+                <Image
+                  source={{
+                    uri: job.consumer?.image
+                      ? `${config.userimageURL}${job.consumer?.image}`
+                      : 'https://via.placeholder.com/150', // fallback if null
+                  }}
+                  style={styles.userImage}
+                />
+                <View style={styles.userInfo}>
+                  <Text style={styles.userName}>
+                    {job.consumer?.name || 'Unknown User'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.chatButton}>
+                <Text style={styles.textButtonText}>Chat</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={styles.userRow}>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate('AccountScreen', {
-                  userId: job.consumer?.id,
-                })
-              }
-              style={styles.userInfoTouchable}
-            >
-              <Image
-                source={{
-                  uri: `${config.userimageURL}${job.consumer?.image}`,
-                }}
-                style={styles.userImage}
-              />
-              <View style={styles.userInfo}>
-                <Text style={styles.userName}>
-                  {job.consumer?.name || 'Unknown User'}
-                </Text>
+        ) : (
+          // If role = consumer
+          job.accepted_offer !== null && (
+            <View style={styles.mainDetailsCard}>
+              <View>
+                <Text style={styles.sectionHeading}>Provider</Text>
               </View>
-            </TouchableOpacity>
+              <View style={styles.userRow}>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('AccountScreen', {
+                      userId: job.accepted_offer?.provider?.id,
+                    })
+                  }
+                  style={styles.userInfoTouchable}
+                >
+                  <Image
+                    source={{
+                      uri: job.accepted_offer?.provider?.image
+                        ? `${config.userimageURL}${job.accepted_offer?.provider?.image}`
+                        : 'https://via.placeholder.com/150',
+                    }}
+                    style={styles.userImage}
+                  />
+                  <View style={styles.userInfo}>
+                    <Text style={styles.userName}>
+                      {job.accepted_offer?.provider?.name || 'Unknown Provider'}
+                    </Text>
 
-            <TouchableOpacity style={styles.chatButton}>
-              <Text style={styles.textButtonText}>Chat</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+                    {/* === Offer Details === */}
+                    <Text style={styles.offerDetails}>
+                      Rate: {job.accepted_offer?.rate} | Hours:{' '}
+                      {job.accepted_offer?.no_of_hours}
+                    </Text>
+                    {job.accepted_offer?.note && (
+                      <Text style={styles.offerNote}>
+                        Note: {job.accepted_offer?.note}
+                      </Text>
+                    )}
+                  </View>
+                </TouchableOpacity>
 
+                <TouchableOpacity style={styles.chatButton}>
+                  <Text style={styles.textButtonText}>Chat</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )
+        )}
         <CustomToast
           visible={toastVisible}
           message={toastMessage}
@@ -720,7 +804,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#2c3e50',
     marginHorizontal: 15,
-    marginTop: 20,
+    marginTop: 0,
     marginBottom: 8,
   },
 
@@ -733,7 +817,18 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase', // subtle uppercase for professional look
     letterSpacing: 1,
   },
-
+  titleContainer: {
+    flexDirection: 'column',
+  },
+  heading: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#7f8c8d',
+    marginHorizontal: 15,
+    marginTop: 15,
+    textTransform: 'uppercase',
+    marginBottom: 8,
+  },
   jobDescription: {
     fontSize: 16,
     color: '#555',
@@ -753,11 +848,8 @@ const styles = StyleSheet.create({
   mediaCard: {
     width: width,
     height: CARD_HEIGHT,
-    backgroundColor: '#000',
-    borderBottomRightRadius: 15,
-    borderBottomLeftRadius: 15,
-    borderTopRightRadius: 15,
-    borderTopLeftRadius: 15,
+    backgroundColor: '#f2f2f2', // light gray instead of black
+    borderRadius: 15,
     overflow: 'hidden',
     elevation: 4,
     shadowColor: '#000',
@@ -772,8 +864,9 @@ const styles = StyleSheet.create({
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000',
+    backgroundColor: '#f2f2f2', // light gray instead of black
   },
+
   carouselImage: {
     width: width,
     height: CARD_HEIGHT,
@@ -832,7 +925,7 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: 'row',
-    alignItems: 'center', // better alignment
+    alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 12,
   },
@@ -840,6 +933,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
+    alignSelf: 'center',
+    color: colors.primary,
   },
   progressButtonText: {
     color: colors.white,
@@ -850,19 +945,40 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
+    alignSelf: 'center',
+    color: colors.primary,
   },
-  // loaderContainer: {
-  //   flex: 1,
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   backgroundColor: colors.background, // or a soft grey
-  // },
-  // loaderText: {
-  //   marginTop: 12,
-  //   fontSize: 16,
-  //   color: colors.textSecondary,
-  // },
-  
+
+  emptyMedia: {
+    width: width, // 👈 FlatList card jitna wide
+    height: CARD_HEIGHT, // 👈 card jitna tall
+    justifyContent: 'center',
+    alignItems: 'center', // 👈 horizontal center bhi
+    backgroundColor: '#f2f2f2',
+  },
+  emptyImage: {
+    width: 80,
+    height: 80,
+    resizeMode: 'contain',
+    tintColor: '#aaa', // optional for gray tone
+  },
+  statusOverlay: {
+    position: 'absolute',
+    top: 10, // 👈 card ke top se 10px
+    right: 10, // 👈 card ke right se 10px
+    zIndex: 5, // 👈 FlatList ke upar dikhane ke liye
+  },
+  offerDetails: {
+    fontSize: 13,
+    color: '#666',
+    marginTop: 4,
+  },
+  offerNote: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+    fontStyle: 'italic',
+  },
 });
 
 export default JobDetailsScreen;
