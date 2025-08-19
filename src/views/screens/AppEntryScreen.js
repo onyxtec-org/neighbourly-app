@@ -19,7 +19,8 @@ const AppEntryScreen = ({ navigation }) => {
         console.log('Retrieved token from AsyncStorage:', token);
         console.log('Retrieved user from AsyncStorage:', user);
 
-        if (!token || !user) {
+        if (!token ||
+           !user) {
           console.log('No token found → Navigating to Login');
           navigation.replace('Login');
         }

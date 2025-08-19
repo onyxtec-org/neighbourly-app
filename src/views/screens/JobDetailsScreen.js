@@ -12,6 +12,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
+import LinearGradient from 'react-native-linear-gradient';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchJobDetails,
@@ -93,8 +95,35 @@ const JobDetailsScreen = ({ navigation, route }) => {
       };
     }, [dispatch, jobId]),
   );
-  if (loading) return <Text>Loading...</Text>;
-  if (error) return <Text>Error: {error}</Text>;
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView contentContainerStyle={{ padding: 16 }}>
+          {/* Fake title */}
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ width: '60%', height: 24, marginBottom: 16, borderRadius: 6 }}
+          />
+  
+          {/* Fake image/video carousel */}
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ width: '100%', height: 220, marginBottom: 20, borderRadius: 12 }}
+          />
+  
+          {/* Fake text lines */}
+          {[1, 2, 3].map(i => (
+            <ShimmerPlaceholder
+              key={i}
+              LinearGradient={LinearGradient}
+              style={{ width: '100%', height: 18, marginBottom: 12, borderRadius: 4 }}
+            />
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+   if (error) return <Text>Error: {error}</Text>;
   if (!job) return <Text>No job data found.</Text>;
   const onScrollEnd = e => {
     const index = Math.round(e.nativeEvent.contentOffset.x / width);
@@ -822,6 +851,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 6,
   },
+  // loaderContainer: {
+  //   flex: 1,
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   backgroundColor: colors.background, // or a soft grey
+  // },
+  // loaderText: {
+  //   marginTop: 12,
+  //   fontSize: 16,
+  //   color: colors.textSecondary,
+  // },
+  
 });
 
 export default JobDetailsScreen;

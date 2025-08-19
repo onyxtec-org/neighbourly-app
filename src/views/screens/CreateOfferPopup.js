@@ -48,10 +48,8 @@ const CreateOfferPopup = ({
     return Object.keys(newErrors).length === 0;
   };
 
-
   const handleSubmit = () => {
     if (!validateFields()) return;
-
 
     const payload = {
       user_job_id: userJobId,
@@ -68,7 +66,7 @@ const CreateOfferPopup = ({
           setHasOffered(true); // prevent multiple submissions
           showToast('Offer sent successfully!', 'success');
           onClose();
-          onOfferSent?.(); 
+          onOfferSent?.();
           setProposedTime('');
           setRate('');
           setErrors({});
@@ -108,7 +106,6 @@ const CreateOfferPopup = ({
                   error={errors.rate}
                 />
 
-
                 <CustomTextInput
                   label="Number of Hours"
                   required
@@ -122,24 +119,25 @@ const CreateOfferPopup = ({
                   error={errors.proposedTime}
                 />
 
-               
                 <View style={styles.buttonRow}>
-                  {!hasOffered && (
-                    <AppButton
-                      title={loading ? '' : 'Send Offer'}
-                      onPress={handleSubmit}
-                      btnStyles={styles.submitButton}
-                      textStyle={styles.submitText}
-                      IconName={loading ? null : 'send'}
-                      disabled={loading}
-                    />
-                  )}
+                  <AppButton
+                    title={loading ? '' : 'Send Offer'}
+                    onPress={handleSubmit}
+                    btnStyles={[
+                      styles.submitButton,
+                      (loading || hasOffered) && styles.disabledButton,
+                    ]}
+                    textStyle={styles.submitText}
+                    IconName={loading ? null : 'send'}
+                    disabled={loading || hasOffered}
+                  />
                   {loading && (
                     <ActivityIndicator
                       color="#fff"
-                      style={{ position: 'absolute', left: 25 }}
+                      style={styles.loaderInsideButton}
                     />
                   )}
+
                   <AppButton
                     title="Cancel"
                     onPress={onClose}
@@ -190,9 +188,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginTop: 15,
   },
-  submitButton: {
-    backgroundColor: colors.primary,
-  },
   submitText: {
     color: '#fff',
   },
@@ -201,5 +196,18 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     color: '#fff',
+  },
+  submitButton: {
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  disabledButton: {
+    backgroundColor: colors.gray,
+    opacity: 0.6,
+  },
+  loaderInsideButton: {
+    position: 'absolute',
+    alignSelf: 'center',
   },
 });

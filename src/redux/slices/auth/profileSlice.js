@@ -33,6 +33,37 @@ export const fetchUserProfile = createAsyncThunk(
     }
   },
 );
+// profileSlice.js
+export const deleteAccount = createAsyncThunk(
+  'profile/deleteAccount',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = await storage.getToken();
+
+      if (!token) {
+        return rejectWithValue('No token found');
+      }
+
+      const response = await apiClient.delete(`/account`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log('✅ Delete account response:', response.data);
+
+      if (response.data.success) {
+        // Clear storage after deletion
+        await storage.removeToken();
+        await storage.removeUser();
+        return true;
+      } else {
+        return rejectWithValue(response.data.message || 'Failed to delete account');
+      }
+    } catch (error) {
+      console.log('❌ Delete account error:', error.response?.data || error.message);
+      return rejectWithValue(error.response?.data?.message || 'Something went wrong');
+    }
+  },
+);
 
 export const switchUserProfile = createAsyncThunk(
   'profile/switchUserProfile',
@@ -111,6 +142,14 @@ const profileSlice = createSlice({
         state.user = null;
         state.status = 'idle';
         state.error = null;
+      })
+      .addCase(deleteAccount.fulfilled, (state) => {
+        state.user = null;
+        state.status = 'deleted';
+      })
+      .addCase(deleteAccount.rejected, (state, action) => {
+        state.status = 'delete_failed';
+        state.error = action.payload;
       });
   },
 });
