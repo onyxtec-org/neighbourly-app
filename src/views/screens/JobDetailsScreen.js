@@ -34,9 +34,9 @@ const { width } = Dimensions.get('window');
 const CARD_HEIGHT = 250;
 
 const JobDetailsScreen = ({ navigation, route }) => {
-  const { jobId, userRole, status, item } = route.params;
+  const { jobId, userRole, status } = route.params;
   console.log('role', userRole, status);
-  console.log('item', item);
+
   const flatListRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [playingIndex, setPlayingIndex] = useState(null);
@@ -180,7 +180,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
   };
 
   const onInterestedPersonPress = () => {
-    const offers = item.offers;
+    const offers = job.offers;
     navigation.navigate('OffersScreen', { offers });
   };
   return (
@@ -194,8 +194,8 @@ const JobDetailsScreen = ({ navigation, route }) => {
           {job?.status && (
             <View style={styles.statusOverlay}>
               <StatusBox
-                color={colors.statusColors(item.status)}
-                text={item.status}
+                color={colors.statusColors(job?.status)}
+                text={job?.status}
               />
             </View>
           )}
@@ -420,7 +420,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
               <Ionicons name="wallet-outline" size={18} color="#666" />
               <View style={styles.infoTextContainer}>
                 <Text style={styles.infoLabel}>Payment Type</Text>
-                <Text style={styles.infoText}>{job.payment_type}</Text>
+                <Text style={styles.infoText}>{job?.payment_type}</Text>
               </View>
             </View>
             {status === 'my_jobs' && userRole === 'provider' && (
@@ -472,7 +472,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
           </View>
 
           {/* Action Buttons (Small, Text-Based) */}
-          {userRole === 'consumer' && Number(item?.offers?.length) > 0 && item.accepted_offer===null? (
+          {userRole === 'consumer' && Number(job?.offers?.length) > 0 && job.accepted_offer===null? (
             <TouchableOpacity
               style={styles.textButton}
               onPress={onInterestedPersonPress}
@@ -480,7 +480,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
               <Text style={styles.textButtonText}>View Interested Persons</Text>
             </TouchableOpacity>
           ) : (
-            status === 'new' && (
+            status === 'new' && job.my_offer===null &&(
               <View style={styles.textButtonRow}>
                 <TouchableOpacity
                   style={[styles.textButton, { marginRight: 10 }]}
