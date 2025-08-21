@@ -597,7 +597,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
         <CreateOfferPopup
           visible={showOffer}
           onClose={() => setShowOffer(false)}
-          userJobId={job.id}
+          jobId={job.id}
           priceType={job.price_type}
         />
         {isLoading && <AppActivityIndicator />}

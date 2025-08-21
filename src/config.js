@@ -1,9 +1,15 @@
 import Config from "react-native-config";
 
 export default {
-  baseURL: "https://nbl.onyxtec.io/api",
-  userimageURL: "https://nbl.onyxtec.io/storage/user/",
-  attachmentimageURL: "https://nbl.onyxtec.io/storage/attachments/",
+  // baseURL: "https://nbl.onyxtec.io/api",
+  // userimageURL: "https://nbl.onyxtec.io/storage/user/",
+  // attachmentimageURL: "https://nbl.onyxtec.io/storage/attachments/",
+//ngrok
+  baseURL: "https://b1939cd3cf8d.ngrok-free.app/api",
+  userimageURL: "https://b1939cd3cf8d.ngrok-free.app/storage/user/",
+  attachmentimageURL: "https://b1939cd3cf8d.ngrok-free.app/storage/job_attachments/",
+  postAttachmentImageURL: "https://b1939cd3cf8d.ngrok-free.app/storage/post_attachments/",
+
 
 };
 
@@ -15,3 +21,20 @@ export default {
 // };
 
 
+
+// import Config from "react-native-config";
+
+// const IS_LIVE = Config.IS_LIVE === "true" ;
+
+// const API_BASE = IS_LIVE ? Config.API_URL_LIVE : Config.API_URL_DEV;
+// const STORAGE_BASE = IS_LIVE ? Config.STORAGE_URL_LIVE : Config.STORAGE_URL_DEV;
+
+// export default {
+//   api: {
+//     baseURL: API_BASE,
+//   },
+//   storage: {
+//     userimageURL: `${STORAGE_BASE}/user/`,
+//     attachmentimageURL: `${STORAGE_BASE}/job_attachments/`,
+//   },
+// };
