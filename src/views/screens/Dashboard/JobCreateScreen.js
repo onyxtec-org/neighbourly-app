@@ -99,9 +99,6 @@ const JobCreateScreen = ({ navigation, route }) => {
   const jobState = useSelector(state => state.job);
   const { loading, error, success } = jobState;
 
-  // useEffect(() => {
- 
-  // }, [success, error, dispatch, navigation, hasSubmitted]);
 
   const handleSubmit = async values => {
     setHasSubmitted(true);
@@ -133,9 +130,7 @@ const JobCreateScreen = ({ navigation, route }) => {
       );
             formData.append('ends_at', '2026-01-01 00:00:00');
 
-      // if (jobTypeValue === 'per_hour') {
-      //   formData.append('no_of_hours', values.no_of_hours);
-      // }
+      
 
       formData.append('price_type', jobTypeValue);
       formData.append('no_of_hours', finalEstimatedTime);

@@ -82,7 +82,7 @@ const JobsScreen = () => {
   const onRejectedPress = (jobId, status) => {
     setLoading(true);
     const payload = {
-      user_job_id: jobId,
+      job_id: jobId,
       status: status,
     };
 
@@ -201,7 +201,7 @@ const JobsScreen = () => {
       <CreateOfferPopup
         visible={showOffer}
         onClose={() => setShowOffer(false)}
-        userJobId={jobId}
+        jobId={jobId}
         priceType={priceType}
         onOfferSent={() => {
           // Trigger refresh immediately after popup closes

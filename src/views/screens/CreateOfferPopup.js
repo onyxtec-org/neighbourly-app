@@ -18,7 +18,7 @@ import CustomToast from '../components/CustomToast';
 const CreateOfferPopup = ({
   visible,
   onClose,
-  userJobId,
+  jobId,
   priceType = 'hourly',
   onOfferSent,
 }) => {
@@ -33,7 +33,7 @@ const CreateOfferPopup = ({
 
   useEffect(() => {
     setHasOffered(false);
-  }, [userJobId]);
+  }, [jobId]);
 
   const dispatch = useDispatch();
   const { loading } = useSelector(state => state.offers || state.offer || {});
@@ -56,7 +56,7 @@ const CreateOfferPopup = ({
     if (!validateFields()) return;
 
     const payload = {
-      user_job_id: userJobId,
+      job_id: jobId,
       no_of_hours: proposedTime, // keep original input
       rate: parseFloat(rate),
       price_type: priceType,

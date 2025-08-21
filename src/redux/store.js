@@ -15,14 +15,9 @@ import jobDetailReducer from './slices/jobDetailSlice';
 import jobReducer from './slices/jobSlice';
 import offerReducer from './slices/offerSlice';
 import notificationsReducer from './slices/notificationSlice';
-
-
 import featuredCategoriesReducer from './slices/ConsumerDashboard/featuredCategoriesSlice';
 import featuredServicesReducer from './slices/ConsumerDashboard/featuredServicesSlice';
-
-
-import featuredCategoriesReducer from './slices/ConsumerDashboard/featuredCategoriesSlice';
-import featuredServicesReducer from './slices/ConsumerDashboard/featuredServicesSlice';
+import postReducer from './slices/postSlice';
 
 
 
@@ -45,6 +40,7 @@ const store = configureStore({
     notifications:notificationsReducer,
     featuredCategories: featuredCategoriesReducer,
     featuredServices: featuredServicesReducer,
+    post: postReducer,
   },
 });
 

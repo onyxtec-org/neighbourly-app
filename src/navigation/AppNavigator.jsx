@@ -28,6 +28,8 @@ import OfferListScreen from '../views/screens/Dashboard/OffersScreen';
 import { navigationRef } from '../navigation/NavigationService'; // adjust path
 import NotificationsScreen from '../views/screens/Dashboard/NotificationScreen';
 import JobsScreen from '../views/screens/Dashboard/JobsScreen'; // Import JobsScreen
+import StageScreen from '../views/screens/Dashboard/StageScreen'; // Import StageScreen
+import CreateStage from '../views/screens/Dashboard/StageScreens/CreateStage';
 
 const Stack = createNativeStackNavigator();
 
@@ -64,6 +66,10 @@ const AppNavigator = () => {
         <Stack.Screen name="OffersScreen" component={OfferListScreen} />
         <Stack.Screen name="NotificationsScreen" component={ NotificationsScreen} />
         <Stack.Screen name="JobsScreen" component={JobsScreen} />
+        <Stack.Screen name="StageScreen" component={StageScreen} />
+        <Stack.Screen name="CreateStage" component={CreateStage} />
+
+
 
 
         
