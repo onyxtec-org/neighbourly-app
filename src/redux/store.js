@@ -18,7 +18,7 @@ import notificationsReducer from './slices/notificationSlice';
 
 
 import featuredCategoriesReducer from './slices/ConsumerDashboard/featuredCategoriesSlice';
-import featuredServicesReducer from './slices/ConsumerDashboard/featuredServicesSlice';import notificationsReducer from './slices/notificationSlice';
+import featuredServicesReducer from './slices/ConsumerDashboard/featuredServicesSlice';
 
 
 
@@ -41,7 +41,6 @@ const store = configureStore({
     notifications:notificationsReducer,
     featuredCategories: featuredCategoriesReducer,
     featuredServices: featuredServicesReducer,
-    notifications:notificationsReducer
   },
 });
 
