@@ -9,13 +9,13 @@ import {
   Image,
   FlatList,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import colors from '../../../../config/colors';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { selectJobsByTab } from '../../../../redux/selectors/jobSelector';
 import { getJobs } from '../../../../redux/slices/jobSlice';
+import AppBar from '../../../components/AppBar';
 const ProviderHomeScreen = ({ navigation }) => {
   const { myServices } = useSelector(state => state.services);
   const myJobs = useSelector(selectJobsByTab('my_jobs', 'provider'));
@@ -63,26 +63,7 @@ const ProviderHomeScreen = ({ navigation }) => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         {/* AppBar */}
-        <View style={styles.appBar}>
-          <TouchableOpacity style={styles.locationContainer}>
-            <Ionicons
-              name="location-outline"
-              size={24}
-              color={colors.primary}
-            />
-            <Text style={styles.locationText}>Your Location</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Notifications')}
-          >
-            <Ionicons
-              name="notifications-outline"
-              size={24}
-              color={colors.primary}
-            />
-          </TouchableOpacity>
-        </View>
-
+        <AppBar />
         {/* My Jobs Section */}
         <View style={{ flex: 1, paddingHorizontal: 16, marginTop: 16 }}>
           <Text style={styles.helpText}>My Jobs</Text>

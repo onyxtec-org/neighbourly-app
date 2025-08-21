@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { fetchUserProfile } from '../../redux/slices/auth/profileSlice';
 import storage from '../../app/storage';
 import { setMyServices } from '../../redux/slices/servicesSlice';
+import { fetchNotifications } from '../../redux/slices/notificationSlice';
 const AppEntryScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   useEffect(() => {
@@ -36,7 +37,7 @@ const AppEntryScreen = ({ navigation }) => {
           
           
           const result = await dispatch(fetchUserProfile(user.id)); // ✅ Re-hydrate Redux
-          
+          dispatch(fetchNotifications())
           if (fetchUserProfile.fulfilled.match(result)) {
             dispatch(setMyServices(user.services || []));
             navigation.replace('DashboardRouter');

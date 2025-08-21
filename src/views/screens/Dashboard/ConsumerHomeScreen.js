@@ -10,11 +10,11 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../../../redux/slices/categoriesSlice';
 import colors from '../../../config/colors';
 import SearchBar from '../../components/SearchBar';
+import AppBar from '../../components/AppBar';
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { categories, status } = useSelector(state => state.categories);
@@ -51,15 +51,7 @@ const HomeScreen = ({ navigation }) => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         {/* AppBar */}
-        <View style={styles.appBar}>
-          <TouchableOpacity style={styles.locationContainer}>
-            <Ionicons name="location-outline" size={24} color={colors.primary} />
-            <Text style={styles.locationText}>Your Location</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
-            <Ionicons name="notifications-outline" size={24} color={colors.primary} />
-          </TouchableOpacity>
-        </View>
+         <AppBar/>
 
         {/* Search */}
         <View style={styles.searchContainer}>
@@ -105,20 +97,7 @@ const HomeScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  appBar: {
-    height: 60,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-   searchContainer: {
-    padding: 16,
-  },
-  locationContainer: { flexDirection: 'row', alignItems: 'center' },
-  locationText: { marginLeft: 8, fontSize: 16 },
+
   content: { paddingLeft: 8 },
   helpText: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
   cardContainer: {
@@ -172,6 +151,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 12,
+  },
+     searchContainer: {
+    padding: 16,
   },
 });
 
