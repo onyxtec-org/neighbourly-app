@@ -22,6 +22,7 @@ import { removeJobById } from '../../../redux/slices/jobSlice';
 import { createOffer } from '../../../redux/slices/offerSlice';
 import AppActivityIndicator from '../../components/AppActivityIndicator';
 import CreateOfferPopup from '../CreateOfferPopup';
+import { useRoute } from '@react-navigation/native';
 const { width, height } = Dimensions.get('window');
 const scale = width / 375; // base iPhone 11 width
 const normalize = size =>
@@ -42,6 +43,7 @@ const consumerTabs = [
 ];
 
 const JobsScreen = () => {
+  const route = useRoute(); // 👈 Add this
   const { user: profileUser } = useSelector(state => state.profile);
   const userRole = profileUser.role;
   const [activeTab, setActiveTab] = useState(

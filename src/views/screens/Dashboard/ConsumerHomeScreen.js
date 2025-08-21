@@ -9,25 +9,41 @@ import {
   TouchableWithoutFeedback,
   ActivityIndicator,
   Image,
+  ScrollView, // 👈 Add ScrollView
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../../../redux/slices/categoriesSlice';
+import { fetchFeaturedCategories } from '../../../redux/slices/ConsumerDashboard/featuredCategoriesSlice';
+import { fetchFeaturedServices } from '../../../redux/slices/ConsumerDashboard/featuredServicesSlice';
 import colors from '../../../config/colors';
 import SearchBar from '../../components/SearchBar';
 import AppBar from '../../components/AppBar';
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+
   const { categories, status } = useSelector(state => state.categories);
+  const { categories: featuredCategories, status: topCatStatus } = useSelector(
+    state => state.featuredCategories
+  );
+  const { services: featuredServices, status: topServStatus } = useSelector(
+    state => state.featuredServices
+  );
 
   useEffect(() => {
     dispatch(fetchCategories());
+    dispatch(fetchFeaturedCategories());
+    dispatch(fetchFeaturedServices());
   }, [dispatch]);
 
-  const renderCategory = ({ item }) => (
+  // Render reusable card
+  const renderCard = (item, isService = false) => (
     <TouchableOpacity
       style={styles.cardContainer}
       onPress={() =>
-        navigation.navigate('CategoryDetailsScreen', { category: item })
+        navigation.navigate(
+          isService ? 'ServiceDetailsScreen' : 'CategoryDetailsScreen',
+          { [isService ? 'service' : 'category']: item }
+        )
       }
     >
       <View style={styles.cardImageWrapper}>
@@ -42,14 +58,20 @@ const HomeScreen = ({ navigation }) => {
         />
       </View>
       <View style={styles.cardLabel}>
-        <Text style={styles.categoryName}>{item.name}</Text>
+        <Text style={styles.categoryName}>
+          {isService ? item.title : item.name}
+        </Text>
       </View>
     </TouchableOpacity>
   );
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+      <ScrollView 
+        style={styles.container} 
+        contentContainerStyle={{ paddingBottom: 20 }} // 👈 allows full scroll
+        showsVerticalScrollIndicator={false}
+      >
         {/* AppBar */}
          <AppBar/>
 
@@ -62,37 +84,78 @@ const HomeScreen = ({ navigation }) => {
           />
         </View>
 
-        {/* Category Header */}
+        {/* All Categories */}
         <View style={styles.categoryHeader}>
           <Text style={styles.helpText}>Choose a category</Text>
           {categories.length > 4 && (
-            <TouchableOpacity onPress={() => navigation.navigate('AllCategoriesScreen')}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AllCategoriesScreen')}
+            >
               <Text style={styles.seeAllText}>See All</Text>
             </TouchableOpacity>
           )}
         </View>
-
-        {/* Categories */}
         <View style={styles.content}>
           {status === 'loading' ? (
             <ActivityIndicator size="large" color={colors.primary} />
           ) : (
             <FlatList
-              data={categories.length > 4 ? categories.slice(0, 4) : categories}
+              data={
+                categories.length > 4 ? categories.slice(0, 4) : categories
+              }
               horizontal
               keyExtractor={item => item.id.toString()}
-              renderItem={renderCategory}
+              renderItem={({ item }) => renderCard(item)}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: 8 }}
               style={{ maxHeight: 180 }}
             />
           )}
         </View>
-      </View>
+
+        {/* Top Categories */}
+        <View style={styles.categoryHeader}>
+          <Text style={styles.helpText}>Top Categories</Text>
+        </View>
+        <View style={styles.content}>
+          {topCatStatus === 'loading' ? (
+            <ActivityIndicator size="large" color={colors.primary} />
+          ) : (
+            <FlatList
+              data={featuredCategories}
+              horizontal
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => renderCard(item)}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 8 }}
+              style={{ maxHeight: 180 }}
+            />
+          )}
+        </View>
+
+        {/* Top Services */}
+        <View style={styles.categoryHeader}>
+          <Text style={styles.helpText}>Top Services</Text>
+        </View>
+        <View style={styles.content}>
+          {topServStatus === 'loading' ? (
+            <ActivityIndicator size="large" color={colors.primary} />
+          ) : (
+            <FlatList
+              data={featuredServices}
+              horizontal
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => renderCard(item, true)}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 8 }}
+              style={{ maxHeight: 180 }}
+            />
+          )}
+        </View>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 };
-
 
 
 const styles = StyleSheet.create({
@@ -140,12 +203,11 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
   },
-
   seeAllText: {
     fontSize: 14,
     color: colors.primary,
   },
-    categoryHeader: {
+  categoryHeader: {
     paddingHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
