@@ -14,7 +14,8 @@ import resetForgotPasswordreducer from './slices/auth/resetPasswordSlice';
 import jobDetailReducer from './slices/jobDetailSlice';
 import jobReducer from './slices/jobSlice';
 import offerReducer from './slices/offerSlice';
-
+import featuredCategoriesReducer from './slices/ConsumerDashboard/featuredCategoriesSlice';
+import featuredServicesReducer from './slices/ConsumerDashboard/featuredServicesSlice';
 const store = configureStore({
   reducer: {
     register: registerReducer,
@@ -31,6 +32,8 @@ const store = configureStore({
     job: jobReducer, 
     jobDetail: jobDetailReducer, 
     offer: offerReducer,
+    featuredCategories: featuredCategoriesReducer,
+    featuredServices: featuredServicesReducer,
   },
 });
 
