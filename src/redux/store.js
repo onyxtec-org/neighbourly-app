@@ -15,7 +15,10 @@ import jobDetailReducer from './slices/jobDetailSlice';
 import jobReducer from './slices/jobSlice';
 import offerReducer from './slices/offerSlice';
 import featuredCategoriesReducer from './slices/ConsumerDashboard/featuredCategoriesSlice';
-import featuredServicesReducer from './slices/ConsumerDashboard/featuredServicesSlice';
+import featuredServicesReducer from './slices/ConsumerDashboard/featuredServicesSlice';import notificationsReducer from './slices/notificationSlice';
+
+
+
 const store = configureStore({
   reducer: {
     register: registerReducer,
@@ -34,6 +37,7 @@ const store = configureStore({
     offer: offerReducer,
     featuredCategories: featuredCategoriesReducer,
     featuredServices: featuredServicesReducer,
+    notifications:notificationsReducer
   },
 });
 
