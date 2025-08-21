@@ -31,7 +31,9 @@ export const loginUser = createAsyncThunk(
       }
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || 'Something went wrong'
+        error.response?.data?.message || 'Something went wrong',
+        console.log('error',error),
+        
       );
     }
   }
@@ -57,9 +59,12 @@ export const sendFcm = createAsyncThunk(
         return rejectWithValue(response.data.message || 'FCM token sending failed');
       }
     } catch (error) {
+      console.log('error in fcm token',error);
       return rejectWithValue(
         error.response?.data?.message || 'Something went wrong'
       );
+
+      
     }
   }
 );

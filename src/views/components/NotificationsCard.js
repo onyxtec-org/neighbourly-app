@@ -10,13 +10,9 @@ import Seperator from './Seperator';
 import colors from '../../config/colors';
 import { markNotificationAsRead } from '../../redux/slices/notificationSlice';
 function NotificationsCard({ item }) {
+  const { user: profileUser } = useSelector(state => state.profile);
+  console.log('notification---', item);
 
-   const {
-      user: profileUser,
-
-    } = useSelector(state => state.profile);
-  console.log('notification--',item);
-  
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
@@ -27,11 +23,31 @@ function NotificationsCard({ item }) {
       dispatch(markNotificationAsRead(item.id)); // redux updates slice
     }
 
-   // Navigate based on notification type
+    // Navigate based on notification type
     if (item.type.includes('NewJobNotification')) {
-      navigation.navigate('JobDetailsScreen', { jobId:item.data.job_id, userRole:profileUser.role, status:'new', item: {} });
+      navigation.navigate('JobDetailsScreen', {
+        jobId: item.data.job_id,
+        userRole: profileUser.role,
+        status: 'new',
+        item: {},
+      });
+    } else if (item.type.includes('OfferAcceptedNotification')) {
+      navigation.navigate('JobsScreen', { defaultTab: 'my_jobs' });
+    } else if (item.type.includes('JobStatusUpdatedNotification')) {
+      navigation.navigate('JobsScreen', { defaultTab: item.data.status });
     }
   };
+
+  const str = item.type;
+
+  // Extract class name after last backslash
+  const className = str.split('\\').pop(); // "JobStatusUpdatedNotification"
+
+  // Remove "Notification" suffix
+  const withoutSuffix = className.replace(/Notification$/, ''); // "JobStatusUpdated"
+
+  // Split CamelCase into words
+  const readable = withoutSuffix.replace(/([a-z])([A-Z])/g, '$1 $2'); // "Job Status Updated"
 
   return (
     <View>
@@ -46,8 +62,11 @@ function NotificationsCard({ item }) {
         <View style={styles.row}>
           <View style={styles.textWrapper}>
             <AppText style={styles.title}>
-              {item.type.split('\\').pop()}
+              {readable === 'Job Status Updated'
+                ? `${readable} to ${item.data.status}`
+                : readable}
             </AppText>
+
             {item.data.title && (
               <AppText style={styles.subtitle}>{item.data.title}</AppText>
             )}
@@ -65,7 +84,6 @@ function NotificationsCard({ item }) {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {

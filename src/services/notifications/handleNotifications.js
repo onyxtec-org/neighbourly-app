@@ -321,7 +321,7 @@ class NotificationServiceClass {
     try {
       console.log('[NotificationService] Redirecting based on normalized data:', safeJson(data));
   
-      const { type, jobId, offerId, userId } = data;
+      const { type, job_id, offerId, userId } = data;
       const navFn = resolveNavigateFn();
       if (!navFn) {
         console.warn('[NotificationService] Cannot redirect: navigate function is missing');
@@ -336,10 +336,17 @@ class NotificationServiceClass {
         console.warn('[NotificationService] Failed to read user role from store', e);
       }
   
+
+
+console.log('TYPE-----------',typeof type, type);
+console.log('job id-----------', job_id);
+console.log('data-----------', data);
+
       switch (type) {
         case 'job_created':
-          if (jobId) {
-            navFn('JobDetailsScreen', { jobId, userRole, status: data?.raw?.status || 'new' });
+          if (job_id) {
+            
+            navFn('JobDetailsScreen', { jobId:job_id, userRole, status: 'new' });
           }
           return;
   
@@ -347,7 +354,7 @@ class NotificationServiceClass {
             navFn('JobsScreen', { defaultTab: 'my_jobs' });
             return;
             case 'job_status_updated':
-              navFn('JobsScreen', { defaultTab: 'my_jobs' });
+              navFn('JobsScreen', { defaultTab:data?.raw?.status });
               return;
             
               case 'offer_created':
