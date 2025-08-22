@@ -1,14 +1,15 @@
 import Config from "react-native-config";
 
 export default {
-  // baseURL: "https://nbl.onyxtec.io/api",
-  // userimageURL: "https://nbl.onyxtec.io/storage/user/",
-  // attachmentimageURL: "https://nbl.onyxtec.io/storage/attachments/",
+  baseURL: "https://nbl.onyxtec.io/api",
+  userimageURL: "https://nbl.onyxtec.io/storage/user/",
+  attachmentimageURL: "https://nbl.onyxtec.io/storage/job_attachments/",
+  postAttachmentImageURL: "https://nbl.onyxtec.io/storage/post_attachments/",
 //ngrok
-  baseURL: "https://b1939cd3cf8d.ngrok-free.app/api",
-  userimageURL: "https://b1939cd3cf8d.ngrok-free.app/storage/user/",
-  attachmentimageURL: "https://b1939cd3cf8d.ngrok-free.app/storage/job_attachments/",
-  postAttachmentImageURL: "https://b1939cd3cf8d.ngrok-free.app/storage/post_attachments/",
+  // baseURL: "https://23f1883e1980.ngrok-free.app/api",
+  // userimageURL: "https://23f1883e1980.ngrok-free.app/storage/user/",
+  // attachmentimageURL: "https://23f1883e1980.ngrok-free.app/storage/job_attachments/",
+  // postAttachmentImageURL: "https://23f1883e1980.ngrok-free.app/storage/post_attachments/",
 
 
 };

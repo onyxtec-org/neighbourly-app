@@ -21,12 +21,11 @@ const ProviderTabNavigator = () => {
             case 'Dashboard':
               iconName = 'home-outline';
               break;
-
             case 'Jobs':
-              iconName = 'checkmark-done-outline';
+              iconName = 'briefcase-outline';
               break;
             case 'Stage':
-              iconName = 'construct-outline';
+              iconName = 'albums-outline';
               break;
             case 'Profile':
               iconName = 'person-outline';

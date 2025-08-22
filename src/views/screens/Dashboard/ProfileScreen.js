@@ -3,10 +3,8 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator,
   Alert,
   Platform,
 } from 'react-native';
@@ -15,6 +13,7 @@ import {
   fetchUserProfile,
   switchUserProfile,
 } from '../../../redux/slices/auth/profileSlice';
+import ProfileShimmer from '../../components/ProfileShimmer';
 import { logoutUser } from '../../../redux/thunks/auth/logoutThunk';
 import {
   setUserRole,
@@ -186,13 +185,8 @@ const ProfileScreen = ({ navigation }) => {
     }
   }, [dispatch, userId]);
 
-  if (loading || profileStatus === 'loading') {
-    console.log('⏳ Loading state active');
-    return (
-      <View style={profileStyles.centered}>
-        <ActivityIndicator size="large" color="#000" />
-      </View>
-    );
+  if (loading || profileStatus === "loading") {
+    return <ProfileShimmer />;
   }
 
   if (profileStatus === 'failed') {
@@ -233,7 +227,7 @@ const ProfileScreen = ({ navigation }) => {
         <View style={profileStyles.menuSection}>
           <TouchableOpacity
             style={profileStyles.menuItem}
-            onPress={() => navigation.navigate('AccountScreen')}
+            onPress={() => navigation.navigate('AccountScreen' ,{ userId: profileUser.id })}
           >
             <View>
               <Text style={profileStyles.menuItemText}>Profile Details</Text>
@@ -243,7 +237,7 @@ const ProfileScreen = ({ navigation }) => {
             </View>
             <Text style={profileStyles.arrowIcon}>›</Text>
           </TouchableOpacity>
-
+              
           {[
             'Change Password',
             'Notifications Settings',
@@ -368,7 +362,7 @@ const profileStyles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     padding: 24,
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom:3,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },

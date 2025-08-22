@@ -15,7 +15,7 @@ export const createPost = createAsyncThunk(
             'Content-Type': 'multipart/form-data',
           },
         });
-  
+        console.log('✅ Post successfully created:', response.data);
         return response.data;
       } catch (error) {
         if (error?.response) {
@@ -42,7 +42,6 @@ export const getPosts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = await storage.getToken();
-
       const response = await apiClient.get('/posts', {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -63,7 +62,7 @@ export const getPosts = createAsyncThunk(
     async (postId, { rejectWithValue }) => {
       try {
         const token = await storage.getToken();
-  
+        const user = await storage.getUser(); // ✅ current user id
         const response = await apiClient.post(
           `/posts/${postId}/like`,
           {},
@@ -74,7 +73,7 @@ export const getPosts = createAsyncThunk(
           }
         );
   
-        return { postId, data: response.data };
+        return { postId, data: response.data , userId: user.id };
       } catch (error) {
         return rejectWithValue(
           error.response?.data || { message: 'Error liking post' }
@@ -89,14 +88,14 @@ export const getPosts = createAsyncThunk(
     async (postId, { rejectWithValue }) => {
       try {
         const token = await storage.getToken();
-  
+        const user = await storage.getUser(); // ✅ current user id
         const response = await apiClient.delete(`/posts/${postId}/like`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
   
-        return { postId, data: response.data };
+        return { postId, data: response.data , userId: user.id };
       } catch (error) {
         return rejectWithValue(
           error.response?.data || { message: 'Error unliking post' }
@@ -171,16 +170,12 @@ const postSlice = createSlice({
         state.error = action.payload?.message || 'Error fetching posts';
       })
       .addCase(likePost.fulfilled, (state, action) => {
-        const { postId } = action.payload;
-        const post = state.posts.find((p) => p.id === postId);
+        const { postId, userId } = action.payload;
+        const post = state.posts.find(p => p.id === postId);
         if (post) {
           if (!post.likes) post.likes = [];
-      
-          // ✅ only add if user hasn't liked yet
-          const alreadyLiked = post.likes.some((like) => like.user_id === 'me');
-          if (!alreadyLiked) {
-            post.likes.push({ user_id: 'me' });
-          }
+          const alreadyLiked = post.likes.some(l => l.user_id === userId);
+          if (!alreadyLiked) post.likes.push({ user_id: userId });
         }
       })
       .addCase(likePost.rejected, (state, action) => {
@@ -189,10 +184,10 @@ const postSlice = createSlice({
     
       // 👉 Unlike Post
       .addCase(unlikePost.fulfilled, (state, action) => {
-        const { postId } = action.payload;
-        const post = state.posts.find((p) => p.id === postId);
+        const { postId, userId } = action.payload;
+        const post = state.posts.find(p => p.id === postId);
         if (post && post.likes) {
-          post.likes = post.likes.filter((like) => like.user_id !== 'me'); 
+          post.likes = post.likes.filter(l => l.user_id !== userId);
         }
       })
       .addCase(unlikePost.rejected, (state, action) => {
