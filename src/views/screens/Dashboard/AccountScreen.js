@@ -5,10 +5,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Image,
 } from 'react-native';
-import { ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
+import LinearGradient from 'react-native-linear-gradient';
 import config from '../../../config';
 import { useFocusEffect } from '@react-navigation/native';
 import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice'; // <-- Import this
@@ -16,22 +16,22 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useCallback, useState } from 'react';
 import ZoomableImage from '../../components/ZoomableImage';
 
-const AccountScreen = ({ navigation }) => {
-  const [imageLoading, setImageLoading] = useState(false);
-const {
-    user: profileUser,
-
-  } = useSelector(state => state.profile);
+const AccountScreen = ({ navigation, route }) => {
+  const { userId } = route.params; // user id passed from StageScreen
+  console.log('AccountScreen userId:', userId);
   const dispatch = useDispatch();
-  const { user } = useSelector(state => state.profile || {});
+  const [profile, setProfile] = useState(null);
+  const { user: status } = useSelector(state => state.profile); // logged-in user
+  const aauthUser = useSelector(state => state.login.user);
 
   useFocusEffect(
     useCallback(() => {
-      if (user?.id) {
-        dispatch(fetchUserProfile(user.id));
+      if (userId) {
+        dispatch(fetchUserProfile(userId)).then(res => setProfile(res.payload));
       }
-    }, [dispatch, user?.id]),
+    }, [dispatch, userId]),
   );
+  const isAuthUser = aauthUser?.id?.toString() === userId?.toString();
   return (
     <ScrollView style={styles.container}>
       {/* Header with Back Button and Edit Icon */}
@@ -43,64 +43,87 @@ const {
           <Icon name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Profile Details</Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('UpdateProfileScreen')}
-          style={styles.editButton}
-        >
-          <Icon name="create-outline" size={24} color="#000" />
-        </TouchableOpacity>
+        {isAuthUser && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('UpdateProfileScreen')}
+            style={styles.editButton}
+          >
+            <Icon name="create-outline" size={24} color="#000" />
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* User Profile Summary */}
       <View style={styles.profileSummary}>
-        <View
-          style={{
-            position: 'relative',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-        <ZoomableImage
-  uri={user?.image ? `${config.userimageURL}${user.image}` : null}
-  placeholderUri="https://placehold.co/96x96/e0e0e0/000000?text=Profile"
-  style={styles.profileImage}
-/>
-          {imageLoading && (
-            <ActivityIndicator
-              size="small"
-              color="#000"
-              style={{
-                position: 'absolute',
-                zIndex: 1,
-              }}
+        <View style={{ alignItems: 'center' }}>
+          {status === 'loading' ? (
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={styles.profileImage}
+            />
+          ) : (
+            <ZoomableImage
+              uri={
+                profile?.image ? `${config.userimageURL}${profile.image}` : null
+              }
+              placeholderUri="https://placehold.co/96x96/e0e0e0/000000?text=Profile"
+              style={styles.profileImage}
             />
           )}
         </View>
 
-        <Text style={styles.userName}>{user?.name || 'User Name'}</Text>
+        {status === 'loading' ? (
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ width: 120, height: 20, borderRadius: 8, marginTop: 10 }}
+          />
+        ) : (
+          profile?.name && <Text style={styles.userName}>{profile.name}</Text>
+        )}
       </View>
 
       {/* Information Cards */}
       <View style={styles.content}>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Personal Information</Text>
-          <View style={styles.infoRow}>
-            <Icon name="mail-outline" size={20} color="#888" />
-            <View style={styles.textContainer}>
-              <Text style={styles.label}>Email</Text>
-              <Text style={styles.value}>{user?.email || '—'}</Text>
-            </View>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.infoRow}>
-            <Icon name="call-outline" size={20} color="#888" />
-            <View style={styles.textContainer}>
-              <Text style={styles.label}>Phone</Text>
-              <Text style={styles.value}>
-                +{user?.country_code || ''} {user?.phone || '—'}
-              </Text>
-            </View>
-          </View>
+          {status === 'loading' ? (
+            <>
+              <ShimmerPlaceholder
+                LinearGradient={LinearGradient}
+                style={{ height: 20, borderRadius: 6, marginVertical: 10 }}
+              />
+              <ShimmerPlaceholder
+                LinearGradient={LinearGradient}
+                style={{ height: 20, borderRadius: 6, marginVertical: 10 }}
+              />
+            </>
+          ) : (
+            <>
+              {profile?.email && (
+                <View style={styles.infoRow}>
+                  <Icon name="mail-outline" size={20} color="#888" />
+                  <View style={styles.textContainer}>
+                    <Text style={styles.label}>Email</Text>
+                    <Text style={styles.value}>{profile.email}</Text>
+                  </View>
+                </View>
+              )}
+
+              {profile?.phone && (
+                <>
+                  <View style={styles.divider} />
+                  <View style={styles.infoRow}>
+                    <Icon name="call-outline" size={20} color="#888" />
+                    <View style={styles.textContainer}>
+                      <Text style={styles.label}>Phone</Text>
+                      <Text style={styles.value}>
+                        +{profile?.country_code} {profile.phone}
+                      </Text>
+                    </View>
+                  </View>
+                </>
+              )}
+            </>
+          )}
         </View>
 
         <View style={styles.card}>
@@ -109,7 +132,7 @@ const {
             <Icon name="location-outline" size={20} color="#888" />
             <View style={styles.textContainer}>
               <Text style={styles.label}>Location</Text>
-              <Text style={styles.value}>{user?.location || '—'}</Text>
+              <Text style={styles.value}>{profile?.location || '—'}</Text>
             </View>
           </View>
           <View style={styles.divider} />
@@ -117,7 +140,7 @@ const {
             <Icon name="briefcase-outline" size={20} color="#888" />
             <View style={styles.textContainer}>
               <Text style={styles.label}>Role</Text>
-              <Text style={styles.value}>{user?.role || '—'}</Text>
+              <Text style={styles.value}>{profile?.role || '—'}</Text>
             </View>
           </View>
         </View>

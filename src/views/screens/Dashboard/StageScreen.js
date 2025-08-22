@@ -6,17 +6,21 @@ import {
   Image,
   TouchableOpacity,
   FlatList,
-  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
+import LinearGradient from 'react-native-linear-gradient';
 import colors from '../../../config/colors';
 import { useSelector, useDispatch } from 'react-redux';
 import { getPosts } from '../../../redux/slices/postSlice';
 import { likePost, unlikePost } from '../../../redux/slices/postSlice';
+import timeAgo from './../../../utils/timeago'; // utility to format time
 import config from '../../../config'; // ✅ baseURL here
 import PostMediaGrid from '../../components/Mediapicker/PostMediaGrid'; // ✅ reusable media grid component
 
 const StageScreen = ({ navigation }) => {
+  const { user: profileUser } = useSelector(state => state.profile);
+  const userRole = profileUser?.role;
   const [expandedPostId, setExpandedPostId] = useState(null); // expand/collapse per post
   const { posts, loading, error } = useSelector(state => state.post);
   const dispatch = useDispatch();
@@ -28,7 +32,7 @@ const StageScreen = ({ navigation }) => {
     if (liking[post.id]) return; // already processing
     setLiking(prev => ({ ...prev, [post.id]: true }));
 
-    const alreadyLiked = post.likes?.some(l => l.user_id === 'me');
+    const alreadyLiked = post.likes?.some(l => l.user_id === profileUser?.id);
     try {
       if (alreadyLiked) {
         await dispatch(unlikePost(post.id));
@@ -41,30 +45,34 @@ const StageScreen = ({ navigation }) => {
   };
   const renderPost = ({ item }) => {
     const expanded = expandedPostId === item.id;
-
+    const isLiked = item.likes?.some(l => l.user_id === profileUser?.id);
     const userAvatar = item.user?.image
       ? `${config.userimageURL}${item.user.image}`
       : 'https://ui-avatars.com/api/?name=' + item.user?.name; // fallback avatar
 
-
     return (
       <View style={styles.card}>
         {/* User Info */}
-        <View style={styles.postHeader}>
-          <Image source={{ uri: userAvatar }} style={styles.avatar} />
-          <View style={{ marginLeft: 10 }}>
-            <Text style={styles.userName}>{item.user?.name}</Text>
-            <Text style={styles.time}>
-              {new Date(item.created_at).toLocaleString()}
-            </Text>
+
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('AccountScreen', { userId: item.user.id })
+          }
+        >
+          <View style={styles.postHeader}>
+            {/* LEFT SIDE: Avatar + Name + Time */}
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Image source={{ uri: userAvatar }} style={styles.avatar} />
+              <View style={{ marginLeft: 10 }}>
+                <Text style={styles.userName}>{item.user?.name}</Text>
+                <Text style={styles.time}>{timeAgo(item.created_at)}</Text>
+              </View>
+            </View>
+
+            {/* RIGHT SIDE: Options Icon */}
+            <Icon name="ellipsis-horizontal" size={20} color="#666" />
           </View>
-          <Icon
-            name="ellipsis-horizontal"
-            size={20}
-            color="#666"
-            style={{ marginLeft: 'auto' }}
-          />
-        </View>
+        </TouchableOpacity>
 
         {/* Post Content */}
         <View style={styles.descriptionContainer}>
@@ -105,21 +113,13 @@ const StageScreen = ({ navigation }) => {
         <View style={styles.actions}>
           <TouchableOpacity
             style={styles.actionButton}
-            disabled={liking[item.id]} // disable while processing
+            disabled={liking[item.id]}
             onPress={() => handleLikeToggle(item)}
           >
             <Icon
-              name={
-                item.likes?.some(l => l.user_id === 'me')
-                  ? 'thumbs-up'
-                  : 'thumbs-up-outline'
-              }
+              name={isLiked ? 'thumbs-up' : 'thumbs-up-outline'}
               size={20}
-              color={
-                item.likes?.some(l => l.user_id === 'me')
-                  ? colors.primary
-                  : '#666'
-              }
+              color={isLiked ? colors.primary : '#666'}
             />
             <Text style={styles.actionText}>
               {item.likes?.length || 0} Like
@@ -142,9 +142,12 @@ const StageScreen = ({ navigation }) => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color={colors.primary ?? '#1877f2'} />
-      </View>
+      <FlatList
+        data={[1, 2, 3, 4]} // fake placeholders
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={() => <ShimmerCard />}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      />
     );
   }
 
@@ -172,12 +175,14 @@ const StageScreen = ({ navigation }) => {
       />
 
       {/* Floating Action Button */}
+      {userRole === 'provider' && (
       <TouchableOpacity
         style={styles.fab}
         onPress={() => navigation.navigate('CreateStage')}
       >
         <Icon name="create-outline" size={28} color="#fff" />
       </TouchableOpacity>
+       )} 
     </View>
   );
 };
@@ -213,6 +218,7 @@ const styles = StyleSheet.create({
   postHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   avatar: {
     width: 40,
@@ -283,3 +289,116 @@ const styles = StyleSheet.create({
 });
 
 export default StageScreen;
+
+const ShimmerCard = () => {
+  return (
+    <View style={stylesshimmer.card}>
+      {/* User info shimmer */}
+      <View style={stylesshimmer.userInfoRow}>
+        <ShimmerPlaceholder
+          LinearGradient={LinearGradient}
+          style={stylesshimmer.avatar}
+        />
+        <View style={stylesshimmer.userInfoText}>
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={stylesshimmer.userName}
+          />
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={stylesshimmer.userSubText}
+          />
+        </View>
+      </View>
+
+      {/* Post content shimmer */}
+      <View style={styles.postContent}>
+        <ShimmerPlaceholder
+          LinearGradient={LinearGradient}
+          style={stylesshimmer.postLineFull}
+        />
+        <ShimmerPlaceholder
+          LinearGradient={LinearGradient}
+          style={stylesshimmer.postLineShort}
+        />
+      </View>
+
+      {/* Post image shimmer */}
+      <ShimmerPlaceholder
+        LinearGradient={LinearGradient}
+        style={stylesshimmer.postImage}
+      />
+
+      {/* Actions shimmer */}
+      <View style={stylesshimmer.actionsRow}>
+        {[1, 2, 3].map(i => (
+          <ShimmerPlaceholder
+            key={i}
+            LinearGradient={LinearGradient}
+            style={stylesshimmer.actionButton}
+          />
+        ))}
+      </View>
+    </View>
+  );
+};
+const stylesshimmer = StyleSheet.create({
+  card: {
+    padding: 12,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginBottom: 16,
+  },
+  userInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  userInfoText: {
+    marginLeft: 10,
+  },
+  userName: {
+    width: 120,
+    height: 12,
+    borderRadius: 6,
+    marginBottom: 6,
+  },
+  userSubText: {
+    width: 80,
+    height: 10,
+    borderRadius: 5,
+  },
+  postContent: {
+    marginVertical: 12,
+  },
+  postLineFull: {
+    width: '100%',
+    height: 14,
+    borderRadius: 7,
+    marginBottom: 6,
+  },
+  postLineShort: {
+    width: '80%',
+    height: 14,
+    borderRadius: 7,
+  },
+  postImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 12,
+  },
+  actionButton: {
+    width: 60,
+    height: 20,
+    borderRadius: 6,
+  },
+});
