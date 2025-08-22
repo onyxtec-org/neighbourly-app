@@ -10,6 +10,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as NavigationService from '../../navigation/NavigationService';
 import { normalizeNotificationData } from '../notifications/notificationUtils';
 import store from '../../redux/store';
+import { incrementUnreadCount } from '../../redux/slices/notificationSlice';
+
 const PENDING_KEY = '@notif_pending_data_v1';
 const app = getApp();
 const messaging = getMessaging(app);
@@ -23,7 +25,6 @@ const safeJson = obj => {
 };
 
 const resolveNavigateFn = () => {
-  // Accept multiple shapes: named export, default export, or module itself.
   const ns = NavigationService || {};
   const fn = ns.navigate || ns.default || ns;
   if (typeof fn === 'function') return fn;
@@ -40,7 +41,6 @@ class NotificationServiceClass {
     this._inited = false;
     this._notifeeFgSub = null;
 
-    // Bindings (shouldn't be necessary for arrow methods, but explicit for safety)
     this.init = this.init.bind(this);
     this.handleNotificationRedirection =
       this.handleNotificationRedirection.bind(this);
@@ -52,9 +52,7 @@ class NotificationServiceClass {
   async _savePendingNotification(data) {
     try {
       await AsyncStorage.setItem(PENDING_KEY, safeJson(data));
-      console.log(
-        '[NotificationService] Saved pending notification to AsyncStorage',
-      );
+      console.log('[NotificationService] Saved pending notification');
     } catch (e) {
       console.warn(
         '[NotificationService] Failed saving pending notification',
@@ -66,12 +64,7 @@ class NotificationServiceClass {
   async _getPendingNotification() {
     try {
       const raw = await AsyncStorage.getItem(PENDING_KEY);
-      if (!raw) return null;
-      try {
-        return JSON.parse(raw);
-      } catch (e) {
-        return raw;
-      }
+      return raw ? JSON.parse(raw) : null;
     } catch (e) {
       console.warn(
         '[NotificationService] Failed reading pending notification',
@@ -99,7 +92,10 @@ class NotificationServiceClass {
       onMessage(messaging, async remoteMessage => {
         console.log('📥 FCM Message (foreground):', safeJson(remoteMessage));
 
-        // Show local notification via notifee
+        // Increment unread count
+        store.dispatch(incrementUnreadCount());
+
+        // Show local notification
         try {
           await notifee.displayNotification({
             title: remoteMessage?.notification?.title,
@@ -108,7 +104,6 @@ class NotificationServiceClass {
               channelId: 'default',
               pressAction: { id: 'default' },
             },
-            // notifee expects strings inside data on some platforms
             data: Object.keys(remoteMessage?.data || {}).length
               ? Object.fromEntries(
                   Object.entries(remoteMessage.data).map(([k, v]) => [
@@ -125,7 +120,7 @@ class NotificationServiceClass {
           );
         }
 
-        // Persist so if the app is opened later we can redirect
+        // Persist for later redirection
         await this._savePendingNotification(
           remoteMessage?.data || remoteMessage?.notification?.data || {},
         );
@@ -142,8 +137,6 @@ class NotificationServiceClass {
 
   handleBackgroundMessages() {
     try {
-      // NOTE: setBackgroundMessageHandler must be registered in the main JS context
-      // and may run in headless JS on Android. Keep this minimal.
       setBackgroundMessageHandler(messaging, async remoteMessage => {
         console.log('📥 FCM Message (background):', safeJson(remoteMessage));
 
@@ -171,7 +164,6 @@ class NotificationServiceClass {
           );
         }
 
-        // Persist the data for later redirection (because background headless can't navigate)
         await this._savePendingNotification(
           remoteMessage?.data || remoteMessage?.notification?.data || {},
         );
@@ -192,47 +184,37 @@ class NotificationServiceClass {
 
     console.log('[NotificationService] init() called');
 
-    // Attach message handlers
     this.handleForegroundMessages();
     this.handleBackgroundMessages();
 
     // Foreground tap listener
     this._notifeeFgSub = notifee.onForegroundEvent(({ type, detail }) => {
-      try {
-        if (type === EventType.PRESS) {
-          const data =
-            detail?.notification?.data || detail?.notification || detail;
-          console.log('🔔 Notification tapped (fg):', safeJson(data));
-          this._safeRedirect(data);
-        }
-      } catch (e) {
-        console.warn(
-          '[NotificationService] onForegroundEvent handler error',
-          e,
-        );
+      if (type === EventType.PRESS) {
+        const data =
+          detail?.notification?.data || detail?.notification || detail;
+        console.log('🔔 Notification tapped (fg):', safeJson(data));
+        this._safeRedirect(data);
       }
     });
 
-    // Background press/listeners: note notifee.onBackgroundEvent should be registered in index.js for some setups
+    // Background press
     try {
       notifee.onBackgroundEvent(async ({ type, detail }) => {
         if (type === EventType.PRESS) {
           const data =
             detail?.notification?.data || detail?.notification || detail;
           console.log('🔔 Notification tapped (bg):', safeJson(data));
-          // store and attempt redirect when app becomes active
           await this._savePendingNotification(data);
         }
       });
     } catch (e) {
-      // If onBackgroundEvent isn't allowed in this context, warn but continue
       console.warn(
-        '[NotificationService] onBackgroundEvent registration failed (might need index.js):',
+        '[NotificationService] onBackgroundEvent registration failed:',
         e,
       );
     }
 
-    // Launched from killed state
+    // Opened from killed state
     try {
       const initial = await notifee.getInitialNotification();
       if (initial) {
@@ -240,7 +222,6 @@ class NotificationServiceClass {
           '🚀 Opened app from quit via notification:',
           safeJson(initial.notification?.data),
         );
-        // Try immediate redirect; if navigate not ready this will persist and be handled on active
         await this._safeRedirect(initial.notification?.data);
       }
     } catch (e) {
@@ -249,7 +230,6 @@ class NotificationServiceClass {
 
     AppState.addEventListener('change', this.handleAppStateChange);
 
-    // On init also check pending notification (in case we saved from BG earlier)
     const pending = await this._getPendingNotification();
     if (pending) {
       console.log(
@@ -264,7 +244,6 @@ class NotificationServiceClass {
 
   handleAppStateChange(nextAppState) {
     if (nextAppState === 'active') {
-      // When app becomes active, check for pending notification
       this._getPendingNotification()
         .then(async initialNotification => {
           if (initialNotification) {
@@ -283,33 +262,18 @@ class NotificationServiceClass {
   }
 
   async _safeRedirect(data) {
+    if (!data || Object.keys(data).length === 0) return;
+
     try {
-      if (!data || Object.keys(data).length === 0) {
-        console.log(
-          '[NotificationService] _safeRedirect called with empty data, ignoring',
-        );
-        return;
-      }
-  
-      // use helper function
       const normalized = normalizeNotificationData(data);
-  
-      console.log(
-        '[NotificationService] _safeRedirect normalized:',
-        safeJson(normalized),
-      );
-  
       const navFn = resolveNavigateFn();
+
       if (!navFn) {
-        console.log(
-          '[NotificationService] navigate function not ready, saving pending and returning',
-        );
         await this._savePendingNotification(data);
         return;
       }
-  
+
       await this.handleNotificationRedirection(normalized);
-  
       await this._clearPendingNotification();
     } catch (e) {
       console.warn('[NotificationService] _safeRedirect error', e);
@@ -319,63 +283,85 @@ class NotificationServiceClass {
 
   async handleNotificationRedirection(data) {
     try {
-      console.log('[NotificationService] Redirecting based on normalized data:', safeJson(data));
-  
-      const { type, job_id, offerId, userId } = data;
+      const { type, job_id, offerId, userId, raw } = data;
       const navFn = resolveNavigateFn();
-      if (!navFn) {
-        console.warn('[NotificationService] Cannot redirect: navigate function is missing');
-        return;
-      }
-  
+      if (!navFn) return;
+
       let userRole = null;
       try {
         const state = store.getState();
         userRole = state?.profile?.user?.role || userRole;
       } catch (e) {
-        console.warn('[NotificationService] Failed to read user role from store', e);
+        console.warn(
+          '[NotificationService] Failed to read user role from store',
+          e,
+        );
       }
-  
-
-
-console.log('TYPE-----------',typeof type, type);
-console.log('job id-----------', job_id);
-console.log('data-----------', data);
 
       switch (type) {
         case 'job_created':
           if (job_id) {
-            
-            navFn('JobDetailsScreen', { jobId:job_id, userRole, status: 'new' });
+            navFn('JobDetailsScreen', {
+              jobId: job_id,
+              userRole,
+              status: 'new',
+            });
           }
           return;
-  
-          case 'offer_accepted':
-            navFn('JobsScreen', { defaultTab: 'my_jobs' });
-            return;
-            case 'job_status_updated':
-              navFn('JobsScreen', { defaultTab:data?.raw?.status });
-              return;
-            
-              case 'offer_created':
-                navFn('OffersScreen', );
-                return;
+
+        case 'offer_accepted':
+          userRole === 'provider'
+            ? navFn('ProviderDashboard', {
+                screen: 'Jobs',
+                params: { defaultTab: 'my_jobs' },
+              })
+            : navFn('ConsumerDashboard', {
+                screen: 'Jobs',
+                params: { defaultTab: 'my_jobs' },
+              });
+          return;
+
+        case 'job_status_updated':
+          userRole === 'provider'
+            ? navFn('ProviderDashboard', {
+                screen: 'Jobs',
+                params: { defaultTab: raw.job_status },
+              })
+            : navFn('ConsumerDashboard', {
+                screen: 'Jobs',
+                params: { defaultTab: raw.job_status },
+              });
+          return;
+
+        case 'offer_created':
+          navFn('JobDetailsScreen', {
+            jobId: job_id,
+            userRole,
+            status: 'pending',
+          });
+          return;
+
         case 'user_message':
           if (userId) {
             navFn('ChatScreen', { userId });
           }
           return;
-  
+
         default:
-          console.log('[NotificationService] Unknown notification type, dumping:', safeJson(data));
+          console.log(
+            '[NotificationService] Unknown notification type:',
+            safeJson(data),
+          );
           return;
       }
     } catch (error) {
-      console.warn('[NotificationService] Notification redirection error:', error);
+      console.warn(
+        '[NotificationService] Notification redirection error:',
+        error,
+      );
       throw error;
     }
   }
-  
 }
 
 const NotificationService = new NotificationServiceClass();

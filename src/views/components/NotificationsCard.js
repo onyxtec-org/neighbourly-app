@@ -11,7 +11,9 @@ import colors from '../../config/colors';
 import { markNotificationAsRead } from '../../redux/slices/notificationSlice';
 function NotificationsCard({ item }) {
   const { user: profileUser } = useSelector(state => state.profile);
-  console.log('notification---', item);
+  const role = profileUser?.role;
+
+  console.log('notification------', item);
 
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -27,14 +29,32 @@ function NotificationsCard({ item }) {
     if (item.type.includes('NewJobNotification')) {
       navigation.navigate('JobDetailsScreen', {
         jobId: item.data.job_id,
-        userRole: profileUser.role,
+        userRole: role,
         status: 'new',
         item: {},
       });
     } else if (item.type.includes('OfferAcceptedNotification')) {
-      navigation.navigate('JobsScreen', { defaultTab: 'my_jobs' });
+       role==='provider'?   navigation.navigate('ProviderDashboard', {
+        screen: 'Jobs',
+        params: { defaultTab: 'my_jobs' },
+      }):   navigation.navigate('ConsumerDashboard', {
+        screen: 'Jobs',
+        params: { defaultTab: 'my_jobs' },
+      });
     } else if (item.type.includes('JobStatusUpdatedNotification')) {
-      navigation.navigate('JobsScreen', { defaultTab: item.data.status });
+     role==='provider'? navigation.navigate('ProviderDashboard', {
+        screen: 'Jobs',
+        params: { defaultTab: item.data.job_status },
+      }): navigation.navigate('ConsumerDashboard', {
+        screen: 'Jobs',
+        params: { defaultTab: item.data.job_status },
+      });
+    } else if (item.type.includes('NewOfferNotification')) {
+      navigation.navigate('JobDetailsScreen', {
+        jobId: item.data.job_id,
+        userRole: role,
+        status: 'pending',
+      });
     }
   };
 
@@ -63,7 +83,7 @@ function NotificationsCard({ item }) {
           <View style={styles.textWrapper}>
             <AppText style={styles.title}>
               {readable === 'Job Status Updated'
-                ? `${readable} to ${item.data.status}`
+                ? `${readable} to ${item.data.job_status}`
                 : readable}
             </AppText>
 

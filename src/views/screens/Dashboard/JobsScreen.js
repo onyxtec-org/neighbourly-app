@@ -47,7 +47,7 @@ const JobsScreen = () => {
 const { defaultTab } = route?.params || {};
   
   const { user: profileUser } = useSelector(state => state.profile);
-  const userRole = profileUser.role;
+  const userRole = profileUser?.role;
 const [activeTab, setActiveTab] = useState(() => {
   if (userRole === 'provider') {
     return defaultTab ? defaultTab : providerTabs[0].key;

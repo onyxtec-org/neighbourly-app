@@ -15,11 +15,9 @@ import { useSelector } from 'react-redux';
 
 const isAndroid = Platform.OS === 'android';
 
-function JobCard({ item, onPress, onInterestedPress, onRejectedPress,status }) {
+function JobCard({ item, onPress, onInterestedPress, onRejectedPress, status }) {
   const navigation = useNavigation();
   const { width, height } = useWindowDimensions();
-
-
 
   const { user: profileUser } = useSelector(state => state.profile);
 
@@ -33,13 +31,17 @@ function JobCard({ item, onPress, onInterestedPress, onRejectedPress,status }) {
   return (
     <TouchableOpacity
       style={[styles.container, { height: cardHeight }]}
-      onPress={() => onPress(item.id,status,item)}
+      onPress={() => onPress(item.id, status, item)}
     >
       <View style={[styles.contentContainer, { width: '75%' }]}>
+        {/* Title */}
         <Text
           numberOfLines={1}
           ellipsizeMode="tail"
-          style={[styles.title, { fontSize: titleFont }]}
+          style={[
+            styles.title,
+            { fontSize: titleFont, lineHeight: titleFont * 1.2, paddingBottom: 2 },
+          ]}
         >
           {item.title}
         </Text>
@@ -121,7 +123,7 @@ function JobCard({ item, onPress, onInterestedPress, onRejectedPress,status }) {
           />
 
           {/* Action Buttons */}
-          {profileUser.role === 'provider' && item.my_offer===null && (
+          {profileUser.role === 'provider' && item.my_offer === null && (
             <View style={styles.actionsRow}>
               <TouchableOpacity
                 style={[
@@ -135,7 +137,7 @@ function JobCard({ item, onPress, onInterestedPress, onRejectedPress,status }) {
                   },
                 ]}
                 onPress={() => {
-                  onInterestedPress(item.id,item.price_type);
+                  onInterestedPress(item.id, item.price_type);
                 }}
               >
                 <Ionicons
@@ -190,6 +192,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     width: '75%',
+    justifyContent: 'flex-start',
   },
   title: {
     fontWeight: '700',
