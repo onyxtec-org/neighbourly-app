@@ -114,7 +114,7 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
         {/* Top Categories */}
-        <View style={styles.categoryHeader}>
+        {/* <View style={styles.categoryHeader}>
           <Text style={styles.helpText}>Top Categories</Text>
         </View>
         <View style={styles.content}>
@@ -131,10 +131,10 @@ const HomeScreen = ({ navigation }) => {
               style={{ maxHeight: 180 }}
             />
           )}
-        </View>
+        </View> */}
 
         {/* Top Services */}
-        <View style={styles.categoryHeader}>
+        {/* <View style={styles.categoryHeader}>
           <Text style={styles.helpText}>Top Services</Text>
         </View>
         <View style={styles.content}>
@@ -151,7 +151,7 @@ const HomeScreen = ({ navigation }) => {
               style={{ maxHeight: 180 }}
             />
           )}
-        </View>
+        </View> */}
       </ScrollView>
     </TouchableWithoutFeedback>
   );
