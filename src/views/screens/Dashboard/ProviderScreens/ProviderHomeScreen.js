@@ -20,12 +20,15 @@ const ProviderHomeScreen = ({ navigation }) => {
   const { myServices } = useSelector(state => state.services);
   const myJobs = useSelector(selectJobsByTab('my_jobs', 'provider'));
   const dispatch = useDispatch();
-
+  const {
+    user: profileUser,
+   
+  } = useSelector(state => state.profile);
   console.log('myjobs---', myJobs);
 
   useFocusEffect(
     useCallback(() => {
-      if (myServices.length === 0) {
+      if (myServices?.length === 0 ) {
         navigation.reset({
           index: 0,
           routes: [{ name: 'VerifyUser' }],
@@ -33,7 +36,7 @@ const ProviderHomeScreen = ({ navigation }) => {
       }
 
       dispatch(getJobs());
-    }, [myServices, navigation]),
+    }, [myServices.length, navigation]),
   );
 
   const renderJob = ({ item }) => (
@@ -42,9 +45,9 @@ const ProviderHomeScreen = ({ navigation }) => {
       onPress={() =>
         navigation.navigate('JobDetailsScreen', {
           jobId: item.id,
-          userRole: 'provider', // ✅ only if available in your job object
+          userRole: 'provider', 
           status: 'my_jobs',
-          item, // passing the whole job object if needed
+          item, 
         })
       }
     >
