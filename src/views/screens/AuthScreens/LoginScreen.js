@@ -8,6 +8,7 @@ import { loginUser } from '../../../redux/thunks/auth/loginThunk';
 import { resetLoginState } from '../../../redux/slices/auth/loginSlice';
 import { setMyServices } from '../../../redux/slices/servicesSlice';
 import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice';
+import { fetchNotifications } from '../../../redux/slices/notificationSlice';
 import storage from '../../../app/storage';
 import StartupSVG from '../../../assets/icons/startup.svg';
 import CrossIconButton from '../../components/CrossIconButton';
@@ -54,8 +55,7 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
     if (success && user && token) {
       dispatch(setMyServices(user.services));
       dispatch(fetchUserProfile(user.id));
-          dispatch(fetchNotifications())
-
+       dispatch(fetchNotifications())
       setToastMessage('Login Successful!');
       setToastType('success');
       setToastVisible(true);

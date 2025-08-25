@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,24 +9,21 @@ import {
   Dimensions,
   PixelRatio,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import colors from '../../../config/colors';
 import JobListings from '../../components/JobComponents/JobListings';
-import { getJobs } from '../../../redux/slices/jobSlice';
+import { getJobs, removeJobById } from '../../../redux/slices/jobSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectJobsByTab } from '../../../redux/selectors/jobSelector';
-import { useNavigation } from '@react-navigation/native';
 import CustomToast from '../../components/CustomToast';
-import { removeJobById } from '../../../redux/slices/jobSlice';
 import { createOffer } from '../../../redux/slices/offerSlice';
 import AppActivityIndicator from '../../components/AppActivityIndicator';
 import CreateOfferPopup from '../CreateOfferPopup';
-import { useRoute } from '@react-navigation/native';
-const { width, height } = Dimensions.get('window');
-const scale = width / 375; // base iPhone 11 width
-const normalize = size =>
-  Math.round(PixelRatio.roundToNearestPixel(size * scale));
+import CustomPopup from '../../components/CustomPopup';
+
+const { width } = Dimensions.get('window');
+const scale = width / 375;
+const normalize = size => Math.round(PixelRatio.roundToNearestPixel(size * scale));
 
 const providerTabs = [
   { key: 'new', label: 'New Requests' },
@@ -36,8 +33,8 @@ const providerTabs = [
   { key: 'completed', label: 'Completed' },
 ];
 const consumerTabs = [
-  { key: 'pending', label: 'Pending' },
-  { key: 'my_jobs', label: 'To Start' },
+  { key: 'pending', label: 'Open' },
+  { key: 'my_jobs', label: 'Scheduled' },
   { key: 'in_progress', label: 'In Progress' },
   { key: 'completed', label: 'Completed' },
 ];
@@ -60,7 +57,7 @@ useEffect(() => {
     setActiveTab(defaultTab);
   }
 }, [defaultTab]);
-  const [showOffer, setShowOffer] = useState(false);
+  const [showOfferPopup, setShowOfferPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [jobId, setJobId] = useState();
   const [priceType, setPriceType] = useState();
@@ -68,60 +65,81 @@ useEffect(() => {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
+
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupConfig, setPopupConfig] = useState({
+    title: '',
+    message: '',
+    confirmText: '',
+    action: null,
+    jobId: null,
+  });
+
   const navigation = useNavigation();
- 
   const dispatch = useDispatch();
 
   const tabs = userRole === 'provider' ? providerTabs : consumerTabs;
+
   useFocusEffect(
     useCallback(() => {
       dispatch(getJobs());
-      //setLoading(false);
     }, [dispatch]),
   );
 
-  const handleJobPress = (jobId,status,item) => {
-
-    
-    navigation.navigate('JobDetailsScreen', { jobId, userRole,status ,item});
+  const handleJobPress = (jobId, status, item) => {
+    navigation.navigate('JobDetailsScreen', { jobId, userRole, status, item });
   };
+
   const onInterestedPress = (jobId, priceType) => {
+    // Show CreateOfferPopup directly
     setJobId(jobId);
     setPriceType(priceType);
-    setShowOffer(true);
+    setShowOfferPopup(true);
   };
-  const onRejectedPress = (jobId, status) => {
-    setLoading(true);
-    const payload = {
-      job_id: jobId,
-      status: status,
-    };
 
-    try {
-      dispatch(createOffer(payload))
-        .unwrap()
-        .then(res => {
-          if (res?.success) {
-            setLoading(false);
-            dispatch(removeJobById(jobId));
+  const onRejectedPress = jobId => {
+    // Show confirmation popup before rejecting
+    setPopupConfig({
+      title: 'Reject Job',
+      message: 'Are you sure you want to reject this job? This action cannot be undone.',
+      confirmText: 'Reject',
+      action: 'reject',
+      jobId,
+    });
+    setPopupVisible(true);
+  };
 
-            showToast('This Job has been rejected.!', 'error');
-          } else {
-            showToast(res?.message || 'Failed to send offer', 'error');
-          }
-        });
-    } catch (error) {
-      showToast('Something went wrong. Please try again.', 'error');
+  const handleConfirmAction = async () => {
+    const { action, jobId } = popupConfig;
+    setPopupVisible(false);
+
+    if (action === 'reject') {
+      setLoading(true);
+      const payload = {
+        job_id: jobId,
+        status: 'rejected',
+      };
+
+      try {
+        const res = await dispatch(createOffer(payload)).unwrap();
+        if (res?.success) {
+          setLoading(false);
+          dispatch(removeJobById(jobId));
+          showToast('This job has been rejected.', 'error');
+        } else {
+          showToast(res?.message || 'Failed to reject job', 'error');
+        }
+      } catch (error) {
+        showToast('Something went wrong. Please try again.', 'error');
+      }
     }
   };
+
   const showToast = (message, type = 'success') => {
     setToastMessage(message);
     setToastType(type);
     setToastVisible(true);
   };
-  // useEffect(() => {
-  //   dispatch(getJobs());
-  // }, [dispatch]);
 
   const jobsByStatus = {
     new: useSelector(selectJobsByTab('new', userRole)),
@@ -142,11 +160,12 @@ useEffect(() => {
     };
     const tabStatusMapping = {
       new: 'new',
-      pending: 'pending', 
-      my_jobs: 'my_jobs', 
+      pending: 'pending',
+      my_jobs: 'my_jobs',
       in_progress: 'in_progress',
       completed: 'completed',
     };
+
     return (
       <JobListings
         data={jobData}
@@ -158,6 +177,8 @@ useEffect(() => {
       />
     );
   };
+
+  
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -209,16 +230,31 @@ useEffect(() => {
         type={toastType}
         onHide={() => setToastVisible(false)}
       />
+           {/* Create Offer Popup */}
       <CreateOfferPopup
-        visible={showOffer}
-        onClose={() => setShowOffer(false)}
+        visible={showOfferPopup}
+        onClose={() => setShowOfferPopup(false)}
         jobId={jobId}
         priceType={priceType}
         onOfferSent={() => {
-          // Trigger refresh immediately after popup closes
           dispatch(getJobs());
         }}
       />
+
+      {/* Confirmation Popup */}
+      <CustomPopup
+        visible={popupVisible}
+        onClose={() => setPopupVisible(false)}
+        title={popupConfig.title}
+        message={popupConfig.message}
+        icon={popupConfig.action === 'reject' ? 'close-circle-outline' : 'checkmark-circle-outline'}
+        iconColor={popupConfig.action === 'reject' ? colors.red : colors.green}
+        cancelText="Cancel"
+        confirmText={popupConfig.confirmText}
+        onCancel={() => setPopupVisible(false)}
+        onConfirm={handleConfirmAction}
+      />
+
       {loading && <AppActivityIndicator />}
     </SafeAreaView>
   );

@@ -30,7 +30,7 @@ const colors = {
 
   statusColors(type) {
     switch (type) {
-      case 'pending':
+      case 'open':
         return this.pending;
       case 'in_progress':
         return this.inProgress;

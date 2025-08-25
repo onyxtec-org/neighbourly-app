@@ -15,7 +15,13 @@ import { useSelector } from 'react-redux';
 
 const isAndroid = Platform.OS === 'android';
 
-function JobCard({ item, onPress, onInterestedPress, onRejectedPress, status }) {
+function JobCard({
+  item,
+  onPress,
+  onInterestedPress,
+  onRejectedPress,
+  status,
+}) {
   const navigation = useNavigation();
   const { width, height } = useWindowDimensions();
 
@@ -31,6 +37,7 @@ function JobCard({ item, onPress, onInterestedPress, onRejectedPress, status }) 
   return (
     <TouchableOpacity
       style={[styles.container, { height: cardHeight }]}
+      onPress={() => onPress(item.id, status, item)}
       onPress={() => onPress(item.id, status, item)}
     >
       <View style={[styles.contentContainer, { width: '75%' }]}>
@@ -124,47 +131,21 @@ function JobCard({ item, onPress, onInterestedPress, onRejectedPress, status }) 
 
           {/* Action Buttons */}
           {profileUser.role === 'provider' && item.my_offer === null && (
-            <View style={styles.actionsRow}>
+            <View style={styles.actionsColumn}>
               <TouchableOpacity
-                style={[
-                  styles.checkCircle,
-                  {
-                    borderColor: colors.checkGreen,
-                    marginRight: 5,
-                    width: checkBtnSize,
-                    height: checkBtnSize,
-                    borderRadius: checkBtnSize / 2,
-                  },
-                ]}
-                onPress={() => {
-                  onInterestedPress(item.id, item.price_type);
-                }}
+                style={[styles.actionButton, styles.offerButton]}
+                onPress={() => onInterestedPress(item.id, item.price_type)}
+                activeOpacity={0.8}
               >
-                <Ionicons
-                  name="checkmark"
-                  size={iconSize}
-                  color={colors.checkGreen}
-                />
+                <Text style={styles.actionButtonText}>Offer</Text>
               </TouchableOpacity>
+
               <TouchableOpacity
-                style={[
-                  styles.checkCircle,
-                  {
-                    borderColor: colors.checkRed,
-                    width: checkBtnSize,
-                    height: checkBtnSize,
-                    borderRadius: checkBtnSize / 2,
-                  },
-                ]}
-                onPress={() => {
-                  onRejectedPress(item.id, 'rejected');
-                }}
+                style={[styles.actionButton, styles.rejectButton]}
+                onPress={() => onRejectedPress(item.id, 'rejected')}
+                activeOpacity={0.8}
               >
-                <Ionicons
-                  name="close-outline"
-                  size={iconSize}
-                  color={colors.checkRed}
-                />
+                <Text style={styles.actionButtonText}>Reject</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -221,15 +202,33 @@ const styles = StyleSheet.create({
   infoText: {
     color: colors.medium,
   },
-  actionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 12,
+  actionsColumn: {
+    flexDirection: 'column',
+    gap: 10, // better spacing
+    marginTop: 10,
   },
-  checkCircle: {
-    borderWidth: 2,
-    justifyContent: 'center',
+  actionButton: {
+    paddingVertical: 5,
+    borderRadius: 30, // pill shape
     alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  offerButton: {
+    backgroundColor: '#4CAF50', // green
+  },
+  rejectButton: {
+    backgroundColor: '#E53935', // red
+  },
+  actionButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+    letterSpacing: 0.5,
   },
 });
 
