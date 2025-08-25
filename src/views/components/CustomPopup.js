@@ -109,8 +109,9 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     alignSelf: 'stretch',
+
   },
   button: {
     paddingVertical: 10,

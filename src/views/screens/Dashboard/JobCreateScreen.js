@@ -1,28 +1,29 @@
-  import React, { useEffect, useState } from 'react';
-  import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    SafeAreaView,
-    ScrollView,
-  } from 'react-native';
-  import { useDispatch, useSelector } from 'react-redux';
-  import ImageInputList from '../../components/FormComponents/imageinpulist';
-  import Ionicons from 'react-native-vector-icons/Ionicons';
-  import { Formik } from 'formik';
-  import * as Yup from 'yup';
-  import CustomToast from '../../components/CustomToast';
-  import DateTimePicker from '@react-native-community/datetimepicker';
-  import CustomDropdown from '../../components/customdropdown';
-  import colors from '../../../config/colors';
-  import AppButton from '../../components/AppButton';
-  import CustomTextInput from '../../components/CustomTextInput';
-  import {
-    createJob,
-    resetJobState,
-    getJobs,
-  } from '../../../redux/slices/jobSlice';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import ImageInputList from '../../components/FormComponents/imageinpulist';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import CustomToast from '../../components/CustomToast';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import CustomDropdown from '../../components/customdropdown';
+import colors from '../../../config/colors';
+import AppButton from '../../components/AppButton';
+import CustomTextInput from '../../components/CustomTextInput';
+import {
+  createJob,
+  resetJobState,
+  getJobs,
+} from '../../../redux/slices/jobSlice';
+import AppActivityIndicator from '../../components/AppActivityIndicator';
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required('Title is required'),
@@ -300,40 +301,40 @@
                 maxLength={60}
               />
 
-              <CustomTextInput
-                label="Job Description"
-                required
-                multiline
-                value={values.description}
-                onChangeText={handleChange('description')}
-                onBlur={handleBlur('description')}
-                placeholder="Enter job description"
-                error={touched.description && errors.description}
-                style={{ height: 100, textAlignVertical: 'top' }}
-                showCharCount
-                maxLength={500}
-              />
-              <CustomDropdown
-                label="Job Type"
-                open={jobTypeOpen}
-                value={jobTypeValue}
-                items={jobTypeItems}
-                setOpen={o => {
-                  setJobTypeOpen(o);
-                  setPaymentTypeOpen(false);
-                }}
-                setValue={val => {
-                  setJobTypeValue(val);
-                  setFieldValue('price_type', val); // set in Formik
-                  if (val === 'fixed') {
-                    setFieldValue('no_of_hours', ''); // clear hours if not needed
-                  }
-                }}
-                setItems={setJobTypeItems}
-                placeholder="Select job type"
-                required
-                zIndex={3000}
-              />
+            <CustomTextInput
+              label="Job Description"
+              required
+              multiline
+              value={values.description}
+              onChangeText={handleChange('description')}
+              onBlur={handleBlur('description')}
+              placeholder="Enter job description"
+              error={touched.description && errors.description}
+              style={{ height: 100, textAlignVertical: 'top' }}
+              showCharCount
+              maxLength={500}
+            />
+            <CustomDropdown
+              label="Pricing Type"
+              open={jobTypeOpen}
+              value={jobTypeValue}
+              items={jobTypeItems}
+              setOpen={o => {
+                setJobTypeOpen(o);
+                setPaymentTypeOpen(false);
+              }}
+              setValue={val => {
+                setJobTypeValue(val);
+                setFieldValue('price_type', val); // set in Formik
+                if (val === 'fixed') {
+                  setFieldValue('no_of_hours', ''); // clear hours if not needed
+                }
+              }}
+              setItems={setJobTypeItems}
+              placeholder="Select job type"
+              required
+              zIndex={3000}
+            />
 
               <TouchableOpacity
                 onPress={() => {
@@ -520,26 +521,27 @@
                 error={touched.location && errors.location}
               />
 
-              <AppButton
-                title={loading ? 'Creating...' : 'Create Job'}
-                onPress={handleSubmit}
-                disabled={loading}
-                btnStyles={styles.loginButton}
-                textStyle={styles.buttonText}
-                IconName="briefcase"
-              />
-            </ScrollView>
-          )}
-        </Formik>
-        <CustomToast
-          visible={toastVisible}
-          message={toastMessage}
-          type={toastType}
-          onHide={() => setToastVisible(false)}
-        />
-      </SafeAreaView>
-    );
-  };
+            <AppButton
+              title={loading ? 'Creating...' : 'Create Job'}
+              onPress={handleSubmit}
+              disabled={loading}
+              btnStyles={styles.loginButton}
+              textStyle={styles.buttonText}
+              IconName="briefcase"
+            />
+      </ScrollView>
+        )}
+      </Formik>
+      <CustomToast
+        visible={toastVisible}
+        message={toastMessage}
+        type={toastType}
+        onHide={() => setToastVisible(false)}
+      />
+     {loading && <AppActivityIndicator/>}
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
   safeArea: {

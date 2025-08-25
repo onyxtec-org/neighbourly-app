@@ -30,6 +30,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { updateJobStatus } from '../../redux/slices/UpdateJobStatusSlice';
 import CustomToast from '../components/CustomToast';
 import AppActivityIndicator from '../components/AppActivityIndicator';
+import CustomPopup from '../components/CustomPopup';
 const { width } = Dimensions.get('window');
 const CARD_HEIGHT = 250;
 
@@ -50,6 +51,9 @@ const JobDetailsScreen = ({ navigation, route }) => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupTitle, setPopupTitle] = useState('');
+  const [popupMessage, setPopupMessage] = useState('');
 
   const showToast = (message, type = 'success') => {
     setToastMessage(message);
@@ -65,7 +69,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
           status: status === 'my_jobs' ? 'in_progress' : 'completed',
         }),
       );
-
 
       if (res?.payload.statusCode === 200) {
         setIsLoading(false);
@@ -87,6 +90,17 @@ const JobDetailsScreen = ({ navigation, route }) => {
       showToast('something went wrong', 'success');
     }
     //status==='my_jobs'?setInProgress(true):setCompleted(true);
+  };
+
+  const handlePopupOpen = action => {
+    if (action === 'in_progress') {
+      setPopupTitle('Mark as In Progress');
+      setPopupMessage('Are you sure you want to mark this job as In Progress?');
+    } else if (action === 'completed') {
+      setPopupTitle('Mark as Completed');
+      setPopupMessage('Are you sure you want to mark this job as Completed?');
+    }
+    setShowPopup(true);
   };
 
   useFocusEffect(
@@ -111,7 +125,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
               marginBottom: 16,
               borderRadius: 6,
             }}
-  
           />
 
           {/* Fake image/video carousel */}
@@ -123,7 +136,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
               marginBottom: 20,
               borderRadius: 12,
             }}
-           
           />
 
           {/* Fake text lines */}
@@ -137,7 +149,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 marginBottom: 12,
                 borderRadius: 4,
               }}
-             
             />
           ))}
         </ScrollView>
@@ -433,7 +444,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
                       : colors.pending,
                   },
                 ]}
-                onPress={statusChange}
+                onPress={() => handlePopupOpen('in_progress')}
                 disabled={inProgress}
               >
                 <Text style={styles.progressButtonText}>
@@ -452,7 +463,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
                       : colors.inProgress,
                   },
                 ]}
-                onPress={statusChange}
+                onPress={() => handlePopupOpen('completed')}
                 disabled={completed}
               >
                 <Text style={styles.progressButtonText}>
@@ -472,15 +483,18 @@ const JobDetailsScreen = ({ navigation, route }) => {
           </View>
 
           {/* Action Buttons (Small, Text-Based) */}
-          {userRole === 'consumer' && Number(job?.offers?.length) > 0 && job.accepted_offer===null? (
+          {userRole === 'consumer' &&
+          Number(job?.offers?.length) > 0 &&
+          job.accepted_offer === null ? (
             <TouchableOpacity
               style={styles.textButton}
               onPress={onInterestedPersonPress}
             >
-              <Text style={styles.textButtonText}>View Interested Persons</Text>
+              <Text style={styles.textButtonText}>View Offers</Text>
             </TouchableOpacity>
           ) : (
-            status === 'new' && job.my_offer===null &&(
+            status === 'new' &&
+            job.my_offer === null && (
               <View style={styles.textButtonRow}>
                 <TouchableOpacity
                   style={[styles.textButton, { marginRight: 10 }]}
@@ -600,6 +614,28 @@ const JobDetailsScreen = ({ navigation, route }) => {
           jobId={job.id}
           priceType={job.price_type}
         />
+        <CustomPopup
+          visible={showPopup}
+          onClose={() => setShowPopup(false)}
+          title={popupTitle}
+          message={popupMessage}
+          icon={
+            popupTitle.includes('Completed')
+              ? 'checkmark-done-outline'
+              : 'time-outline'
+          }
+          iconColor={
+            popupTitle.includes('Completed') ? colors.green : colors.orange
+          }
+          confirmText="Yes"
+          cancelText="Cancel"
+          onCancel={() => setShowPopup(false)}
+          onConfirm={() => {
+            setShowPopup(false);
+            statusChange();
+          }}
+        />
+
         {isLoading && <AppActivityIndicator />}
       </ScrollView>
     </SafeAreaView>

@@ -25,6 +25,7 @@ import colors from '../../../config/colors';
 import PasswordChecklist from '../../components/PasswordChecklist';
 const validationSchema = Yup.object().shape({
   fullName: Yup.string().required('Full name is required'),
+  screenName: Yup.string().required('Screen name is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
   countryCode: Yup.string().required('Country code is required'),
   phoneNumber: Yup.string().required('Phone number is required'),
@@ -112,7 +113,7 @@ const SignupScreen = ({ navigation, route }) => {
       location: values.address,
       location_lng: '0.0',
       location_lat: '0.0',
-
+      slug: values.screenName,
       role: accountType,
       image: profileImage, // pass raw image object
     };
@@ -149,6 +150,7 @@ const SignupScreen = ({ navigation, route }) => {
         <Formik
           initialValues={{
             fullName: '',
+            screenName: '',
             email: '',
             address: '',
             countryCode: '',
@@ -176,6 +178,15 @@ const SignupScreen = ({ navigation, route }) => {
                 onBlur={handleBlur('fullName')}
                 placeholder="Enter your Full Name"
                 error={touched.fullName && errors.fullName}
+              />
+              <CustomTextInput
+                label="Screen Name"
+                required
+                value={values.screenName}
+                onChangeText={handleChange('screenName')}
+                onBlur={handleBlur('screenName')}
+                placeholder="Enter your Screen Name"
+                error={touched.screenName && errors.screenName}
               />
 
               <CustomTextInput

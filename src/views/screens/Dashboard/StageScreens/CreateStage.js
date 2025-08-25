@@ -68,7 +68,7 @@ const CreateStageScreen = ({ navigation }) => {
         >
           <Ionicons name="arrow-back" size={24} color={colors.dark} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Create Stage</Text>
+        <Text style={styles.headerTitle}>Create Post</Text>
         <View style={styles.iconButton} />
       </View>
 

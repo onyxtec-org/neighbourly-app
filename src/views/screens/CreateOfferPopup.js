@@ -95,7 +95,7 @@ const CreateOfferPopup = ({
           <View style={styles.overlay}>
             <TouchableWithoutFeedback>
               <View style={styles.container}>
-                <Text style={styles.title}>Create Offer</Text>
+                <Text style={styles.title}>Offer</Text>
 
                 <CustomTextInput
                   label="Rate"
@@ -125,7 +125,7 @@ const CreateOfferPopup = ({
 
                 <View style={styles.buttonRow}>
                   <AppButton
-                    title={loading ? '' : 'Send Offer'}
+                    title={loading ? '' : 'Submit Offer'}
                     onPress={handleSubmit}
                     btnStyles={[
                       styles.submitButton,
