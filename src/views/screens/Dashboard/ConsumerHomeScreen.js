@@ -33,37 +33,49 @@ const HomeScreen = ({ navigation }) => {
     dispatch(fetchCategories());
     dispatch(fetchFeaturedCategories());
     dispatch(fetchFeaturedServices());
-  }, [dispatch]);
+    dispatch(fetchFeaturedServices()).then((res) => {
+      console.log("Featured Services API Result:", res.payload); // 👈 yahan se clear hoga
+    }); 
+    dispatch(fetchFeaturedCategories()).then((res) => {
+      console.log("Featured Categories API Result:", res.payload); // 👈 yahan se clear hoga
+    });  }, [dispatch]);
 
   // Render reusable card
-  const renderCard = (item, isService = false) => (
-    <TouchableOpacity
-      style={styles.cardContainer}
-      onPress={() =>
-        navigation.navigate(
-          isService ? 'ServiceDetailsScreen' : 'CategoryDetailsScreen',
-          { [isService ? 'service' : 'category']: item }
-        )
-      }
-    >
-      <View style={styles.cardImageWrapper}>
-        <Image
-          source={{
-            uri: item.image?.trim()
-              ? item.image
-              : 'https://via.placeholder.com/300x200.png?text=No+Image',
-          }}
-          style={styles.cardImage}
-          resizeMode="cover"
-        />
-      </View>
-      <View style={styles.cardLabel}>
-        <Text style={styles.categoryName}>
-          {isService ? item.title : item.name}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
+  const renderCard = (item, isService = false) => {
+    const displayName = isService ? item.name : (item.title || item.name); // ✅ Service ke liye name, category ke liye title fallback
+    
+    return (
+      <TouchableOpacity
+        style={styles.cardContainer}
+        onPress={() => {
+          if (isService) {
+            navigation.navigate('JobCreateScreen', {
+              serviceId: item.id,
+              serviceName: item.name,
+            });
+          } else {
+            navigation.navigate('CategoryDetailsScreen', { category: item });
+          }
+        }}
+      >
+        <View style={styles.cardImageWrapper}>
+          <Image
+            source={{
+              uri: item.image?.trim()
+                ? item.image
+                : 'https://via.placeholder.com/300x200.png?text=No+Image',
+            }}
+            style={styles.cardImage}
+            resizeMode="cover"
+          />
+        </View>
+        <View style={styles.cardLabel}>
+          <Text style={styles.categoryName}>{displayName}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+  
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -114,7 +126,7 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
         {/* Top Categories */}
-        {/* <View style={styles.categoryHeader}>
+      <View style={styles.categoryHeader}>
           <Text style={styles.helpText}>Top Categories</Text>
         </View>
         <View style={styles.content}>
@@ -131,10 +143,10 @@ const HomeScreen = ({ navigation }) => {
               style={{ maxHeight: 180 }}
             />
           )}
-        </View> */}
+        </View> 
 
         {/* Top Services */}
-        {/* <View style={styles.categoryHeader}>
+       <View style={styles.categoryHeader}>
           <Text style={styles.helpText}>Top Services</Text>
         </View>
         <View style={styles.content}>
@@ -151,7 +163,7 @@ const HomeScreen = ({ navigation }) => {
               style={{ maxHeight: 180 }}
             />
           )}
-        </View> */}
+        </View> 
       </ScrollView>
     </TouchableWithoutFeedback>
   );
