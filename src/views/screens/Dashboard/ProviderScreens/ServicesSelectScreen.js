@@ -33,7 +33,8 @@ const ServicesSelectScreen = ({ navigation, route }) => {
   const { status } = useSelector(state => state.services);
   const { categories } = useSelector(state => state.categories);
   const { services } = useSelector(state => state.services);
-  console.log('services', services);
+  console.log('services-', services);
+  console.log('categories--', categories);
 
   const [selectedCustomServiceNames, setSelectedCustomServiceNames] = useState(
     [],
@@ -52,7 +53,7 @@ const ServicesSelectScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     dispatch(fetchServices());
-  }, [dispatch]);
+  }, [dispatch,]);
 
   useFocusEffect(
     useCallback(() => {

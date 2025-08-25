@@ -81,7 +81,7 @@ function NotificationsScreen({ navigation }) {
           )
         }
       />
-      {loading && <AppActivityIndicator />}
+      {/* {loading && <AppActivityIndicator />} */}
     </SafeAreaView>
   );
 }

@@ -43,12 +43,23 @@ const consumerTabs = [
 ];
 
 const JobsScreen = () => {
-  const route = useRoute(); // 👈 Add this
+  const route = useRoute();
+const { defaultTab } = route?.params || {};
+  
   const { user: profileUser } = useSelector(state => state.profile);
-  const userRole = profileUser.role;
-  const [activeTab, setActiveTab] = useState(
-    userRole === 'provider' ? providerTabs[0].key : consumerTabs[0].key,
-  );
+  const userRole = profileUser?.role;
+const [activeTab, setActiveTab] = useState(() => {
+  if (userRole === 'provider') {
+    return defaultTab ? defaultTab : providerTabs[0].key;
+  }
+  return consumerTabs[0].key;
+});
+
+useEffect(() => {
+  if (defaultTab) {
+    setActiveTab(defaultTab);
+  }
+}, [defaultTab]);
   const [showOffer, setShowOffer] = useState(false);
   const [loading, setLoading] = useState(false);
   const [jobId, setJobId] = useState();

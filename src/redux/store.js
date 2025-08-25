@@ -6,7 +6,7 @@ import loginReducer from './slices/auth/loginSlice';
 import resendOtpReducer from './slices/auth/resendOtpSlice';
 import servicesReducer from './slices/servicesSlice';
 import categoriesReducer from './slices/categoriesSlice';
-import profileReducer from './slices/auth/profileSlice'; 
+import profileReducer from './slices/auth/profileSlice';
 import passwordReducer from './slices/auth/passwordSlice';
 import forgotPasswordReducer from './slices/auth/forgotPasswordSlice';
 import verifyForgetOtpReducer from './slices/auth/verifyForgotOtpSlice';
@@ -32,12 +32,12 @@ const store = configureStore({
     profile: profileReducer,
     password: passwordReducer,
     forgotPassword: forgotPasswordReducer,
-    verifyForgotOtp : verifyForgetOtpReducer,
-    resetPassword : resetForgotPasswordreducer,
-    job: jobReducer, 
-    jobDetail: jobDetailReducer, 
+    verifyForgotOtp: verifyForgetOtpReducer,
+    resetPassword: resetForgotPasswordreducer,
+    job: jobReducer,
+    jobDetail: jobDetailReducer,
     offer: offerReducer,
-    notifications:notificationsReducer,
+    notifications: notificationsReducer,
     featuredCategories: featuredCategoriesReducer,
     featuredServices: featuredServicesReducer,
     post: postReducer,

@@ -8,6 +8,8 @@ import { selectUnreadCount } from '../../redux/slices/notificationSlice';
 
 function AppBar(props) {
   const unreadCount = useSelector(selectUnreadCount);
+  console.log('unread count',unreadCount);
+  
   const navigation = useNavigation();
 
   return (

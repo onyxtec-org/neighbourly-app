@@ -7,7 +7,9 @@ export const createOffer = createAsyncThunk(
   'offers/createOffer',
   async (offerData, { rejectWithValue }) => {
     try {
-      const response = await apiClient.post('offers', offerData); // token is auto-injected
+      const response = await apiClient.post('offers', offerData); 
+      console.log('resonse',response);
+      
       return response.data;
     } catch (error) {
       console.error('Create Offer Error:', error);
