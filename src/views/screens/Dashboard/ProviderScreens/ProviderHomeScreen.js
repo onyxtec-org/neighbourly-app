@@ -1,14 +1,13 @@
 import React, { useEffect } from 'react';
 import {
   View,
-  Text,
   TouchableOpacity,
   StyleSheet,
   Keyboard,
   TouchableWithoutFeedback,
-  Image,
   FlatList,
 } from 'react-native';
+import AppText from '../../../components/AppText';
 import { useDispatch, useSelector } from 'react-redux';
 import colors from '../../../../config/colors';
 import { useFocusEffect } from '@react-navigation/native';
@@ -16,19 +15,17 @@ import { useCallback } from 'react';
 import { selectJobsByTab } from '../../../../redux/selectors/jobSelector';
 import { getJobs } from '../../../../redux/slices/jobSlice';
 import AppBar from '../../../components/AppBar';
+import { fetchNotifications } from '../../../../redux/slices/notificationSlice';
 const ProviderHomeScreen = ({ navigation }) => {
   const { myServices } = useSelector(state => state.services);
   const myJobs = useSelector(selectJobsByTab('my_jobs', 'provider'));
   const dispatch = useDispatch();
-  const {
-    user: profileUser,
-   
-  } = useSelector(state => state.profile);
+  const { user: profileUser } = useSelector(state => state.profile);
   console.log('myjobs---', myJobs);
 
   useFocusEffect(
     useCallback(() => {
-      if (myServices?.length === 0 ) {
+      if (myServices?.length === 0) {
         navigation.reset({
           index: 0,
           routes: [{ name: 'VerifyUser' }],
@@ -39,26 +36,29 @@ const ProviderHomeScreen = ({ navigation }) => {
     }, [myServices.length, navigation]),
   );
 
+  useEffect(() => {
+    dispatch(fetchNotifications());
+  }, [dispatch]);
   const renderJob = ({ item }) => (
     <TouchableOpacity
       style={styles.jobCard}
       onPress={() =>
         navigation.navigate('JobDetailsScreen', {
           jobId: item.id,
-          userRole: 'provider', 
+          userRole: 'provider',
           status: 'my_jobs',
-          item, 
+          item,
         })
       }
     >
-      <Text style={styles.jobTitle}>{item.title}</Text>
-      <Text style={styles.jobService}>
+      <AppText style={styles.jobTitle}>{item.title}</AppText>
+      <AppText style={styles.jobService}>
         Service: {item.service?.name || 'N/A'}
-      </Text>
-      <Text style={styles.jobLocation}>📍 {item.location}</Text>
-      <Text>Status: {item.status}</Text>
-      <Text>Budget: ${item.budget}</Text>
-      <Text>Consumer: {item.consumer?.name || 'Unknown'}</Text>
+      </AppText>
+      <AppText style={styles.jobLocation}>📍 {item.location}</AppText>
+      <AppText>Status: {item.status}</AppText>
+      <AppText>Budget: ${item.budget}</AppText>
+      <AppText>Consumer: {item.consumer?.name || 'Unknown'}</AppText>
     </TouchableOpacity>
   );
 
@@ -69,7 +69,7 @@ const ProviderHomeScreen = ({ navigation }) => {
         <AppBar />
         {/* My Jobs Section */}
         <View style={{ flex: 1, paddingHorizontal: 16, marginTop: 16 }}>
-          <Text style={styles.helpText}>My Jobs</Text>
+          <AppText style={styles.helpText}>My Jobs</AppText>
           {myJobs?.length > 0 ? (
             <FlatList
               data={myJobs}
@@ -78,7 +78,7 @@ const ProviderHomeScreen = ({ navigation }) => {
               contentContainerStyle={{ paddingBottom: 20 }}
             />
           ) : (
-            <Text>No jobs found.</Text>
+            <AppText>No jobs found.</AppText>
           )}
         </View>
       </View>

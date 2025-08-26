@@ -7,12 +7,11 @@ import {
   Alert,
   TouchableOpacity,
   Image,
-  Text,
 } from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
 import Video from "react-native-video";
 import ImageInput from "../../components/FormComponents/ImageInput";
-
+import AppText from "../AppText";
+import Icon from "../IconComponent";
 function ImageInputList({ imageUris = [], onRemoveImage, onAddImage }) {
   const scrollView = useRef();
 
@@ -27,9 +26,9 @@ function ImageInputList({ imageUris = [], onRemoveImage, onAddImage }) {
     <View style={styles.wrapper}>
       {/* Top Divider */}
       <View style={styles.divider} />
-      <Text style={styles.countText}>
+      <AppText style={styles.countText}>
         Uploaded: {imageUris.length} {imageUris.length !== 1 ? "items" : "item"}
-      </Text>
+      </AppText>
 
       <ScrollView
         ref={scrollView}
@@ -65,7 +64,7 @@ function ImageInputList({ imageUris = [], onRemoveImage, onAddImage }) {
                   style={styles.deleteIcon}
                   onPress={() => handleDelete(item)}
                 >
-                  <Ionicons name="close-circle" size={22} color="red" />
+                  <Icon name="close-circle" size={22} color="red" />
                 </TouchableOpacity>
               </View>
             </View>

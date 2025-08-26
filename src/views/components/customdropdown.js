@@ -1,14 +1,14 @@
 // components/CustomDropdown.js
 
 import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import Ionicons from './IconComponent';
+import AppText from './AppText';
 const isAndroid = Platform.OS === 'android';
 
 const CustomDropdown = ({
@@ -33,10 +33,10 @@ const CustomDropdown = ({
   return (
     <View style={[styles.wrapper, { zIndex }]}>
       {label ? (
-        <Text style={styles.label}>
+        <AppText style={styles.label}>
           {label}
-          {required && <Text style={styles.required}> *</Text>}
-        </Text>
+          {required && <AppText style={styles.required}> *</AppText>}
+        </AppText>
       ) : null}
 
       <DropDownPicker
@@ -60,7 +60,7 @@ const CustomDropdown = ({
         {...props}
       />
 
-      {props.error && <Text style={styles.errorText}>{props.error}</Text>}
+      {props.error && <AppText style={styles.errorText}>{props.error}</AppText>}
     </View>
   );
 };

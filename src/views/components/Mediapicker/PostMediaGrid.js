@@ -1,8 +1,8 @@
 // export default PostMediaGrid;
 
 import React from 'react';
-import { View, Image, Text, StyleSheet, TouchableOpacity } from 'react-native';
-
+import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import AppText from '../AppText';
 const PostMediaGrid = ({ attachments = [], onPressImage }) => {
   if (!attachments || attachments.length === 0) return null;
 
@@ -115,7 +115,7 @@ const PostMediaGrid = ({ attachments = [], onPressImage }) => {
                 />
                 {isLast && (
                   <View style={styles.overlay}>
-                    <Text style={styles.overlayText}>+{extraCount}</Text>
+                    <AppText style={styles.overlayText}>+{extraCount}</AppText>
                   </View>
                 )}
               </TouchableOpacity>

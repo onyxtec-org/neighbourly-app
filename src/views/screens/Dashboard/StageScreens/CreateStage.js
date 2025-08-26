@@ -1,14 +1,14 @@
 // export default CreateStageScreen;
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import MediaPicker from '../../../components/Mediapicker/MediaPicker';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../../../../config/colors';
 import CustomTextInput from '../../../components/CustomTextInput';
 import AppButton from '../../../components/AppButton';
 import { useDispatch, useSelector } from 'react-redux';
-import { createPost, getPosts, resetPostState } from '../../../../redux/slices/postSlice';
-
+import { createPost, getPosts } from '../../../../redux/slices/postSlice';
+import AppText from '../../../components/AppText';
+import Header from '../../../components/Header';
 const CreateStageScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector(state => state.post);
@@ -61,22 +61,15 @@ const CreateStageScreen = ({ navigation }) => {
   return (
     <>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.iconButton}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.dark} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Create Post</Text>
-        <View style={styles.iconButton} />
-      </View>
+      <Header title={'Create Post'} bookmark={false} />
 
       {/* Form */}
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <MediaPicker onChange={setMedia} />
         {submitted && media.length === 0 && (
-          <Text style={styles.errorText}>At least one image/video is required</Text>
+          <AppText style={styles.errorText}>
+            At least one image/video is required
+          </AppText>
         )}
 
         <CustomTextInput
@@ -112,7 +105,7 @@ const CreateStageScreen = ({ navigation }) => {
           IconName="briefcase"
         />
 
-        {error && <Text style={styles.errorText}>❌ {error}</Text>}
+        {error && <AppText style={styles.errorText}>❌ {error}</AppText>}
       </ScrollView>
     </>
   );
@@ -163,4 +156,3 @@ const styles = StyleSheet.create({
     marginTop: -6,
   },
 });
-

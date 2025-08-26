@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import {
   View,
-  Text,
   FlatList,
   TouchableOpacity,
   Image,
@@ -9,10 +8,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import AppText from '../../components/AppText';
 import { fetchCategories } from '../../../redux/slices/categoriesSlice';
 import colors from '../../../config/colors';
+import Header from '../../components/Header';
 
 const AllCategoriesScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -40,34 +39,29 @@ const AllCategoriesScreen = ({ navigation }) => {
           resizeMode="cover"
         />
       </View>
-      <Text style={styles.name}>{item.name}</Text>
+      <AppText style={styles.name}>{item.name}</AppText>
     </TouchableOpacity>
   );
 
   return (
     <>
-    <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
-          <Ionicons name="arrow-back" size={24} color={colors.dark} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Search Services</Text>
-        <View style={styles.iconButton} /> {/* Spacer */}
+      <Header title={'Search Services'} bookmark={false} />
+
+      <View style={styles.container}>
+        <AppText style={styles.heading}>All Categories</AppText>
+        {status === 'loading' ? (
+          <ActivityIndicator size="large" color={colors.primary} />
+        ) : (
+          <FlatList
+            data={categories}
+            keyExtractor={item => item.id.toString()}
+            renderItem={renderItem}
+            numColumns={2}
+            columnWrapperStyle={styles.columnWrapper}
+            contentContainerStyle={styles.listContent}
+          />
+        )}
       </View>
-    <View style={styles.container}>
-      <Text style={styles.heading}>All Categories</Text>
-      {status === 'loading' ? (
-        <ActivityIndicator size="large" color={colors.primary} />
-      ) : (
-        <FlatList
-          data={categories}
-          keyExtractor={item => item.id.toString()}
-          renderItem={renderItem}
-          numColumns={2}
-          columnWrapperStyle={styles.columnWrapper}
-          contentContainerStyle={styles.listContent}
-        />
-      )}
-    </View>
     </>
   );
 };
@@ -80,26 +74,7 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     color: '#333',
   },
-  header: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.dark,
-  },
-  iconButton: {
-    width: 32,
-    alignItems: 'center',
-  },
+
   listContent: {
     paddingBottom: 20,
   },

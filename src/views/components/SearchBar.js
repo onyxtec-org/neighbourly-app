@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { View, StyleSheet, TouchableOpacity, } from 'react-native';
+import Ionicons from './IconComponent';
 import colors from '../../config/colors';
+import AppText from './AppText';
+
 function SearchBar({ placeholder, onPress, title }) {
   return (
     <TouchableOpacity
@@ -9,7 +11,7 @@ function SearchBar({ placeholder, onPress, title }) {
       activeOpacity={0.8}
       style={styles.searchContainer}
     >
-      <Text style={styles.helpText}>{title}</Text>
+      <AppText style={styles.helpText}>{title}</AppText>
 
       <View style={styles.searchBar}>
         <Ionicons
@@ -18,7 +20,7 @@ function SearchBar({ placeholder, onPress, title }) {
           color="#888"
           style={styles.searchIcon}
         />
-        <Text style={styles.searchInput}>{placeholder}</Text>
+        <AppText style={styles.searchInput}>{placeholder}</AppText>
       </View>
     </TouchableOpacity>
   );

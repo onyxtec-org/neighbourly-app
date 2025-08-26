@@ -18,6 +18,7 @@ import { fetchFeaturedServices } from '../../../redux/slices/ConsumerDashboard/f
 import colors from '../../../config/colors';
 import SearchBar from '../../components/SearchBar';
 import AppBar from '../../components/AppBar';
+import AppText from '../../components/AppText';
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 
@@ -70,7 +71,7 @@ const HomeScreen = ({ navigation }) => {
           />
         </View>
         <View style={styles.cardLabel}>
-          <Text style={styles.categoryName}>{displayName}</Text>
+          <AppText style={styles.categoryName}>{displayName}</AppText>
         </View>
       </TouchableOpacity>
     );
@@ -89,7 +90,7 @@ const HomeScreen = ({ navigation }) => {
 
         {/* Search */}
         <View style={styles.searchContainer}>
-          <Text style={styles.helpText}>I need help with</Text>
+          <AppText style={styles.helpText}>I need help with</AppText>
           <SearchBar
             placeholder='Try "Mount TV" or "leaky tap"'
             onPress={() => navigation.navigate('SearchScreen')}
@@ -98,12 +99,12 @@ const HomeScreen = ({ navigation }) => {
 
         {/* All Categories */}
         <View style={styles.categoryHeader}>
-          <Text style={styles.helpText}>Choose a category</Text>
+          <AppText style={styles.helpText}>Choose a category</AppText>
           {categories.length > 4 && (
             <TouchableOpacity
               onPress={() => navigation.navigate('AllCategoriesScreen')}
             >
-              <Text style={styles.seeAllText}>See All</Text>
+              <AppText style={styles.seeAllText}>See All</AppText>
             </TouchableOpacity>
           )}
         </View>
@@ -127,7 +128,7 @@ const HomeScreen = ({ navigation }) => {
 
         {/* Top Categories */}
       <View style={styles.categoryHeader}>
-          <Text style={styles.helpText}>Top Categories</Text>
+          <AppText style={styles.helpText}>Top Categories</AppText>
         </View>
         <View style={styles.content}>
           {topCatStatus === 'loading' ? (
@@ -147,7 +148,7 @@ const HomeScreen = ({ navigation }) => {
 
         {/* Top Services */}
        <View style={styles.categoryHeader}>
-          <Text style={styles.helpText}>Top Services</Text>
+          <AppText style={styles.helpText}>Top Services</AppText>
         </View>
         <View style={styles.content}>
           {topServStatus === 'loading' ? (

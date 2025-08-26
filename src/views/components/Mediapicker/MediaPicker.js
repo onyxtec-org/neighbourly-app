@@ -1,16 +1,15 @@
 import React, { useState, useRef } from "react";
 import {
   View,
-  Text,
   TouchableOpacity,
   StyleSheet,
   Image,
   ScrollView,
 } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
+import Icon from "../IconComponent";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import ActionSheet from "react-native-actionsheet";
-
+import AppText from "../AppText";
 const MediaPicker = ({ onChange }) => {
   const [mediaList, setMediaList] = useState([]);
   const actionSheetRef = useRef(null);
@@ -56,7 +55,7 @@ const MediaPicker = ({ onChange }) => {
           <View style={styles.addCircle}>
             <Icon name="image-outline" size={20} color="#444" />
           </View>
-          <Text style={styles.addText}>Add Photos / Videos</Text>
+          <AppText style={styles.addText}>Add Photos / Videos</AppText>
         </TouchableOpacity>
       ) : (
         <View style={styles.previewWrapper}>
@@ -64,7 +63,7 @@ const MediaPicker = ({ onChange }) => {
             {mediaList[mediaList.length - 1].type?.includes("video") ? (
               <View style={styles.videoBox}>
                 <Icon name="videocam-outline" size={40} color="#fff" />
-                <Text style={{ color: "#fff", fontSize: 12 }}>Video</Text>
+                <AppText style={{ color: "#fff", fontSize: 12 }}>Video</AppText>
               </View>
             ) : (
               <Image

@@ -4,16 +4,15 @@ import {
   StyleSheet,
   TouchableOpacity,
   Platform,
-  Text,
   useWindowDimensions,
 } from 'react-native';
 import colors from '../../../config/colors';
 import { useNavigation } from '@react-navigation/native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Icon from '../IconComponent';
 import StatusBox from './StatusBox';
 import { useSelector } from 'react-redux';
 import { formatStatusText } from '../../../utils/stringHelpers';
-
+import AppText from '../AppText';
 const isAndroid = Platform.OS === 'android';
 
 function JobCard({
@@ -42,7 +41,7 @@ function JobCard({
     >
       <View style={[styles.contentContainer, { width: '75%' }]}>
         {/* Title */}
-        <Text
+        <AppText
           numberOfLines={1}
           ellipsizeMode="tail"
           style={[
@@ -55,74 +54,74 @@ function JobCard({
           ]}
         >
           {item.title}
-        </Text>
+        </AppText>
 
         {/* Description */}
         <View style={styles.descriptionContainer}>
-          <Ionicons
+          <Icon
             name="document-text-outline"
             size={iconSize}
             color={colors.gray}
             style={styles.icon}
           />
-          <Text
+          <AppText
             numberOfLines={1}
             ellipsizeMode="tail"
             style={[styles.description, { fontSize: textFont }]}
           >
             {item.description}
-          </Text>
+          </AppText>
         </View>
 
         {/* Duration and Rate */}
         <View style={styles.infoRow}>
-          <Ionicons
+          <Icon
             name="time-outline"
             size={iconSize}
             color={colors.gray}
             style={styles.icon}
           />
-          <Text style={[styles.infoText, { fontSize: textFont }]}>
+          <AppText style={[styles.infoText, { fontSize: textFont }]}>
             {item.no_of_hours}
-          </Text>
+          </AppText>
 
-          <Ionicons
+          <Icon
             name="cash-outline"
             size={iconSize}
             color={colors.gray}
             style={[styles.icon, { marginLeft: 20 }]}
           />
-          <Text style={[styles.infoText, { fontSize: textFont }]}>
+          <AppText style={[styles.infoText, { fontSize: textFont }]}>
             {Number(item.rate) % 1 === 0
               ? Number(item.rate).toFixed(0)
               : Number(item.rate).toString()}{' '}
             {item.price_type === 'fixed' ? '' : '/hr'}
-          </Text>
+          </AppText>
         </View>
 
         {/* Payment Type */}
         <View style={styles.infoRow}>
-          <Ionicons
+          <Icon
             name="card-outline"
             size={iconSize}
             color={colors.gray}
             style={styles.icon}
           />
-          <Text style={[styles.infoText, { fontSize: textFont }]}>
+          <AppText style={[styles.infoText, { fontSize: textFont }]}>
             {item.payment_type || 'N/A'}
-          </Text>
+          </AppText>
         </View>
 
         <View style={styles.infoRow}>
-          <Ionicons
+          <Icon
             name="briefcase-outline"
             size={iconSize}
             color={colors.gray}
             style={styles.icon}
           />
-          <Text style={[styles.infoText, { fontSize: textFont }]}>
+          <AppText style={[styles.infoText, { fontSize: textFont }]}>
             {item.service.name || 'N/A'}
-          </Text>
+          </AppText>
         </View>
       </View>
 
@@ -143,7 +142,7 @@ function JobCard({
               onPress={() => onInterestedPress(item.id, item.price_type)}
               activeOpacity={0.8}
             >
-              <Text style={styles.actionButtonText}>Offer</Text>
+              <AppText style={styles.actionButtonText}>Offer</AppText>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -151,7 +150,7 @@ function JobCard({
               onPress={() => onRejectedPress(item.id, 'rejected')}
               activeOpacity={0.8}
             >
-              <Text style={styles.actionButtonText}>Reject</Text>
+              <AppText style={styles.actionButtonText}>Reject</AppText>
             </TouchableOpacity>
           </View>
         )}

@@ -1,25 +1,24 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-
-function Header({ title, bookmark = true, icon, onIconPress ,isIcon}) {
+import Ionicons from './IconComponent';
+import AppText from './AppText';
+import BackButton from './BackButton';
+import colors from '../../config/colors';
+function Header({ title, bookmark = true, icon, onIconPress, isIcon }) {
   const navigation = useNavigation();
 
   return (
     <View style={styles.header}>
-      {/* Back Button */}
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
+      <BackButton
         style={styles.backButton}
-      >
-        <Ionicons name="arrow-back" size={24} color="#333" />
-      </TouchableOpacity>
-
+        onPress={() => navigation.goBack()}
+        iconColor={colors.black}
+      />
       {/* Title */}
-      <Text style={styles.headerTitle} numberOfLines={1}>
+      <AppText style={styles.headerTitle} numberOfLines={1}>
         {title}
-      </Text>
+      </AppText>
 
       {/* Right Side Icons */}
       <View style={styles.rightIcons}>
@@ -44,12 +43,11 @@ function Header({ title, bookmark = true, icon, onIconPress ,isIcon}) {
           </>
         )}
         {isIcon && (
-          <TouchableOpacity
-            onPress={onIconPress}
-          >
+          <TouchableOpacity onPress={onIconPress}>
             <Ionicons name={icon} size={24} color="#000" />
           </TouchableOpacity>
         )}
+        {!isIcon && <AppText>        </AppText>}
       </View>
     </View>
   );

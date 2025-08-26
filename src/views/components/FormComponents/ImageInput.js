@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   Modal,
@@ -9,8 +8,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
-import Ionicons from "react-native-vector-icons/Ionicons";
-
+import AppText from "../AppText";
+import Icon from "../IconComponent";
 function ImageInput({ onChangeImage , currentCount}) {
   const [uploading, setUploading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -79,7 +78,7 @@ function ImageInput({ onChangeImage , currentCount}) {
         {uploading ? (
           <ActivityIndicator size="small" color="#999" />
         ) : (
-          <Ionicons name="camera" size={36} color="#999" />
+          <Icon name="camera" size={36} color="#999" />
         )}
       </TouchableOpacity>
 
@@ -94,20 +93,20 @@ function ImageInput({ onChangeImage , currentCount}) {
           <View style={styles.backdrop}>
             <TouchableWithoutFeedback>
               <View style={styles.modalContainer}>
-                <Text style={styles.title}>Upload Media</Text>
+                <AppText style={styles.title}>Upload Media</AppText>
 
                 <TouchableOpacity
                   style={styles.optionButton}
                   onPress={handlePickImageFromGallery}
                 >
-                  <Text style={styles.optionText}>Choose from Gallery</Text>
+                  <AppText style={styles.optionText}>Choose from Gallery</AppText>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.optionButton}
                   onPress={handlePickImageFromCamera}
                 >
-                  <Text style={styles.optionText}>Use Camera</Text>
+                  <AppText style={styles.optionText}>Use Camera</AppText>
                 </TouchableOpacity>
               </View>
             </TouchableWithoutFeedback>
