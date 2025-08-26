@@ -9,116 +9,171 @@ import {
   TouchableWithoutFeedback,
   ActivityIndicator,
   Image,
+  ScrollView, // 👈 Add ScrollView
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../../../redux/slices/categoriesSlice';
+import { fetchFeaturedCategories } from '../../../redux/slices/ConsumerDashboard/featuredCategoriesSlice';
+import { fetchFeaturedServices } from '../../../redux/slices/ConsumerDashboard/featuredServicesSlice';
 import colors from '../../../config/colors';
 import SearchBar from '../../components/SearchBar';
+import AppBar from '../../components/AppBar';
+import AppText from '../../components/AppText';
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+
   const { categories, status } = useSelector(state => state.categories);
+  const { categories: featuredCategories, status: topCatStatus } = useSelector(
+    state => state.featuredCategories
+  );
+  const { services: featuredServices, status: topServStatus } = useSelector(
+    state => state.featuredServices
+  );
 
   useEffect(() => {
     dispatch(fetchCategories());
-  }, [dispatch]);
+    dispatch(fetchFeaturedCategories());
+    dispatch(fetchFeaturedServices());
+    dispatch(fetchFeaturedServices()).then((res) => {
+      console.log("Featured Services API Result:", res.payload); // 👈 yahan se clear hoga
+    }); 
+    dispatch(fetchFeaturedCategories()).then((res) => {
+      console.log("Featured Categories API Result:", res.payload); // 👈 yahan se clear hoga
+    });  }, [dispatch]);
 
-  const renderCategory = ({ item }) => (
-    <TouchableOpacity
-      style={styles.cardContainer}
-      onPress={() =>
-        navigation.navigate('CategoryDetailsScreen', { category: item })
-      }
-    >
-      <View style={styles.cardImageWrapper}>
-        <Image
-          source={{
-            uri: item.image?.trim()
-              ? item.image
-              : 'https://via.placeholder.com/300x200.png?text=No+Image',
-          }}
-          style={styles.cardImage}
-          resizeMode="cover"
-        />
-      </View>
-      <View style={styles.cardLabel}>
-        <Text style={styles.categoryName}>{item.name}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+  // Render reusable card
+  const renderCard = (item, isService = false) => {
+    const displayName = isService ? item.name : (item.title || item.name); // ✅ Service ke liye name, category ke liye title fallback
+    
+    return (
+      <TouchableOpacity
+        style={styles.cardContainer}
+        onPress={() => {
+          if (isService) {
+            navigation.navigate('JobCreateScreen', {
+              serviceId: item.id,
+              serviceName: item.name,
+            });
+          } else {
+            navigation.navigate('CategoryDetailsScreen', { category: item });
+          }
+        }}
+      >
+        <View style={styles.cardImageWrapper}>
+          <Image
+            source={{
+              uri: item.image?.trim()
+                ? item.image
+                : 'https://via.placeholder.com/300x200.png?text=No+Image',
+            }}
+            style={styles.cardImage}
+            resizeMode="cover"
+          />
+        </View>
+        <View style={styles.cardLabel}>
+          <AppText style={styles.categoryName}>{displayName}</AppText>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+  
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+      <ScrollView 
+        style={styles.container} 
+        contentContainerStyle={{ paddingBottom: 20 }} // 👈 allows full scroll
+        showsVerticalScrollIndicator={false}
+      >
         {/* AppBar */}
-        <View style={styles.appBar}>
-          <TouchableOpacity style={styles.locationContainer}>
-            <Ionicons name="location-outline" size={24} color={colors.primary} />
-            <Text style={styles.locationText}>Your Location</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
-            <Ionicons name="notifications-outline" size={24} color={colors.primary} />
-          </TouchableOpacity>
-        </View>
+         <AppBar/>
 
         {/* Search */}
         <View style={styles.searchContainer}>
-          <Text style={styles.helpText}>I need help with</Text>
+          <AppText style={styles.helpText}>I need help with</AppText>
           <SearchBar
             placeholder='Try "Mount TV" or "leaky tap"'
             onPress={() => navigation.navigate('SearchScreen')}
           />
         </View>
 
-        {/* Category Header */}
+        {/* All Categories */}
         <View style={styles.categoryHeader}>
-          <Text style={styles.helpText}>Choose a category</Text>
+          <AppText style={styles.helpText}>Choose a category</AppText>
           {categories.length > 4 && (
-            <TouchableOpacity onPress={() => navigation.navigate('AllCategoriesScreen')}>
-              <Text style={styles.seeAllText}>See All</Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AllCategoriesScreen')}
+            >
+              <AppText style={styles.seeAllText}>See All</AppText>
             </TouchableOpacity>
           )}
         </View>
-
-        {/* Categories */}
         <View style={styles.content}>
           {status === 'loading' ? (
             <ActivityIndicator size="large" color={colors.primary} />
           ) : (
             <FlatList
-              data={categories.length > 4 ? categories.slice(0, 4) : categories}
+              data={
+                categories.length > 4 ? categories.slice(0, 4) : categories
+              }
               horizontal
               keyExtractor={item => item.id.toString()}
-              renderItem={renderCategory}
+              renderItem={({ item }) => renderCard(item)}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: 8 }}
               style={{ maxHeight: 180 }}
             />
           )}
         </View>
-      </View>
+
+        {/* Top Categories */}
+      <View style={styles.categoryHeader}>
+          <AppText style={styles.helpText}>Top Categories</AppText>
+        </View>
+        <View style={styles.content}>
+          {topCatStatus === 'loading' ? (
+            <ActivityIndicator size="large" color={colors.primary} />
+          ) : (
+            <FlatList
+              data={featuredCategories}
+              horizontal
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => renderCard(item)}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 8 }}
+              style={{ maxHeight: 180 }}
+            />
+          )}
+        </View> 
+
+        {/* Top Services */}
+       <View style={styles.categoryHeader}>
+          <AppText style={styles.helpText}>Top Services</AppText>
+        </View>
+        <View style={styles.content}>
+          {topServStatus === 'loading' ? (
+            <ActivityIndicator size="large" color={colors.primary} />
+          ) : (
+            <FlatList
+              data={featuredServices}
+              horizontal
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => renderCard(item, true)}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 8 }}
+              style={{ maxHeight: 180 }}
+            />
+          )}
+        </View> 
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 };
 
 
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  appBar: {
-    height: 60,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-   searchContainer: {
-    padding: 16,
-  },
-  locationContainer: { flexDirection: 'row', alignItems: 'center' },
-  locationText: { marginLeft: 8, fontSize: 16 },
+
   content: { paddingLeft: 8 },
   helpText: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
   cardContainer: {
@@ -161,10 +216,19 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
   },
-
   seeAllText: {
     fontSize: 14,
     color: colors.primary,
+  },
+  categoryHeader: {
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+     searchContainer: {
+    padding: 16,
   },
 });
 

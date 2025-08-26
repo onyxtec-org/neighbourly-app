@@ -6,6 +6,9 @@ import { useDispatch } from 'react-redux';
 import { fetchUserProfile } from '../../redux/slices/auth/profileSlice';
 import storage from '../../app/storage';
 import { setMyServices } from '../../redux/slices/servicesSlice';
+import { fetchNotifications } from '../../redux/slices/notificationSlice';
+import { fetchCategories } from '../../redux/slices/categoriesSlice';
+import AppText from '../components/AppText';
 const AppEntryScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   useEffect(() => {
@@ -15,24 +18,31 @@ const AppEntryScreen = ({ navigation }) => {
         await new Promise(resolve => setTimeout(resolve, 2000));
         const user = await storage.getUser();
         const token = await storage.getToken();
-
+        
         console.log('Retrieved token from AsyncStorage:', token);
         console.log('Retrieved user from AsyncStorage:', user);
 
-        if (!token) {
+        if (!token ||
+           !user) {
           console.log('No token found → Navigating to Login');
           navigation.replace('Login');
-        } else if (!user) {
-          console.log(
-            'User missing or no account → Navigating to WelcomeScreen',
-          );
-          navigation.replace('Welcome');
-        } else if (token && user) {
-          dispatch(setMyServices(user.services));
-
+        }
+        // else 
+        //   if (!user) {
+        //   console.log(
+        //     'User missing or no account → Navigating to WelcomeScreen',
+        //   );
+        //   navigation.replace('Welcome');
+        // }
+         else if (token && user) {
+          
+          
+          
           const result = await dispatch(fetchUserProfile(user.id)); // ✅ Re-hydrate Redux
-
+          dispatch(fetchNotifications())
+         
           if (fetchUserProfile.fulfilled.match(result)) {
+            dispatch(setMyServices(user.services || []));
             navigation.replace('DashboardRouter');
           } else {
             console.log('Failed to fetch profile:', result.payload);
@@ -55,7 +65,7 @@ const AppEntryScreen = ({ navigation }) => {
         <StartupSVG width={150} height={150} />
       </View>
       {/* App Name */}
-      <Text style={styles.appName}>Neighbourly</Text>
+      <AppText style={styles.appName}>Neighbourly</AppText>
       {/* Loader */}
       <ActivityIndicator
         size="large"

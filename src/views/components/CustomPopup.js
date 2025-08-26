@@ -1,16 +1,15 @@
 import React from 'react';
 import {
   View,
-  Text,
   Modal,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
   TouchableWithoutFeedback,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from './IconComponent';
 import colors from '../../config/colors'; // Your color file
-
+import AppText from './AppText';
 const { width } = Dimensions.get('window');
 
 const CustomPopup = ({
@@ -36,8 +35,8 @@ const CustomPopup = ({
               <View style={styles.iconWrapper}>
                 <Ionicons name={icon} size={64} color={iconColor} />
               </View>
-              <Text style={styles.title}>{title}</Text>
-              <Text style={styles.message}>{message}</Text>
+              <AppText style={styles.title}>{title}</AppText>
+              <AppText style={styles.message}>{message}</AppText>
 
               <View style={styles.buttonRow}>
                 {showCancel && (
@@ -45,7 +44,7 @@ const CustomPopup = ({
                     style={[styles.button, styles.cancelButton]}
                     onPress={onCancel || onClose}
                   >
-                    <Text style={[styles.buttonText, { color: colors.dark }]}>{cancelText}</Text>
+                    <AppText style={[styles.buttonText, { color: colors.dark }]}>{cancelText}</AppText>
                   </TouchableOpacity>
                 )}
                 {showConfirm && (
@@ -53,7 +52,7 @@ const CustomPopup = ({
                     style={[styles.button, styles.confirmButton]}
                     onPress={onConfirm}
                   >
-                    <Text style={[styles.buttonText, { color: '#fff' }]}>{confirmText}</Text>
+                    <AppText style={[styles.buttonText, { color: '#fff' }]}>{confirmText}</AppText>
                   </TouchableOpacity>
                 )}
               </View>
@@ -109,8 +108,9 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     alignSelf: 'stretch',
+
   },
   button: {
     paddingVertical: 10,

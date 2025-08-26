@@ -1,41 +1,57 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import apiClient from '../../api/client'; // adjust path if needed
+import formApiClient from '../../api/formApiClient'; // <-- 👈 new import
+import apiClient from '../../api/client';
+import storage from '../../app/storage';
 
-// Async thunk to create job
 export const createJob = createAsyncThunk(
   'job/createJob',
-  async ({ token, jobData }, { rejectWithValue }) => {
+  async (jobData, { rejectWithValue }) => {
     try {
-      const response = await apiClient.post('/jobs', jobData, {
+      console.log('🧾 FormData being sent:', jobData);
+
+      const response = await formApiClient.post('/jobs', jobData, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
         },
       });
+
+      console.log('✅ Job successfully created:', response.data);
       return response.data;
     } catch (error) {
-        console.log('Create Job Error:', error);
-      return rejectWithValue(
-        error.response?.data || { message: 'Something went wrong' }
-      );
+      console.log('❌ Create Job Error (caught in catch):', error);
+
+      if (error?.response) {
+        return rejectWithValue({
+          message: 'Server error',
+          status: error.response.status,
+          data: error.response.data,
+        });
+      } else if (error?.request) {
+        return rejectWithValue({ message: 'No response received from server' });
+      } else {
+        return rejectWithValue({
+          message: error.message || 'Unknown error occurred',
+        });
+      }
     }
-  }
+  },
 );
 
 export const getJobs = createAsyncThunk(
   'job/getJob',
-  async ( _ ,{ rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await apiClient.get('/jobs');
-      //console.log('jobs data',response.data);
-      
+       console.log('Jobs',response.data);
+       
       return response.data;
     } catch (error) {
-        console.log('Get Job Error:', error);
+      console.log('Get Job Error:', error);
       return rejectWithValue(
-        error.response?.data || { message: 'Something went wrong' }
+        error.response?.data || { message: 'Something went wrong' },
       );
     }
-  }
+  },
 );
 
 const jobSlice = createSlice({
@@ -44,24 +60,30 @@ const jobSlice = createSlice({
     loading: false,
     success: false,
     error: null,
-    jobs:[],
-
+    jobs: [],
   },
   reducers: {
-    resetJobState: (state) => {
+    resetJobState: state => {
+      state.jobs = [];
       state.loading = false;
       state.success = false;
       state.error = null;
     },
+    setJobs(state, action) {
+      state.jobs = action.payload;
+    },
+    removeJobById(state, action) {
+      state.jobs = state.jobs.filter(job => job.id !== action.payload);
+    },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(createJob.pending, (state) => {
+      .addCase(createJob.pending, state => {
         state.loading = true;
         state.success = false;
         state.error = null;
       })
-      .addCase(createJob.fulfilled, (state) => {
+      .addCase(createJob.fulfilled, state => {
         state.loading = false;
         state.success = true;
         state.error = null;
@@ -71,19 +93,19 @@ const jobSlice = createSlice({
         state.success = false;
         state.error = action.payload?.message || 'Error creating job';
       })
-       .addCase(getJobs.pending, (state) => {
+      .addCase(getJobs.pending, state => {
         state.loading = true;
         state.success = false;
         state.error = null;
       })
-      .addCase(getJobs.fulfilled, (state,action) => {
+      .addCase(getJobs.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
         state.error = null;
-          state.jobs = action.payload.data.jobs; // ✅ Store the array of jobs
-
+        state.jobs = action.payload.data.jobs; // ✅ Store the array of jobs
       })
       .addCase(getJobs.rejected, (state, action) => {
+        console.log('❌ Job Creation Failed:', action.payload || action.error);
         state.loading = false;
         state.success = false;
         state.error = action.payload?.message || 'Error Getting jobs';
@@ -91,5 +113,5 @@ const jobSlice = createSlice({
   },
 });
 
-export const { resetJobState } = jobSlice.actions;
+export const { resetJobState, setJobs, removeJobById } = jobSlice.actions;
 export default jobSlice.reducer;

@@ -1,120 +1,261 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback,useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
   View,
   Text,
   TouchableOpacity,
+  ScrollView,
+  Dimensions,
+  PixelRatio,
 } from 'react-native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import colors from '../../../config/colors';
 import JobListings from '../../components/JobComponents/JobListings';
-import { getJobs } from '../../../redux/slices/jobSlice';
+import { getJobs, removeJobById } from '../../../redux/slices/jobSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectJobsByStatus } from '../../../redux/selectors/jobSelector';
+import { selectJobsByTab } from '../../../redux/selectors/jobSelector';
+import CustomToast from '../../components/CustomToast';
+import { createOffer } from '../../../redux/slices/offerSlice';
+import AppActivityIndicator from '../../components/AppActivityIndicator';
+import CreateOfferPopup from '../CreateOfferPopup';
+import CustomPopup from '../../components/CustomPopup';
+import AppText from '../../components/AppText';
+const { width } = Dimensions.get('window');
+const scale = width / 375;
+const normalize = size => Math.round(PixelRatio.roundToNearestPixel(size * scale));
+
+const providerTabs = [
+  { key: 'new', label: 'New Requests' },
+  { key: 'pending', label: 'Pending' },
+  { key: 'my_jobs', label: 'My Jobs' },
+  { key: 'in_progress', label: 'In Progress' },
+  { key: 'completed', label: 'Completed' },
+];
+const consumerTabs = [
+  { key: 'pending', label: 'Open' },
+  { key: 'my_jobs', label: 'Scheduled' },
+  { key: 'in_progress', label: 'In Progress' },
+  { key: 'completed', label: 'Completed' },
+];
+
 const JobsScreen = () => {
+  const route = useRoute();
+const { defaultTab } = route?.params || {};
+  
+  const { user: profileUser } = useSelector(state => state.profile);
+  const userRole = profileUser?.role;
+const [activeTab, setActiveTab] = useState(() => {
+  if (userRole === 'provider') {
+    return defaultTab ? defaultTab : providerTabs[0].key;
+  }
+  return consumerTabs[0].key;
+});
+
+useEffect(() => {
+  if (defaultTab) {
+    setActiveTab(defaultTab);
+  }
+}, [defaultTab]);
+  const [showOfferPopup, setShowOfferPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [jobId, setJobId] = useState();
+  const [priceType, setPriceType] = useState();
+
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success');
+
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupConfig, setPopupConfig] = useState({
+    title: '',
+    message: '',
+    confirmText: '',
+    action: null,
+    jobId: null,
+  });
+
+  const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const [activeTab, setActiveTab] = useState('pending');
+  const tabs = userRole === 'provider' ? providerTabs : consumerTabs;
 
-  useEffect(() => {
-    dispatch(getJobs());
-  }, [dispatch]);
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(getJobs());
+    }, [dispatch]),
+  );
 
-  const pendingJobs = useSelector(selectJobsByStatus('pending'));
-  const inProgressJobs = useSelector(selectJobsByStatus('in_progress'));
+  const handleJobPress = (jobId, status, item) => {
+    navigation.navigate('JobDetailsScreen', { jobId, userRole, status, item });
+  };
 
-  const completedJobs = useSelector(selectJobsByStatus('completed'));
+  const onInterestedPress = (jobId, priceType) => {
+    // Show CreateOfferPopup directly
+    setJobId(jobId);
+    setPriceType(priceType);
+    setShowOfferPopup(true);
+  };
 
-  const renderJobs = () => {
-    switch (activeTab) {
-      case 'pending':
-        return (
-          <JobListings data={pendingJobs} emptyMessage={'No pending jobs'} />
-        );
-      case 'inProgress':
-        return (
-          <JobListings
-            data={inProgressJobs}
-            emptyMessage={'No in Progress jobs'}
-          />
-        );
-      case 'completed':
-        return (
-          <JobListings
-            data={completedJobs}
-            emptyMessage={'No Completed jobs'}
-          />
-        );
-      default:
-        return null;
+  const onRejectedPress = jobId => {
+    // Show confirmation popup before rejecting
+    setPopupConfig({
+      title: 'Reject Job',
+      message: 'Are you sure you want to reject this job? This action cannot be undone.',
+      confirmText: 'Reject',
+      action: 'reject',
+      jobId,
+    });
+    setPopupVisible(true);
+  };
+
+  const handleConfirmAction = async () => {
+    const { action, jobId } = popupConfig;
+    setPopupVisible(false);
+
+    if (action === 'reject') {
+      setLoading(true);
+      const payload = {
+        job_id: jobId,
+        status: 'rejected',
+      };
+
+      try {
+        const res = await dispatch(createOffer(payload)).unwrap();
+        if (res?.success) {
+          setLoading(false);
+          dispatch(removeJobById(jobId));
+          showToast('This job has been rejected.', 'error');
+        } else {
+          showToast(res?.message || 'Failed to reject job', 'error');
+        }
+      } catch (error) {
+        showToast('Something went wrong. Please try again.', 'error');
+      }
     }
   };
+
+  const showToast = (message, type = 'success') => {
+    setToastMessage(message);
+    setToastType(type);
+    setToastVisible(true);
+  };
+
+  const jobsByStatus = {
+    new: useSelector(selectJobsByTab('new', userRole)),
+    pending: useSelector(selectJobsByTab('pending', userRole)),
+    my_jobs: useSelector(selectJobsByTab('my_jobs', userRole)),
+    in_progress: useSelector(selectJobsByTab('in_progress', userRole)),
+    completed: useSelector(selectJobsByTab('completed', userRole)),
+  };
+
+  const renderJobs = () => {
+    const jobData = jobsByStatus[activeTab] || [];
+    const emptyMessages = {
+      new: 'No new requests',
+      pending: 'No pending jobs',
+      my_jobs: 'No jobs assigned to you',
+      in_progress: 'No in progress jobs',
+      completed: 'No completed jobs',
+    };
+    const tabStatusMapping = {
+      new: 'new',
+      pending: 'pending',
+      my_jobs: 'my_jobs',
+      in_progress: 'in_progress',
+      completed: 'completed',
+    };
+
+    return (
+      <JobListings
+        data={jobData}
+        emptyMessage={emptyMessages[activeTab] || 'No jobs'}
+        status={tabStatusMapping[activeTab]}
+        onJobPress={handleJobPress}
+        onInterestedPress={onInterestedPress}
+        onRejectedPress={onRejectedPress}
+      />
+    );
+  };
+
+  
 
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Jobs</Text>
+          <AppText style={styles.headerTitle}>Jobs</AppText>
         </View>
       </View>
 
-      {/* Tab Navigation */}
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            activeTab === 'pending' && styles.activeTab,
-          ]}
-          onPress={() => setActiveTab('pending')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'pending' && styles.activeTabText,
-            ]}
+      {/* Tabs + Content wrapper */}
+      <View style={{ flex: 1 }}>
+        {/* Tabs */}
+        <View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.tabContainer}
           >
-            Pending
-          </Text>
-        </TouchableOpacity>
+            {tabs.map(tab => (
+              <TouchableOpacity
+                key={tab.key}
+                style={[
+                  styles.tabButton,
+                  activeTab === tab.key && styles.activeTab,
+                ]}
+                onPress={() => setActiveTab(tab.key)}
+              >
+                <AppText
+                  style={[
+                    styles.tabText,
+                    activeTab === tab.key && styles.activeTabText,
+                  ]}
+                >
+                  {tab.label}
+                </AppText>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
 
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            activeTab === 'inProgress' && styles.activeTab,
-          ]}
-          onPress={() => setActiveTab('inProgress')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'inProgress' && styles.activeTabText,
-            ]}
-          >
-            In Progress
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.tabButton,
-            activeTab === 'completed' && styles.activeTab,
-          ]}
-          onPress={() => setActiveTab('completed')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'completed' && styles.activeTabText,
-            ]}
-          >
-            Completed
-          </Text>
-        </TouchableOpacity>
+        {/* Content */}
+        <View style={styles.contentContainer}>{renderJobs()}</View>
       </View>
 
-      {/* Main Content */}
-      <View style={styles.contentContainer}>{renderJobs()}</View>
+      <CustomToast
+        visible={toastVisible}
+        message={toastMessage}
+        type={toastType}
+        onHide={() => setToastVisible(false)}
+      />
+           {/* Create Offer Popup */}
+      <CreateOfferPopup
+        visible={showOfferPopup}
+        onClose={() => setShowOfferPopup(false)}
+        jobId={jobId}
+        priceType={priceType}
+        onOfferSent={() => {
+          dispatch(getJobs());
+        }}
+      />
+
+      {/* Confirmation Popup */}
+      <CustomPopup
+        visible={popupVisible}
+        onClose={() => setPopupVisible(false)}
+        title={popupConfig.title}
+        message={popupConfig.message}
+        icon={popupConfig.action === 'reject' ? 'close-circle-outline' : 'checkmark-circle-outline'}
+        iconColor={popupConfig.action === 'reject' ? colors.red : colors.green}
+        cancelText="Cancel"
+        confirmText={popupConfig.confirmText}
+        onCancel={() => setPopupVisible(false)}
+        onConfirm={handleConfirmAction}
+      />
+
+      {loading && <AppActivityIndicator />}
     </SafeAreaView>
   );
 };
@@ -122,10 +263,10 @@ const JobsScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
   },
   header: {
-    height: 60,
+    height: normalize(60),
     justifyContent: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
@@ -138,27 +279,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: normalize(20),
     fontWeight: 'bold',
     color: '#333',
   },
   tabContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+    height: normalize(50),
   },
+
   tabButton: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 15,
+    paddingVertical: normalize(12),
+    paddingHorizontal: normalize(18),
   },
   activeTab: {
     borderBottomWidth: 3,
     borderBottomColor: colors.primary,
   },
   tabText: {
-    fontSize: 16,
+    fontSize: normalize(15),
     color: '#888',
   },
   activeTabText: {
@@ -167,8 +308,9 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    paddingHorizontal: 30,
+    paddingHorizontal: normalize(16),
     backgroundColor: '#f9f9f9',
+    marginTop: 0,
   },
 });
 

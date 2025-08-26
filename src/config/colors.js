@@ -17,7 +17,8 @@ const colors = {
   darkViolet: '#6d6a7a',
   lightPurple: '#b5abd4',
   gradientPink: '#B20EB8',
-
+  checkGreen:"#58cc77",
+  checkRed:'#eb0c0c',
   background: '#FFFFFF',
   textDark: '#000000',
   textMedium: '#888888',
@@ -26,11 +27,12 @@ const colors = {
   inProgress: '#fdaf2f',
   completed:'#349839',
   rejected:'#ed6d58',
+
   statusColors(type) {
     switch (type) {
-      case 'pending':
+      case 'open':
         return this.pending;
-      case 'in progress':
+      case 'in_progress':
         return this.inProgress;
       case 'completed':
         return this.completed;
