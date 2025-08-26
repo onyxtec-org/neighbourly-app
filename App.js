@@ -36,6 +36,20 @@ export default function App() {
   init();
 }, []);
 
+
+  const notificationHandler = async () => {
+    try {
+      const notificationGranted = await requestPermission();
+
+      if (notificationGranted) {
+        NotificationService.init();
+      } else {
+        console.log('Notification permission denied in app,js');
+      }
+    } catch (err) {
+      console.log('Error handling permissions:', err);
+    }
+  };
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>

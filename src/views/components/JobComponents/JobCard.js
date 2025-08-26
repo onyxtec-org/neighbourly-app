@@ -4,156 +4,78 @@ import {
   StyleSheet,
   TouchableOpacity,
   Platform,
-  useWindowDimensions,
+  Text,
 } from 'react-native';
 import colors from '../../../config/colors';
 import { useNavigation } from '@react-navigation/native';
-import Icon from '../IconComponent';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import StatusBox from './StatusBox';
-import { useSelector } from 'react-redux';
-import { formatStatusText } from '../../../utils/stringHelpers';
-import AppText from '../AppText';
+
 const isAndroid = Platform.OS === 'android';
 
-function JobCard({
-  item,
-  onPress,
-  onInterestedPress,
-  onRejectedPress,
-  status,
-}) {
+function JobCard({ item }) {
   const navigation = useNavigation();
-  const { width, height } = useWindowDimensions();
-
-  const { user: profileUser } = useSelector(state => state.profile);
-
-  // Dynamic sizes based on screen width
-  const cardHeight = height * 0.23; // 23% of screen height
-  const titleFont = width * 0.06; // ~6% of width
-  const textFont = width * 0.04; // ~4% of width
-  const iconSize = width * 0.045; // icon size relative to width
-  const checkBtnSize = width * 0.1; // 10% of width
 
   return (
     <TouchableOpacity
-      style={[styles.container, { height: cardHeight }]}
-      onPress={() => onPress(item.id, status, item)}
+      style={styles.container}
+      onPress={() => console.log('Job clicked')}
+      activeOpacity={0.9}
     >
-      <View style={[styles.contentContainer, { width: '75%' }]}>
-        {/* Title */}
-        <AppText
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          style={[
-            styles.title,
-            {
-              fontSize: titleFont,
-              lineHeight: titleFont * 1.2,
-              paddingBottom: 2,
-            },
-          ]}
-        >
-          {item.title}
-        </AppText>
-
-        {/* Description */}
-        <View style={styles.descriptionContainer}>
-          <Icon
-            name="document-text-outline"
-            size={iconSize}
-            color={colors.gray}
-            style={styles.icon}
-          />
-          <AppText
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            style={[styles.description, { fontSize: textFont }]}
-          >
-            {item.description}
-          </AppText>
-        </View>
-
-        {/* Duration and Rate */}
-        <View style={styles.infoRow}>
-          <Icon
-            name="time-outline"
-            size={iconSize}
-            color={colors.gray}
-            style={styles.icon}
-          />
-          <AppText style={[styles.infoText, { fontSize: textFont }]}>
-            {item.no_of_hours}
-          </AppText>
-
-          <Icon
-            name="cash-outline"
-            size={iconSize}
-            color={colors.gray}
-            style={[styles.icon, { marginLeft: 20 }]}
-          />
-          <AppText style={[styles.infoText, { fontSize: textFont }]}>
-            {Number(item.rate) % 1 === 0
-              ? Number(item.rate).toFixed(0)
-              : Number(item.rate).toString()}{' '}
-            {item.price_type === 'fixed' ? '' : '/hr'}
-          </AppText>
-        </View>
-
-        {/* Payment Type */}
-        <View style={styles.infoRow}>
-          <Icon
-            name="card-outline"
-            size={iconSize}
-            color={colors.gray}
-            style={styles.icon}
-          />
-          <AppText style={[styles.infoText, { fontSize: textFont }]}>
-            {item.payment_type || 'N/A'}
-          </AppText>
-        </View>
-
-        <View style={styles.infoRow}>
-          <Icon
-            name="briefcase-outline"
-            size={iconSize}
-            color={colors.gray}
-            style={styles.icon}
-          />
-          <AppText style={[styles.infoText, { fontSize: textFont }]}>
-            {item.service.name || 'N/A'}
-          </AppText>
-        </View>
-      </View>
-
+      {/* Header: Title and Status */}
       <View style={styles.header}>
+        <Text style={styles.title}>{item.title}</Text>
         <StatusBox
           color={colors.statusColors(item.status)}
-          text={
-            item.my_offer && item.accepted_offer === null
-              ? formatStatusText(item.my_offer.status)
-              : formatStatusText(item.status)
-          }
+          text={item.status}
         />
+      </View>
 
-        {profileUser.role === 'provider' && item.my_offer === null && (
-          <View style={styles.actionsColumn}>
-            <TouchableOpacity
-              style={[styles.actionButton, styles.offerButton]}
-              onPress={() => onInterestedPress(item.id, item.price_type)}
-              activeOpacity={0.8}
-            >
-              <AppText style={styles.actionButtonText}>Offer</AppText>
-            </TouchableOpacity>
+      {/* Description */}
+      <View style={styles.descriptionContainer}>
+        <Ionicons
+          name="document-text-outline"
+          size={16}
+          color={colors.gray}
+          style={styles.icon}
+        />
+        <Text numberOfLines={3} ellipsizeMode="tail" style={styles.description}>
+          {item.description}
+        </Text>
+      </View>
 
-            <TouchableOpacity
-              style={[styles.actionButton, styles.rejectButton]}
-              onPress={() => onRejectedPress(item.id, 'rejected')}
-              activeOpacity={0.8}
-            >
-              <AppText style={styles.actionButtonText}>Reject</AppText>
-            </TouchableOpacity>
-          </View>
+      {/* Duration and Rate */}
+      <View style={styles.infoRow}>
+        {item.price_type !== 'fixed' && (
+          <>
+            <Ionicons
+              name="time-outline"
+              size={16}
+              color={colors.gray}
+              style={styles.icon}
+            />
+            <Text style={styles.infoText}>{item.no_of_hours}</Text>
+          </>
         )}
+
+        <Ionicons
+          name="cash-outline"
+          size={16}
+          color={colors.gray}
+          style={[styles.icon, { marginLeft: 20 }]}
+        />
+        <Text style={styles.infoText}>{item.rate}/hr</Text>
+      </View>
+
+      {/* Payment Type */}
+      <View style={styles.infoRow}>
+        <Ionicons
+          name="card-outline"
+          size={16}
+          color={colors.gray}
+          style={styles.icon}
+        />
+        <Text style={styles.infoText}>{item.payment_type || 'N/A'}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -161,6 +83,7 @@ function JobCard({
 
 const styles = StyleSheet.create({
   container: {
+    height: isAndroid ? 180 : 190,
     width: '100%',
     borderRadius: 12,
     borderWidth: 1,
@@ -169,18 +92,15 @@ const styles = StyleSheet.create({
     padding: 12,
     marginVertical: 8,
     backgroundColor: colors.white,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   header: {
-    width: '25%',
-  },
-  contentContainer: {
-    width: '75%',
-    justifyContent: 'flex-start',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   title: {
     fontWeight: '700',
+    fontSize: 24,
     color: colors.primary,
     flexShrink: 1,
     marginRight: 8,
@@ -191,6 +111,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   description: {
+    fontSize: 16,
     color: colors.dark,
     flex: 1,
     marginLeft: 5,
@@ -204,35 +125,8 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   infoText: {
-    color: colors.medium,
-  },
-  actionsColumn: {
-    flexDirection: 'column',
-    gap: 10, // better spacing
-    marginTop: 30,
-  },
-  actionButton: {
-    paddingVertical: 5,
-    borderRadius: 30, // pill shape
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  offerButton: {
-    backgroundColor: '#4CAF50', // green
-  },
-  rejectButton: {
-    backgroundColor: '#E53935', // red
-  },
-  actionButtonText: {
-    color: '#fff',
-    fontWeight: '700',
     fontSize: 16,
-    letterSpacing: 0.5,
+    color: colors.medium,
   },
 });
 

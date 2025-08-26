@@ -1,11 +1,10 @@
 import React from 'react';
-import { View, StyleSheet,FlatList } from 'react-native';
+import { View, StyleSheet, Image, Text,FlatList } from 'react-native';
 import JobCard from './JobCard';
 import NoRecordFound from '../NoRecordFound';
 
-function JobListings({ data ,emptyMessage ,status, onJobPress, onInterestedPress, onRejectedPress}) {
-  const renderItem = ({ item }) => <JobCard item={item} onPress={onJobPress} 
-  onInterestedPress={onInterestedPress} onRejectedPress={onRejectedPress} status={status} />;
+function JobListings({ data ,emptyMessage}) {
+  const renderItem = ({ item }) => <JobCard item={item} />;
   const ListEmptyComponent = () => {
     return (
       <View>
@@ -17,7 +16,6 @@ function JobListings({ data ,emptyMessage ,status, onJobPress, onInterestedPress
     <View style={styles.container}>
 
       <FlatList
-      
         data={data}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}

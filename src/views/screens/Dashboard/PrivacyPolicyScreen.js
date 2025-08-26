@@ -1,5 +1,5 @@
 import React from 'react';
-import { SafeAreaView } from 'react-native';
+import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 const PrivacyPolicyScreen = () => {

@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import AppText from '../../components/AppText';
+import { View, StyleSheet, Text } from 'react-native';
+
 function ServiceScreen(props) {
   return (
     <View style={styles.container}>
-    <AppText>Hello</AppText>  {/* ✅ Correct */}
+    <Text>Hello</Text>  {/* ✅ Correct */}
   </View>
   );
 }

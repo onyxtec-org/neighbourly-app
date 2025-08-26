@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Text,
   KeyboardAvoidingView,
   Platform,
   Keyboard,
@@ -13,24 +14,21 @@ import {
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
-import AppText from '../../components/AppText';
+
 import CustomTextInput from '../../components/CustomTextInput';
 import AppButton from '../../components/AppButton';
 import colors from '../../../config/colors';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import authStorage from '../../../app/storage';
-import {
-  changePassword,
-  resetPasswordState,
-} from '../../../redux/slices/auth/passwordSlice';
+import { changePassword, resetPasswordState } from '../../../redux/slices/auth/passwordSlice';
 import CustomToast from '../../components/CustomToast'; // 🔔 Import your custom toast
-import PasswordChecklist from '../../components/PasswordChecklist';
-import Header from '../../components/Header';
+
 const ChangePasswordScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const login = useSelector(state => state.login);
+  const login = useSelector((state) => state.login);
   const userId = login?.user?.id;
 
-  const { loading, success, error } = useSelector(state => state.password);
+  const { loading, success, error } = useSelector((state) => state.password);
 
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -39,21 +37,14 @@ const ChangePasswordScreen = ({ navigation }) => {
   const validationSchema = Yup.object().shape({
     currentPassword: Yup.string().required('Current password is required'),
     newPassword: Yup.string()
-      .matches(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
-      .matches(/[a-z]/, 'Password must contain at least 1 lowercase letter')
-      .matches(/\d/, 'Password must contain at least 1 number')
-      .matches(
-        /[@$!%*?&]/,
-        'Password must contain at least 1 special character',
-      )
-      .min(8, 'Password must be at least 8 characters long')
-      .required('Password is required'),
+      .min(6, 'Password must be at least 6 characters')
+      .required('New password is required'),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('newPassword'), null], 'Passwords must match')
       .required('Please confirm your password'),
   });
 
-  const handleChangePassword = async values => {
+  const handleChangePassword = async (values) => {
     try {
       const token = await authStorage.getToken();
 
@@ -71,7 +62,7 @@ const ChangePasswordScreen = ({ navigation }) => {
           password: values.currentPassword,
           changed_password: values.newPassword,
           changed_password_confirmation: values.confirmPassword,
-        }),
+        })
       );
     } catch (err) {
       setToastMessage('Failed to read auth token.');
@@ -102,7 +93,13 @@ const ChangePasswordScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title={'Change Password'} bookmark={false} />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
+          <Ionicons name="arrow-back" size={24} color={colors.dark} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Change Password</Text>
+        <View style={styles.iconButton} />
+      </View>
 
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
@@ -142,7 +139,6 @@ const ChangePasswordScreen = ({ navigation }) => {
                   <CustomTextInput
                     label="New Password"
                     required
-                    showError={false}
                     placeholder="Enter new password"
                     value={values.newPassword}
                     onChangeText={handleChange('newPassword')}
@@ -150,7 +146,6 @@ const ChangePasswordScreen = ({ navigation }) => {
                     error={touched.newPassword && errors.newPassword}
                     secureTextEntry
                   />
-                  <PasswordChecklist password={values.newPassword} />
 
                   <CustomTextInput
                     label="Confirm Password"

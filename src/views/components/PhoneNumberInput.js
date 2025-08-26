@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
-import AppText from './AppText';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
+
 const PhoneNumberInput = ({
   label = 'Phone',
   countryCode,
@@ -14,10 +14,10 @@ const PhoneNumberInput = ({
     <View style={styles.container}>
       {/* Main Label */}
       {label && (
-        <AppText style={styles.label}>
+        <Text style={styles.label}>
           {label}
-          {required && <AppText style={styles.required}> *</AppText>}
-        </AppText>
+          {required && <Text style={styles.required}> *</Text>}
+        </Text>
       )}
 
       {/* Inputs */}
@@ -25,7 +25,7 @@ const PhoneNumberInput = ({
         {/* Country Code with "+" */}
         <View style={styles.codeContainer}>
           <View style={styles.codeWrapper}>
-            <AppText style={styles.plus}>+</AppText>
+            <Text style={styles.plus}>+</Text>
             <TextInput
               value={countryCode}
               onChangeText={text => {
@@ -57,7 +57,7 @@ const PhoneNumberInput = ({
       </View>
 
       {/* Error */}
-      {error ? <AppText style={styles.errorText}>{error}</AppText> : null}
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 };

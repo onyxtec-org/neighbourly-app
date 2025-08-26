@@ -1,33 +1,20 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, } from 'react-native';
-import Ionicons from './IconComponent';
+import { View, StyleSheet,TouchableOpacity,Text } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../../config/colors';
-import AppText from './AppText';
-
-function SearchBar({ placeholder, onPress, title }) {
+function SearchBar({ placeholder, onPress }) {
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.8}
-      style={styles.searchContainer}
-    >
-      <AppText style={styles.helpText}>{title}</AppText>
-
-      <View style={styles.searchBar}>
-        <Ionicons
-          name="search"
-          size={20}
-          color="#888"
-          style={styles.searchIcon}
-        />
-        <AppText style={styles.searchInput}>{placeholder}</AppText>
-      </View>
-    </TouchableOpacity>
-  );
+<TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+    <View style={styles.searchBar}>
+      <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+      <Text style={styles.searchInput}>{placeholder}</Text>
+    </View>
+  </TouchableOpacity>  );
 }
 
 const styles = StyleSheet.create({
-  searchBar: {
+ 
+    searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f1f1f1',
@@ -44,10 +31,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginTop: 8,
   },
-  searchContainer: {
-    paddingHorizontal: 16,
-  },
-  helpText: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
 });
 
 export default SearchBar;

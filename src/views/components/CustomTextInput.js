@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
-import {
-  View,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
-import Ionicons from './IconComponent';
-import AppText from './AppText';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 const CustomTextInput = ({
   label,
   value,
@@ -17,12 +12,7 @@ const CustomTextInput = ({
   required = false,
   error = '',
   style = {},
-  showError=true,
-  showEyeIcon = true,
-  maxLength,
-  showCharCount = false,
-  rightIcon = null,
-  onRightIconPress = null,
+  showEyeIcon = true, // ✅ optional prop
   ...rest
 }) => {
   const [hidePassword, setHidePassword] = useState(secureTextEntry);
@@ -33,35 +23,28 @@ const CustomTextInput = ({
 
   const showPasswordToggle = secureTextEntry && showEyeIcon;
 
-  const handleTextChange = (text) => {
-    const trimmed = text.replace(/^\s+/, ''); // Trim starting spaces
-    onChangeText(trimmed);
-  };
-
   return (
     <View style={styles.container}>
       {label && (
-        <AppText style={styles.label}>
+        <Text style={styles.label}>
           {label}
-          {required && <AppText style={styles.required}> *</AppText>}
-        </AppText>
+          {required && <Text style={styles.required}> *</Text>}
+        </Text>
       )}
 
       <View style={[styles.inputWrapper, error ? styles.errorInput : null]}>
         <TextInput
           value={value}
-          onChangeText={handleTextChange}
+          onChangeText={text => onChangeText(text.replace(/^\s+/, ''))}
           placeholder={placeholder}
           secureTextEntry={hidePassword}
-          placeholderTextColor="#999"
+          placeholderTextColor="#999" 
           keyboardType={keyboardType}
-          maxLength={maxLength}
           style={[styles.input, style]}
           {...rest}
         />
 
-        {/* Right-side icon: password toggle or custom icon */}
-        {showPasswordToggle ? (
+        {showPasswordToggle && (
           <TouchableOpacity onPress={togglePasswordVisibility}>
             <Ionicons
               name={hidePassword ? 'eye-off' : 'eye'}
@@ -70,28 +53,10 @@ const CustomTextInput = ({
               style={styles.icon}
             />
           </TouchableOpacity>
-        ) : rightIcon ? (
-          <TouchableOpacity onPress={onRightIconPress}>
-            <View style={styles.icon}>{rightIcon}</View>
-          </TouchableOpacity>
-        ) : null}
-      </View>
-
-      <View style={styles.footerRow}>
-        {error ? (
-          <AppText style={styles.errorText}>{error}</AppText>
-        ) : (
-          <View />
-        )}
-
-        {maxLength && showCharCount && (
-          <AppText style={styles.charCount}>
-            {value?.length || 0}/{maxLength}
-          </AppText>
         )}
       </View>
 
-      {/* {showError && error ? <Text style={styles.errorText}>{error}</Text> : null} */}
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 };
@@ -105,9 +70,6 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     fontSize: 14,
     color: '#333',
-  },
-  required: {
-    color: 'red',
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -130,20 +92,13 @@ const styles = StyleSheet.create({
   errorInput: {
     borderColor: 'red',
   },
-  footerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 4,
-  },
   errorText: {
     color: 'red',
+    marginTop: 4,
     fontSize: 13,
   },
-  charCount: {
-    fontSize: 12,
-    color: '#888',
-    textAlign: 'right',
+  required: {
+    color: 'red',
   },
 });
 

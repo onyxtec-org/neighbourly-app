@@ -23,19 +23,11 @@ import DashboardRouter from './DashboardRouter';
 import NotificationSettingsScreen from '../views/screens/Dashboard/NotificationSettingsScreen'; // Import NotificationSettingsScreen
 import PrivacyPolicyScreen from '../views/screens/Dashboard/PrivacyPolicyScreen'; // Import PrivacyPolicyScreen
 import TermsandconditionScreen from '../views/screens/Dashboard/TermsandconditionScreen'; // Import TermsandconditionScreen
-import JobDetailsScreen from '../views/screens/JobDetailsScreen';
-import OfferListScreen from '../views/screens/Dashboard/OffersScreen';
-import { navigationRef } from '../navigation/NavigationService'; // adjust path
-import NotificationsScreen from '../views/screens/Dashboard/NotificationScreen';
-import JobsScreen from '../views/screens/Dashboard/JobsScreen'; // Import JobsScreen
-import StageScreen from '../views/screens/Dashboard/StageScreen'; // Import StageScreen
-import CreateStage from '../views/screens/Dashboard/StageScreens/CreateStage';
-
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer>
       <Stack.Navigator initialRouteName="AppEntry" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="AppEntry" component={AppEntryScreen} />
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
@@ -52,7 +44,7 @@ const AppNavigator = () => {
         <Stack.Screen name="JobCreateScreen" component={JobCreateScreen} />
         <Stack.Screen name="CategoryDetailsScreen" component={CategoryDetailsScreen} />
         {/* <Stack.Screen name="ProfileManager" component={ProfileManagerScreen} /> */}
-        
+
         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
         <Stack.Screen name="AccountScreen" component={AccountScreen} />
         <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
@@ -62,13 +54,6 @@ const AppNavigator = () => {
         <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
         <Stack.Screen name="TermsandconditionScreen" component={TermsandconditionScreen} />
-        <Stack.Screen name="JobDetailsScreen" component={JobDetailsScreen} />
-        <Stack.Screen name="OffersScreen" component={OfferListScreen} />
-        <Stack.Screen name="NotificationsScreen" component={ NotificationsScreen} />
-        <Stack.Screen name="JobsScreen" component={JobsScreen} />
-        <Stack.Screen name="StageScreen" component={StageScreen} />
-        <Stack.Screen name="CreateStage" component={CreateStage} />
-
 
 
 

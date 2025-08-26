@@ -1,68 +1,74 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../../redux/thunks/auth/loginThunk';
 import { resetLoginState } from '../../../redux/slices/auth/loginSlice';
-import { setMyServices } from '../../../redux/slices/servicesSlice';
-import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice';
-import { fetchNotifications } from '../../../redux/slices/notificationSlice';
-import storage from '../../../app/storage';
 import StartupSVG from '../../../assets/icons/startup.svg';
+import CrossIconButton from '../../components/CrossIconButton';
 import CustomTextInput from '../../components/CustomTextInput';
 import AppButton from '../../components/AppButton';
-import CustomToast from '../../components/CustomToast';
 import colors from '../../../config/colors';
-import AppText from '../../components/AppText';
+import CustomToast from '../../components/CustomToast';
+import storage from '../../../app/storage'; // Adjust the path as per your structure
+import { setMyServices } from '../../../redux/slices/servicesSlice';
+import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice';
 const validationSchema = Yup.object().shape({
-  email: Yup.string().email('Invalid email address').required('Email is required'),
-  password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required'),
+  password: Yup.string()
+    .min(8, 'Password must be at least 8 characters')
+    .required('Password is required'),
 });
 
-const LoginAndSelectTypeScreen = ({ navigation, route }) => {
-  const accountType = route?.params?.accountType || null;
+const LoginScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { loading, error, success, user, token } = useSelector((state) => state.login);
+  const { loading, error, success, user, token } = useSelector(
+    state => state.login,
+  );
 
   const [loginEmail, setLoginEmail] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
 
-  const fadeAnim = useState(new Animated.Value(0))[0];
-
-  const handleLogin = (values) => {
+  const handleLogin = values => {
+    console.log('Login form submitted with values:', values);
     setLoginEmail(values.email);
     dispatch(loginUser(values));
   };
 
-  const handleSelectType = (type) => {
-    navigation.navigate('Signup', { accountType: type });
+  const handleForgotPassword = () => {
+    navigation.navigate('ForgotPassword');
   };
 
+  const handleSignup = () => {
+    navigation.navigate('Signup');
+  };
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 600,
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim]);
-
-  useEffect(() => {
+    console.log('Login State Changed:');
+    console.log('Success:', success);
+    console.log('User:', user);
+    console.log('Error:', error);
+  
     if (success && user && token) {
       dispatch(setMyServices(user.services));
       dispatch(fetchUserProfile(user.id));
-       dispatch(fetchNotifications())
+     
       setToastMessage('Login Successful!');
       setToastType('success');
       setToastVisible(true);
-
+  
+      console.log('Saving token to AsyncStorage:', token);
+      console.log('Saving user to AsyncStorage:', user);
+  
       const saveAndNavigate = async () => {
         await storage.storeToken(token);
         await storage.storeUser(user);
-
+  
         setTimeout(() => {
           navigation.dispatch(
             CommonActions.reset({
@@ -70,43 +76,66 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
               routes: [{ name: 'DashboardRouter' }],
             })
           );
-        }, 1000);
+        }, 1200);
       };
+  
       saveAndNavigate();
     } else if (error) {
-      const message = error?.message || error?.toString() || 'Login failed. Please try again.';
+      const message =
+        error?.message ||
+        error?.toString() ||
+        'Login failed. Please try again.';
       setToastMessage(message);
       setToastType('error');
       setToastVisible(true);
-
-      if (message.toLowerCase().includes('not verified') || message.toLowerCase().includes('verify your account')) {
+  
+      if (
+        message.toLowerCase().includes('not verified') ||
+        message.toLowerCase().includes('verify your account')
+      ) {
         setTimeout(() => {
           navigation.navigate('OTPScreen', { email: loginEmail });
         }, 600);
       }
-
+  
       dispatch(resetLoginState());
     }
   }, [success, error, user, dispatch, navigation, loginEmail, token]);
-
+  
+  console.log('toast type----',toastType);
+  
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      
+    <View style={styles.container}>
+      <CrossIconButton
+        onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            navigation.navigate('Welcome');
+          }
+        }}
+        size={22}
+        color="#212529"
+        style={styles.closeButton}
+      />
 
-      {/* Animated Logo */}
-      <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
-        <StartupSVG width={160} height={160} />
-        <AppText style={styles.welcomeText}>Welcome Back 👋</AppText>
-        <AppText style={styles.subText}>Log in to continue</AppText>
-      </Animated.View>
+      <View style={styles.imageContainer}>
+        <StartupSVG width={150} height={150} />
+      </View>
 
-      {/* Login Form */}
       <Formik
         initialValues={{ email: '', password: '' }}
         onSubmit={handleLogin}
         validationSchema={validationSchema}
       >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          errors,
+          touched,
+        }) => (
           <View style={styles.formContainer}>
             <CustomTextInput
               label="Email"
@@ -117,7 +146,6 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
               placeholder="Enter your email"
               keyboardType="email-address"
               error={touched.email && errors.email}
-              style={styles.input}
             />
 
             <CustomTextInput
@@ -129,14 +157,13 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
               placeholder="Enter password"
               secureTextEntry
               error={touched.password && errors.password}
-              style={styles.input}
             />
 
             <TouchableOpacity
-              onPress={() => navigation.navigate('ForgotPassword')}
+              onPress={handleForgotPassword}
               style={styles.forgotPasswordContainer}
             >
-              <AppText style={styles.forgotPasswordText}>Forgot Password?</AppText>
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
 
             <AppButton
@@ -147,50 +174,33 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
               textStyle={styles.buttonText}
               IconName="login"
             />
+
+            <View style={styles.signupContainer}>
+              <Text style={styles.signupText}>Don’t have an account? </Text>
+              <TouchableOpacity onPress={handleSignup}>
+                <Text style={styles.signupLink}>Sign Up</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </Formik>
 
-      {/* Divider */}
-      <AppText style={styles.signupPrompt}>Don’t have an account?</AppText>
-
-      {/* Signup Buttons */}
-      <View style={styles.buttonContainer}>
-        <AppButton
-          title="Signup as a Consumer"
-          onPress={() => handleSelectType('consumer')}
-          btnStyles={styles.consumerButton}
-          textStyle={styles.signupButtonText}
-          IconName="account-plus-outline"
-          IconSize={20}
-        />
-
-        <AppButton
-          title="Signup as a  Provider"
-          onPress={() => handleSelectType('provider')}
-          btnStyles={styles.providerButton}
-          textStyle={styles.providerButtonText}
-          IconName="briefcase-outline"
-          IconSize={20}
-          iconColor={colors.primary}
-        />
-      </View>
-
+      {/* ✅ Custom Toast at the end */}
       <CustomToast
         visible={toastVisible}
         message={toastMessage}
         type={toastType}
         onHide={() => setToastVisible(false)}
       />
-    </ScrollView>
+    </View>
   );
 };
 
-export default LoginAndSelectTypeScreen;
+export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     padding: 24,
     backgroundColor: colors.white,
     justifyContent: 'center',
@@ -201,41 +211,20 @@ const styles = StyleSheet.create({
     right: 25,
     zIndex: 999,
     backgroundColor: '#f1f3f5',
-    borderRadius: 30,
-  },
-  imageContainer: {
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.primary,
-    marginTop: 10,
-  },
-  subText: {
-    fontSize: 14,
-    color: '#6c757d',
-    marginTop: 4,
   },
   formContainer: {
     width: '100%',
-    marginBottom: 30,
   },
-  input: {
-    borderRadius: 12,
-    //backgroundColor: '#f8f9fa',
-    paddingHorizontal: 12,
+  imageContainer: {
+    marginBottom: 40,
+    alignItems: 'center',
   },
   loginButton: {
     backgroundColor: colors.primary,
     marginTop: 20,
     paddingVertical: 14,
-    borderRadius: 12,
-    shadowColor: colors.primary,
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 3,
+    borderRadius: 10,
+    alignItems: 'center',
   },
   buttonText: {
     color: colors.white,
@@ -244,45 +233,25 @@ const styles = StyleSheet.create({
   },
   forgotPasswordContainer: {
     alignItems: 'flex-end',
-    marginTop: 8,
+    marginBottom: 0,
   },
   forgotPasswordText: {
     color: colors.primary,
     fontSize: 14,
     fontWeight: '500',
   },
-  signupPrompt: {
-    fontSize: 15,
-    color: '#495057',
-    textAlign: 'center',
-    marginBottom: 16,
-    marginTop: -10,
+  signupContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
   },
-  buttonContainer: {
-    width: '100%',
-    paddingHorizontal: 16,
+  signupText: {
+    fontSize: 14,
+    color: '#666',
   },
-  consumerButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: 14,
-    borderRadius: 12,
-    marginBottom: 14,
-  },
-  providerButton: {
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-  },
-  signupButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  providerButtonText: {
+  signupLink: {
+    fontSize: 14,
     color: colors.primary,
-    fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
 });

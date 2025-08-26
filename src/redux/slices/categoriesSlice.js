@@ -7,12 +7,14 @@ export const fetchCategories = createAsyncThunk(
   'categories/fetchCategories',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiClient.get('/categories');
-        
+      const token = await AsyncStorage.getItem('token');
+      const response = await apiClient.get('/categories', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       const { success, data } = response.data;
       if (success && data.categories) {
         return data.categories; // raw categories with children/services
-
       } else {
         return rejectWithValue('Failed to fetch categories');
       }

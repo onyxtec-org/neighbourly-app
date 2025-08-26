@@ -1,7 +1,6 @@
 import React from "react";
 import { SvgXml } from "react-native-svg";
-import { View } from "react-native";
-import AppText from "./AppText";
+import { Text, View } from "react-native";
 
 export default function SvgComponent({ svgMarkup, setWidth, setHeight }) {
   // Ensure svgMarkup is defined and non-empty
@@ -9,7 +8,7 @@ export default function SvgComponent({ svgMarkup, setWidth, setHeight }) {
     console.error("Invalid or missing SVG markup");
     return (
       <View>
-        <AppText>Invalid SVG</AppText>
+        <Text>Invalid SVG</Text>
       </View>
     ); // Optionally render a fallback or error message
   }
