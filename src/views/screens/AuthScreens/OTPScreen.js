@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Keyboard } from 'react-native';
+import { View, StyleSheet, TextInput, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CommonActions } from '@react-navigation/native';
 import storage from '../../../app/storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice';
-
+import AppText from '../../components/AppText';
 import {
   verifyForgotPasswordOtp,
   resetVerifyForgotOtpState,
@@ -197,14 +197,14 @@ const OTPScreen = ({ navigation, route }) => {
           <View style={styles.backWrapper}>
             <BackButton onPress={() => navigation.goBack()} />
           </View>
-          <Text style={styles.headerTitle}>OTP Verification</Text>
+          <AppText style={styles.headerTitle}>OTP Verification</AppText>
         </View>
 
         <View style={styles.imageContainer}>
           <StartupSVG width={150} height={150} />
-          <Text style={styles.instructionText}>
+          <AppText style={styles.instructionText}>
             Please enter the 6-digit OTP sent to your email.
-          </Text>
+          </AppText>
         </View>
 
         <View style={styles.otpContainer}>
@@ -226,14 +226,14 @@ const OTPScreen = ({ navigation, route }) => {
 
         <View style={{ alignItems: 'center', marginBottom: 20 }}>
           {timerActive ? (
-            <Text style={{ color: '#888' }}>
+            <AppText style={{ color: '#888' }}>
               Resend OTP in{' '}
-              <Text style={{ fontWeight: 'bold', color: colors.primary }}>
+              <AppText style={{ fontWeight: 'bold', color: colors.primary }}>
                 {formatTime()}
-              </Text>
-            </Text>
+              </AppText>
+            </AppText>
           ) : (
-            <Text
+            <AppText
               style={{
                 color: colors.primary,
                 fontWeight: 'bold',
@@ -242,7 +242,7 @@ const OTPScreen = ({ navigation, route }) => {
               onPress={handleResendOtp}
             >
               {resendLoading ? 'Resending OTP...' : 'Resend OTP'}
-            </Text>
+            </AppText>
           )}
         </View>
 

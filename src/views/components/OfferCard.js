@@ -1,31 +1,40 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import AppText from './AppText';
 const OfferCard = ({ offer, onAccept, onReject }) => {
   return (
-    <View style={styles.card}>
-      {/* Left: Offer Details */}
-      <View style={{ flex: 1 }}>
-        {/* Static consumer name */}
-        <Text style={styles.consumerName}>{offer.provider?.name || 'Consumer Name'}</Text>
+  <View style={styles.card}>
+    {/* Left: Offer Details */}
+    <View style={{ flex: 1 }}>
+      {/* Static consumer name */}
+      <AppText style={styles.consumerName}>
+        {offer.provider?.name || 'Consumer Name'}
+      </AppText>
 
-        {/* Dynamic Offer Details */}
-        <Text style={styles.detail}>Rate: ${offer.rate}</Text>
-        <Text style={styles.detail}>No. of Hours: {offer.no_of_hours}</Text>
-        <Text style={styles.detail}>Status: {offer.status}</Text>
-      </View>
-
-      {/* Right: Buttons */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={[styles.button, styles.rejectButton]} onPress={() => onReject(offer.id)}>
-          <Text style={styles.rejectText}>Reject</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => onAccept(offer.id)}>
-          <Text style={styles.acceptText}>Accept</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Dynamic Offer Details */}
+      <AppText style={styles.detail}>Rate: ${offer.rate}</AppText>
+      <AppText style={styles.detail}>No. of Hours: {offer.no_of_hours}</AppText>
+      <AppText style={styles.detail}>Status: {offer.status}</AppText>
     </View>
-  );
+
+    {/* Right: Buttons */}
+    <View style={styles.buttonContainer}>
+      <TouchableOpacity
+        style={[styles.button, styles.rejectButton]}
+        onPress={() => onReject(offer.id)}
+      >
+        <AppText style={styles.rejectText}>Reject</AppText>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.button, styles.acceptButton]}
+        onPress={() => onAccept(offer.id)}
+      >
+        <AppText style={styles.acceptText}>Accept</AppText>
+      </TouchableOpacity>
+    </View>
+  </View>
+);
+
 };
 
 const styles = StyleSheet.create({

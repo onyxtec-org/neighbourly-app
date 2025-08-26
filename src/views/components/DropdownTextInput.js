@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -9,8 +8,8 @@ import {
   Keyboard,
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import Ionicons from './IconComponent';
+import AppText from './AppText';
 const DropdownTextInput = ({
   label,
   required,
@@ -61,10 +60,10 @@ const DropdownTextInput = ({
   return (
     <View style={styles.wrapper}>
       {label && (
-        <Text style={styles.label}>
+        <AppText style={styles.label}>
           {label}
-          {required && <Text style={styles.required}> *</Text>}
-        </Text>
+          {required && <AppText style={styles.required}> *</AppText>}
+        </AppText>
       )}
 
       {!customMode ? (
@@ -114,7 +113,7 @@ const DropdownTextInput = ({
         </View>
       )}
 
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <AppText style={styles.errorText}>{error}</AppText>}
     </View>
   );
 };

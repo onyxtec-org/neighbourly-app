@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-
+import { View } from 'react-native';
+import AppText from './AppText';
 
 // 🔹 Function to check password rules
 const passwordChecks = (password) => {
@@ -23,21 +23,21 @@ const PasswordChecklist = ({ password }) => {
 
   return (
     <View style={{ marginTop: 5 }}>
-      <Text style={{ color: getColor(checks.hasUppercase) }}>
+      <AppText style={{ color: getColor(checks.hasUppercase) }}>
         {getIcon(checks.hasUppercase)} Contains at least 1 uppercase letter
-      </Text>
-      <Text style={{ color: getColor(checks.hasLowercase) }}>
+      </AppText>
+      <AppText style={{ color: getColor(checks.hasLowercase) }}>
         {getIcon(checks.hasLowercase)} Contains at least 1 lowercase letter
-      </Text>
-      <Text style={{ color: getColor(checks.hasSpecialChar) }}>
+      </AppText>
+      <AppText style={{ color: getColor(checks.hasSpecialChar) }}>
         {getIcon(checks.hasSpecialChar)} At least one special character
-      </Text>
-      <Text style={{ color: getColor(checks.hasNumber) }}>
+      </AppText>
+      <AppText style={{ color: getColor(checks.hasNumber) }}>
         {getIcon(checks.hasNumber)} At least one number
-      </Text>
-      <Text style={{ color: getColor(checks.hasMinLength) }}>
+      </AppText>
+      <AppText style={{ color: getColor(checks.hasMinLength) }}>
         {getIcon(checks.hasMinLength)} Contains at least 8 characters
-      </Text>
+      </AppText>
     </View>
   );
 };

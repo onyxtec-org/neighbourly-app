@@ -1,23 +1,23 @@
 import React from 'react';
-import { View, StyleSheet ,Text} from 'react-native';
+import { View, StyleSheet} from 'react-native';
 import { useSelector } from 'react-redux';
-import Icon from 'react-native-vector-icons/Ionicons';
-
+import Icon from '../../../components/IconComponent';
+import AppText from '../../../components/AppText';
 function MyServicesScreen(props) {
     const { myServices } = useSelector(state => state.services);
 
   return (
 <View style={styles.card}>
-          <Text style={styles.cardTitle}>My Services</Text>
+          <AppText style={styles.cardTitle}>My Services</AppText>
           {myServices && myServices.length > 0 ? (
             myServices.map((service, index) => (
               <View key={index}>
                 <View style={styles.infoRow}>
                   <Icon name="construct-outline" size={20} color="#888" />
                   <View style={styles.textContainer}>
-                    <Text style={styles.value}>
+                    <AppText style={styles.value}>
                       {service.name || 'Unnamed Service'}
-                    </Text>
+                    </AppText>
                   </View>
                 </View>
                 {index < myServices.length - 1 && (
@@ -29,7 +29,7 @@ function MyServicesScreen(props) {
             <View style={styles.infoRow}>
               <Icon name="alert-circle-outline" size={20} color="#888" />
               <View style={styles.textContainer}>
-                <Text style={styles.value}>No services found</Text>
+                <AppText style={styles.value}>No services found</AppText>
               </View>
             </View>
           )}

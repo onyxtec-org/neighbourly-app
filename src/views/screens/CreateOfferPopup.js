@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  Text,
   Modal,
   StyleSheet,
   ActivityIndicator,
@@ -14,7 +13,7 @@ import colors from '../../config/colors';
 import CustomTextInput from '../components/CustomTextInput';
 import AppButton from '../components/AppButton';
 import CustomToast from '../components/CustomToast';
-
+import AppText from '../components/AppText';
 const CreateOfferPopup = ({
   visible,
   onClose,
@@ -95,7 +94,7 @@ const CreateOfferPopup = ({
           <View style={styles.overlay}>
             <TouchableWithoutFeedback>
               <View style={styles.container}>
-                <Text style={styles.title}>Offer</Text>
+                <AppText style={styles.title}>Offer</AppText>
 
                 <CustomTextInput
                   label="Rate"

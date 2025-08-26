@@ -8,6 +8,7 @@ import storage from '../../app/storage';
 import { setMyServices } from '../../redux/slices/servicesSlice';
 import { fetchNotifications } from '../../redux/slices/notificationSlice';
 import { fetchCategories } from '../../redux/slices/categoriesSlice';
+import AppText from '../components/AppText';
 const AppEntryScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   useEffect(() => {
@@ -39,7 +40,7 @@ const AppEntryScreen = ({ navigation }) => {
           
           const result = await dispatch(fetchUserProfile(user.id)); // ✅ Re-hydrate Redux
           dispatch(fetchNotifications())
-          dispatch(fetchCategories());
+         
           if (fetchUserProfile.fulfilled.match(result)) {
             dispatch(setMyServices(user.services || []));
             navigation.replace('DashboardRouter');
@@ -64,7 +65,7 @@ const AppEntryScreen = ({ navigation }) => {
         <StartupSVG width={150} height={150} />
       </View>
       {/* App Name */}
-      <Text style={styles.appName}>Neighbourly</Text>
+      <AppText style={styles.appName}>Neighbourly</AppText>
       {/* Loader */}
       <ActivityIndicator
         size="large"

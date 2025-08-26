@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   Image,
   TouchableOpacity,
   FlatList,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from '../../components/IconComponent';
 import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
 import LinearGradient from 'react-native-linear-gradient';
 import colors from '../../../config/colors';
@@ -17,7 +16,7 @@ import { likePost, unlikePost } from '../../../redux/slices/postSlice';
 import timeAgo from './../../../utils/timeago'; // utility to format time
 import config from '../../../config'; // ✅ baseURL here
 import PostMediaGrid from '../../components/Mediapicker/PostMediaGrid'; // ✅ reusable media grid component
-
+import AppText from '../../components/AppText';
 const StageScreen = ({ navigation }) => {
   const { user: profileUser } = useSelector(state => state.profile);
   const userRole = profileUser?.role;
@@ -64,8 +63,8 @@ const StageScreen = ({ navigation }) => {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Image source={{ uri: userAvatar }} style={styles.avatar} />
               <View style={{ marginLeft: 10 }}>
-                <Text style={styles.userName}>{item.user?.name}</Text>
-                <Text style={styles.time}>{timeAgo(item.created_at)}</Text>
+                <AppText style={styles.userName}>{item.user?.name}</AppText>
+                <AppText style={styles.time}>{timeAgo(item.created_at)}</AppText>
               </View>
             </View>
 
@@ -76,19 +75,19 @@ const StageScreen = ({ navigation }) => {
 
         {/* Post Content */}
         <View style={styles.descriptionContainer}>
-          <Text style={styles.description}>
+          <AppText style={styles.description}>
             {expanded
               ? item.content || ''
               : (item.content || '').substring(0, 100) +
                 ((item.content?.length || 0) > 100 ? '...' : '')}
-          </Text>
+          </AppText>
           {item.content && item.content.length > 100 && (
             <TouchableOpacity
               onPress={() => setExpandedPostId(expanded ? null : item.id)}
             >
-              <Text style={styles.seeMore}>
+              <AppText style={styles.seeMore}>
                 {expanded ? 'See less' : 'See more'}
-              </Text>
+              </AppText>
             </TouchableOpacity>
           )}
         </View>
@@ -121,19 +120,19 @@ const StageScreen = ({ navigation }) => {
               size={20}
               color={isLiked ? colors.primary : '#666'}
             />
-            <Text style={styles.actionText}>
+            <AppText style={styles.actionText}>
               {item.likes?.length || 0} Like
-            </Text>
+            </AppText>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton}>
             <Icon name="chatbubble-outline" size={20} color="#666" />
-            <Text style={styles.actionText}>Comment</Text>
+            <AppText style={styles.actionText}>Comment</AppText>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton}>
             <Icon name="arrow-redo-outline" size={20} color="#666" />
-            <Text style={styles.actionText}>Share</Text>
+            <AppText style={styles.actionText}>Share</AppText>
           </TouchableOpacity>
         </View>
       </View>
@@ -154,7 +153,7 @@ const StageScreen = ({ navigation }) => {
   if (error) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ color: 'red' }}>{error}</Text>
+        <AppText style={{ color: 'red' }}>{error}</AppText>
       </View>
     );
   }
@@ -163,7 +162,7 @@ const StageScreen = ({ navigation }) => {
     <View style={{ flex: 1 }}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Stage Feed</Text>
+        <AppText style={styles.headerTitle}>Stage Feed</AppText>
       </View>
 
       {/* Post List */}

@@ -3,13 +3,11 @@ import {
   View,
   StyleSheet,
   FlatList,
-  Text,
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-
 import AppText from '../../components/AppText';
 import NotificationsCard from '../../components/NotificationsCard';
 import Header from '../../components/Header';
@@ -32,9 +30,9 @@ function NotificationsScreen({ navigation }) {
 
   const ListEmptyComponent = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>
+      <AppText style={styles.emptyText}>
         {loading ? '' : 'No New Notifications'}
-      </Text>
+      </AppText>
     </View>
   );
 

@@ -5,7 +5,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Text,
   Alert,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,6 +22,7 @@ import TermsAndConditionsModal from '../../components/TermsAndConditionsModal';
 import CircularImagePicker from '../../components/CircularImagePicker';
 import colors from '../../../config/colors';
 import PasswordChecklist from '../../components/PasswordChecklist';
+import AppText from '../../components/AppText';
 const validationSchema = Yup.object().shape({
   fullName: Yup.string().required('Full name is required'),
   screenName: Yup.string().required('Screen name is required'),
@@ -117,7 +117,7 @@ const SignupScreen = ({ navigation, route }) => {
       role: accountType,
       image: profileImage, // pass raw image object
     };
-
+     
     console.log('📤 Sending payload to thunk:', payload);
     dispatch(registerUser(payload));
     console.log('✅ registerUser dispatched');
@@ -252,15 +252,15 @@ const SignupScreen = ({ navigation, route }) => {
                   onValueChange={setAgreeTerms}
                   tintColors={{ true: colors.primary, false: '#999' }}
                 />
-                <Text style={styles.termsText}>
+                <AppText style={styles.termsText}>
                   I agree to the{' '}
-                  <Text
+                  <AppText
                     style={styles.link}
                     onPress={() => setModalVisible(true)}
                   >
                     Terms & Conditions
-                  </Text>
-                </Text>
+                  </AppText>
+                </AppText>
               </View>
 
               <TermsAndConditionsModal

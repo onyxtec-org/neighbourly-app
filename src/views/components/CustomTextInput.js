@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   TextInput,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import Ionicons from './IconComponent';
+import AppText from './AppText';
 const CustomTextInput = ({
   label,
   value,
@@ -42,10 +41,10 @@ const CustomTextInput = ({
   return (
     <View style={styles.container}>
       {label && (
-        <Text style={styles.label}>
+        <AppText style={styles.label}>
           {label}
-          {required && <Text style={styles.required}> *</Text>}
-        </Text>
+          {required && <AppText style={styles.required}> *</AppText>}
+        </AppText>
       )}
 
       <View style={[styles.inputWrapper, error ? styles.errorInput : null]}>
@@ -80,15 +79,15 @@ const CustomTextInput = ({
 
       <View style={styles.footerRow}>
         {error ? (
-          <Text style={styles.errorText}>{error}</Text>
+          <AppText style={styles.errorText}>{error}</AppText>
         ) : (
           <View />
         )}
 
         {maxLength && showCharCount && (
-          <Text style={styles.charCount}>
+          <AppText style={styles.charCount}>
             {value?.length || 0}/{maxLength}
-          </Text>
+          </AppText>
         )}
       </View>
 
