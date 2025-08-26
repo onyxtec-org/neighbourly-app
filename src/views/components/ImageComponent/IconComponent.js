@@ -5,14 +5,14 @@ import colors from '../../../config/colors';
 
 const Icon = ({
   name,
-  color=colors.primary,
+  color = colors.primary,
   size = 24,
   style,
   onPress,
-  pressed = true, // 👈 New flag to control if it's clickable
+  pressed = false, // 👈 default false now
   ...props
 }) => {
-  if (pressed) {
+  if (pressed && onPress) {
     return (
       <TouchableOpacity onPress={onPress} style={style}>
         <Ionicons name={name} size={size} color={color} {...props} />
@@ -20,11 +20,8 @@ const Icon = ({
     );
   }
 
-  return (
-    <View style={style}>
-      <Ionicons name={name} size={size} color={color} {...props} />
-    </View>
-  );
+  return <Ionicons name={name} size={size} color={color} style={style} {...props} />;
 };
+
 
 export default Icon;

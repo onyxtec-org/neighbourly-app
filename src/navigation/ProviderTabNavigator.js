@@ -6,6 +6,8 @@ import colors from '../config/colors';
 import ProviderNavigator from './ProviderNavigator';
 import StageScreen from '../views/screens/Dashboard/StageScreens/StageScreen';
 import Icon from '../views/components/ImageComponent/IconComponent';
+//import Icon from 'react-native-vector-icons/Ionicons';
+
 const Tab = createBottomTabNavigator();
 
 const ProviderTabNavigator = () => {

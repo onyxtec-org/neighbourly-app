@@ -17,8 +17,10 @@ import AppText from '../../../../components/AppText';
 const OfferListScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const initialOffers = (route.params?.offers || []).filter(
-    o => o.status === 'pending',
+    o => o.status === 'pending_approval',
   );
+
+
   const [offers, setOffers] = useState(initialOffers);
   const [loadingId, setLoadingId] = useState(null);
 

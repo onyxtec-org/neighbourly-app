@@ -16,6 +16,7 @@ const BackButton = ({
       color={iconColor}
       style={[style, styles.container]}
       onPress={onPress}
+      pressed={true}
     />
   );
 };

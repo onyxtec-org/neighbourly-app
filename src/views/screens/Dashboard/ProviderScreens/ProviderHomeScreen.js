@@ -16,7 +16,7 @@ import { selectJobsByTab } from '../../../../redux/selectors/jobSelector';
 import { getJobs } from '../../../../redux/slices/jobSlice/jobSlice';
 import AppBar from '../../../components/HeaderComponent/AppBar';
 import { fetchNotifications } from '../../../../redux/slices/notificationSlice/notificationSlice';
-
+import { fetchCategories } from '../../../../redux/slices/categorySlice/categoriesSlice';
 const ProviderHomeScreen = ({ navigation }) => {
   const { myServices } = useSelector(state => state.services);
   const myJobs = useSelector(selectJobsByTab('my_jobs', 'provider'));
@@ -39,6 +39,7 @@ const ProviderHomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     dispatch(fetchNotifications());
+    dispatch(fetchCategories());
   }, [dispatch]);
   const renderJob = ({ item }) => (
     <TouchableOpacity

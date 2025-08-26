@@ -145,7 +145,7 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
               disabled={loading}
               btnStyles={styles.loginButton}
               textStyle={styles.buttonText}
-              IconName="login"
+              IconName="log-in-outline"
             />
           </View>
         )}
@@ -161,7 +161,7 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
           onPress={() => handleSelectType('consumer')}
           btnStyles={styles.consumerButton}
           textStyle={styles.signupButtonText}
-          IconName="account-plus-outline"
+          IconName="person-add-outline"
           IconSize={20}
         />
 

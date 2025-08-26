@@ -17,17 +17,17 @@ const colors = {
   darkViolet: '#6d6a7a',
   lightPurple: '#b5abd4',
   gradientPink: '#B20EB8',
-  checkGreen:"#58cc77",
-  checkRed:'#eb0c0c',
+  checkGreen: '#58cc77',
+  checkRed: '#eb0c0c',
   background: '#FFFFFF',
   textDark: '#000000',
   textMedium: '#888888',
   border: '#E0E0E0',
-  pending: '#32a1ff',
-  inProgress: '#fdaf2f',
-  completed:'#349839',
-  rejected:'#ed6d58',
-
+  pending: '#007BFF',
+  inProgress: '#FF9800',
+  completed: '#4CAF50',
+  rejected: '#F44336',
+scheduled: '#9C27B0',
   statusColors(type) {
     switch (type) {
       case 'open':
@@ -38,6 +38,8 @@ const colors = {
         return this.completed;
       case 'rejected':
         return this.rejected;
+      case 'scheduled':
+        return this.scheduled;
       default:
         return this.black;
     }

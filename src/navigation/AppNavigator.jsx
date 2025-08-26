@@ -30,7 +30,7 @@ import NotificationsScreen from '../views/screens/Dashboard/notifications/Notifi
 import JobsScreen from '../views/screens/Dashboard/jobScreens/JobsScreen'; // Import JobsScreen
 import StageScreen from '../views/screens/Dashboard/StageScreens/StageScreen'; // Import StageScreen
 import CreateStage from '../views/screens/Dashboard/StageScreens/CreateStage';
-
+import EditServicesScreen from '../views/screens/Dashboard/ProviderScreens/EditServicesScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -68,6 +68,7 @@ const AppNavigator = () => {
         <Stack.Screen name="JobsScreen" component={JobsScreen} />
         <Stack.Screen name="StageScreen" component={StageScreen} />
         <Stack.Screen name="CreateStage" component={CreateStage} />
+        <Stack.Screen name="EditServices" component={EditServicesScreen} />
 
       </Stack.Navigator>
     </NavigationContainer>
