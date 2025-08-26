@@ -85,63 +85,7 @@ const ProfileScreen = ({ navigation }) => {
     setToastVisible(true);
   };
 
-  // const handleLogout = () => {
-  //   Alert.alert(
-  //     'Logout',
-  //     'Are you sure you want to logout?',
-  //     [
-  //       { text: 'Cancel', style: 'cancel' },
-  //       {
-  //         text: 'Logout',
-  //         style: 'destructive',
-  //         onPress: async () => {
-  //           setIsLoading(true);
-  //           try {
-  //             const result = await dispatch(logoutUser());
-  //             console.log('resulg logout--', result);
-
-  //             if (result.payload === 'Logout successful') {
-  //               showToast('Logout successful', 'success');
-  //               setShouldNavigate(true);
-
-  //               setTimeout(async () => {
-  //                 try {
-  //                   setIsLoading(false);
-
-  //                   nav.dispatch(
-  //                     CommonActions.reset({
-  //                       index: 0,
-  //                       routes: [{ name: 'Login' }],
-  //                     }),
-  //                   );
-  //                   const tokenRemoved = await storage.removeToken();
-  //                   const userRemoved = await storage.removeUser();
-
-  //                   if (!tokenRemoved || !userRemoved) {
-  //                     throw new Error('Failed to clear local storage');
-  //                   }
-  //                 } catch (err) {
-  //                   console.error('Logout cleanup failed:', err);
-  //                   showToast('Something went wrong during logout', 'error');
-  //                 }
-  //               }, 0);
-  //             } else {
-  //               setIsLoading(false);
-
-  //               throw new Error(result.payload || 'Logout failed');
-  //             }
-  //           } catch (err) {
-  //             setIsLoading(false);
-
-  //             showToast(err.message || 'Logout failed', 'error');
-  //           }
-  //         },
-  //       },
-  //     ],
-  //     { cancelable: true },
-  //   );
-  // };
-
+ 
   const handleLogout = () => {
     setLogoutPopupVisible(true);
   };
