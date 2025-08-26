@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, StyleSheet ,Platform} from 'react-native';
-import AppText from '../AppText';
+import { View, StyleSheet ,Platform,Text} from 'react-native';
+
 const isAndroid=Platform.OS==='android';
 
 function StatusBox({color, text}) {
@@ -17,28 +17,22 @@ function StatusBox({color, text}) {
         styles.statusBox,
         {backgroundColor: `rgba(${r}, ${g}, ${b}, ${0.2})`},
       ]}>
-      {text &&
-       <AppText 
-       style={[styles.statusText,  {color: color}]}
-       numberOfLines={1}
-      >{capitalizeFirst(text)}
-      </AppText>}
+      {text && <Text style={[styles.statusText, {color: color}]}>{capitalizeFirst(text)}</Text>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
  statusBox: {
-   
-    borderRadius:30,
+    width: isAndroid?50:60,
+    height: isAndroid?20:30,
+    borderRadius:isAndroid?10:20,
     alignItems:'center',
-    justifyContent:'center',
-    padding:10
+    justifyContent:'center'
   },
   statusText: {
     fontSize: 10,
     textAlign: 'center',
-
   },
 });
 

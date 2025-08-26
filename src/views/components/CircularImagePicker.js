@@ -6,7 +6,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import Ionicons from './IconComponent';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../../config/colors';
 import ImagePickerModal from './ImagePickerModal';
 

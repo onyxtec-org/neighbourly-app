@@ -23,7 +23,6 @@ import PhoneNumberInput from '../../components/PhoneNumberInput'; // Adjust the 
 
 const validationSchema = Yup.object().shape({
   fullName: Yup.string().required('Full Name is required'),
-  screenName: Yup.string().required('Screen Name is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
   address: Yup.string().required('Address is required'),
   phoneNumber: Yup.string().required('Phone number is required'),
@@ -40,10 +39,10 @@ const UpdateProfileScreen = ({ navigation }) => {
   const [toastType, setToastType] = useState('success');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleProfileUpdate = async values => {
+const handleProfileUpdate = async values => {
     try {
       setIsSubmitting(true);
-
+  
       const payload = {
         id: user?.id,
         data: {
@@ -55,18 +54,18 @@ const UpdateProfileScreen = ({ navigation }) => {
           profileImage: profileImage,
         },
       };
-
+  
       // 🔄 Update profile
       await dispatch(updateProfile(payload)).unwrap();
-
+  
       // ✅ Re-fetch profile after successful update
       await dispatch(fetchUserProfile(user?.id));
-
+  
       // ✅ Show success toast
       setToastMessage('Profile updated successfully');
       setToastType('success');
       setToastVisible(true);
-
+  
       // ⏳ Wait then go back
       setTimeout(() => {
         navigation.goBack();
@@ -93,26 +92,23 @@ const UpdateProfileScreen = ({ navigation }) => {
       >
         <CrossIconButton
           onPress={() =>
-            navigation.canGoBack()
-              ? navigation.goBack()
-              : navigation.navigate('Dashboard')
+            navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home')
           }
           size={22}
           color="#212529"
           style={styles.closeButton}
         />
 
-        <CircularImagePicker
-          onImagePicked={asset => setProfileImage(asset)}
-          defaultImageUri={
-            user?.image ? `${config.imageURL}${user.image}` : null
-          }
-        />
+<CircularImagePicker
+  onImagePicked={asset => setProfileImage(asset)}
+  defaultImageUri={
+    user?.image ? `${config.imageURL}${user.image}` : null
+  }
+/>
 
         <Formik
           initialValues={{
             fullName: user?.name || '',
-            screenName: user.slug || '',
             email: user?.email || '',
             address: user?.location || '',
             phoneNumber: user?.phone || '',
@@ -121,14 +117,7 @@ const UpdateProfileScreen = ({ navigation }) => {
           validationSchema={validationSchema}
           onSubmit={handleProfileUpdate}
         >
-          {({
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            values,
-            errors,
-            touched,
-          }) => (
+          {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
             <View style={styles.formContainer}>
               <CustomTextInput
                 label="Full Name"
@@ -139,15 +128,7 @@ const UpdateProfileScreen = ({ navigation }) => {
                 placeholder="Enter your full name"
                 error={touched.fullName && errors.fullName}
               />
-              <CustomTextInput
-                label="Screen Name"
-                required
-                value={values.screenName}
-                onChangeText={handleChange('screenName')}
-                onBlur={handleBlur('screenName')}
-                placeholder="Enter your screen name"
-                error={touched.screenName && errors.screenName}
-              />
+
               <CustomTextInput
                 label="Email"
                 required
@@ -168,7 +149,7 @@ const UpdateProfileScreen = ({ navigation }) => {
                 placeholder="Enter your address"
                 error={touched.address && errors.address}
               />
-              <PhoneNumberInput
+               <PhoneNumberInput
                 label="Phone Number"
                 countryCode={values.countryCode}
                 onChangeCountryCode={handleChange('countryCode')}

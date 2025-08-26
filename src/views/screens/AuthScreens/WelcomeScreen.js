@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import AppButton from '../../components/AppButton';
 import colors from '../../../config/colors'; 
 import StartupSVG from '../../../assets/icons/startup.svg';
-import AppText from '../../components/AppText';
+
 const WelcomeScreen = ({ navigation }) => {
   const handleSelectType = type => {
     navigation.navigate('Startup', { accountType: type });
@@ -16,11 +16,11 @@ const WelcomeScreen = ({ navigation }) => {
       </View>
 
       {/* Title & Subtitle */}
-      <AppText style={styles.title}>Welcome to Neighbourly</AppText>
-      <AppText style={styles.subtitle}>
+      <Text style={styles.title}>Welcome to Neighbourly</Text>
+      <Text style={styles.subtitle}>
         A service-based platform designed to connect you with reliable local
         support and community services.{' '}
-      </AppText>
+      </Text>
 
       <View style={styles.buttonContainer}>
         <AppButton

@@ -7,16 +7,25 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = await storage.getToken();
-      const fcmToken = await storage.geFcmToken();
 
       if (token) {
         await apiClient.post(
-          '/logout',{token:fcmToken}
-         
+          '/logout',
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
       }
 
-     
+      const tokenRemoved = await storage.removeToken();
+      const userRemoved = await storage.removeUser();
+
+      if (!tokenRemoved || !userRemoved) {
+        throw new Error('Failed to clear local storage');
+      }
 
       return 'Logout successful';
     } catch (error) {
@@ -28,5 +37,5 @@ export const logoutUser = createAsyncThunk(
 
       return rejectWithValue('Logout failed');
     }
-  },
+  }
 );

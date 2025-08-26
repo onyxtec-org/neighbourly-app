@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import AppButton from '../../components/AppButton';
 import CrossIconButton from '../../components/CrossIconButton';
 import colors from '../../../config/colors';
 import StartupSVG from '../../../assets/icons/startup.svg';
-import AppText from '../../components/AppText';
+
 const StartupScreen = ({ navigation, route }) => {
   const { accountType } = route.params;
   return (
@@ -27,11 +27,11 @@ const StartupScreen = ({ navigation, route }) => {
       </View>
 
       {/* Title & Subtitle */}
-      <AppText style={styles.title}>Get Started</AppText>
-      <AppText style={styles.subtitle}>
+      <Text style={styles.title}>Get Started</Text>
+      <Text style={styles.subtitle}>
         Create an account or log in to connect with reliable local support and
         community services.
-      </AppText>
+      </Text>
 
       <View style={styles.buttonContainer}>
         <AppButton
@@ -45,7 +45,7 @@ const StartupScreen = ({ navigation, route }) => {
 
         <AppButton
           title="Login"
-          onPress={() => navigation.navigate('Login',{ accountType })}
+          onPress={() => navigation.navigate('Login')}
           btnStyles={styles.secondaryButton}
           textStyle={styles.secondaryButtonText}
           IconName="login"

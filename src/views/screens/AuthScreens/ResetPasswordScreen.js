@@ -6,26 +6,19 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-
+  Text,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import CustomTextInput from '../../components/CustomTextInput';
 import AppButton from '../../components/AppButton';
-import {
-  resetPassword,
-  resetResetPasswordState,
-} from '../../../redux/slices/auth/resetPasswordSlice';
-import PasswordChecklist from '../../components/PasswordChecklist';
-import AppText from '../../components/AppText';
+import { resetPassword, resetResetPasswordState } from '../../../redux/slices/auth/resetPasswordSlice';
+
+// Validation schema
 const validationSchema = Yup.object().shape({
   password: Yup.string()
-    .matches(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
-    .matches(/[a-z]/, 'Password must contain at least 1 lowercase letter')
-    .matches(/\d/, 'Password must contain at least 1 number')
-    .matches(/[@$!%*?&]/, 'Password must contain at least 1 special character')
-    .min(8, 'Password must be at least 8 characters long')
+    .min(8, 'Password must be at least 8 characters')
     .required('Password is required'),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref('password'), null], 'Passwords must match')
@@ -33,10 +26,10 @@ const validationSchema = Yup.object().shape({
 });
 
 const ResetPasswordScreen = ({ route, navigation }) => {
-  const { userId } = route.params;
-  // route.params.id should be passed from previous screen
+    const { userId } = route.params;
+    // route.params.id should be passed from previous screen
   const dispatch = useDispatch();
-  const { loading, success, error } = useSelector(state => state.resetPassword);
+  const { loading, success, error } = useSelector((state) => state.resetPassword);
 
   useEffect(() => {
     if (success) {
@@ -50,16 +43,16 @@ const ResetPasswordScreen = ({ route, navigation }) => {
     }
   }, [success, error, navigation, dispatch]);
 
-  const handleSubmitPassword = values => {
+  const handleSubmitPassword = (values) => {
     dispatch(
       resetPassword({
         id: userId, // 🔁 FIXED HERE
         password: values.password,
         password_confirmation: values.confirmPassword,
-      }),
+      })
     );
   };
-
+  
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
@@ -67,26 +60,18 @@ const ResetPasswordScreen = ({ route, navigation }) => {
         style={styles.container}
       >
         <View style={styles.inner}>
-          <AppText style={styles.title}>Reset Your Password</AppText>
+          <Text style={styles.title}>Reset Your Password</Text>
 
           <Formik
             initialValues={{ password: '', confirmPassword: '' }}
             onSubmit={handleSubmitPassword}
             validationSchema={validationSchema}
           >
-            {({
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              values,
-              touched,
-              errors,
-            }) => (
+            {({ handleChange, handleBlur, handleSubmit, values, touched, errors }) => (
               <>
                 <CustomTextInput
                   label="Password"
                   required
-                  showError={false}
                   value={values.password}
                   onChangeText={handleChange('password')}
                   onBlur={handleBlur('password')}
@@ -94,7 +79,6 @@ const ResetPasswordScreen = ({ route, navigation }) => {
                   secureTextEntry
                   error={touched.password && errors.password}
                 />
-                <PasswordChecklist password={values.password} />
 
                 <CustomTextInput
                   label="Confirm Password"

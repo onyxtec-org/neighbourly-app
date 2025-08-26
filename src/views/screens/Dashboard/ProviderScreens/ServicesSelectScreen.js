@@ -9,208 +9,91 @@ import {
   TouchableWithoutFeedback,
   ActivityIndicator,
   TextInput,
-  KeyboardAvoidingView,
+  Alert,
   ScrollView,
 } from 'react-native';
-import Ionicons from '../../../components/IconComponent';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
+import { fetchServices,addServices, setMyServices } from '../../../../redux/slices/servicesSlice';
 import CustomToast from '../../../components/CustomToast';
 import colors from '../../../../config/colors';
 import ServicesCard from '../../../components/services/ServicesCard';
-import {
-  fetchServices,
-  addServices,
-  setMyServices,
-} from '../../../../redux/slices/servicesSlice';
-import SearchBar from '../../../components/SearchBar';
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
-import { CommonActions } from '@react-navigation/native';
-import storage from '../../../../app/storage';
-import AppActivityIndicator from '../../../components/AppActivityIndicator';
-import AppText from '../../../components/AppText';
-const ServicesSelectScreen = ({ navigation, route }) => {
-  const dispatch = useDispatch();
-  const { status } = useSelector(state => state.services);
-  const { categories } = useSelector(state => state.categories);
-  const { services } = useSelector(state => state.services);
-  console.log('services-', services);
-  console.log('categories--', categories);
 
-  const [selectedCustomServiceNames, setSelectedCustomServiceNames] = useState(
-    [],
+const ServicesSelectScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const { services, addStatus, myServices } = useSelector(
+    state => state.services,
   );
 
   const [selectedServiceIds, setSelectedServiceIds] = useState([]);
   const [customService, setCustomService] = useState('');
-  const [expandedCategoryIds, setExpandedCategoryIds] = useState([]);
-  const [customServices, setCustomServices] = useState([]);
-  const [selectedServices, setSelectedServices] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [customServiceName, setCustomServiceName] = useState('');
+
+  const [customServicesList, setCustomServicesList] = useState([]);
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
+console.log('my services--------',myServices);
 
   useEffect(() => {
     dispatch(fetchServices());
-  }, [dispatch,]);
+  }, [dispatch]);
 
-  useFocusEffect(
-    useCallback(() => {
-      console.log('selected service id', selectedServiceIds);
-    }, [selectedServiceIds]),
-  );
-  const toggleCategory = categoryId => {
-    setExpandedCategoryIds(prev =>
-      prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId],
+  const toggleSelectService = id => {
+    setSelectedServiceIds(prev =>
+      prev.includes(id) ? prev.filter(sid => sid !== id) : [...prev, id],
     );
   };
-  const toggleSelectService = service => {
-    setSelectedServiceIds(prevIds => {
-      if (prevIds.includes(service.id)) {
-        return prevIds.filter(id => id !== service.id);
-      } else {
-        return [...prevIds, service.id];
-      }
-    });
-
-    setSelectedServices(prevServices => {
-      const exists = prevServices.some(s => s.id === service.id);
-      if (exists) {
-        return prevServices.filter(s => s.id !== service.id);
-      } else {
-        return [...prevServices, service];
-      }
-    });
-  };
-
-  const toggleSelectCustomService = serviceName => {
-    setSelectedCustomServiceNames(prevCustomNames => {
-      const isSelected = prevCustomNames.includes(serviceName);
-      const updatedCustomNames = isSelected
-        ? prevCustomNames.filter(name => name !== serviceName)
-        : [...prevCustomNames, serviceName];
-
-      // Update combined list based on the isSelected flag
-      setSelectedServices(prevServices => {
-        console.log('prevois sercivs', prevServices);
-
-        if (isSelected) {
-          // Removing
-          return prevServices.filter(s => s.name !== serviceName);
-        } else {
-          // Adding
-          return [
-            ...prevServices,
-            { id: null, name: serviceName, type: 'custom' },
-          ];
-        }
-      });
-
-      return updatedCustomNames;
-    });
-  };
-
-  // const handleAddCustomService = () => {
-  //   const trimmed = customService.trim();
-  //   if (trimmed) {
-  //     const newService = {
-  //       id: `custom-${Date.now()}`,
-  //       name: trimmed,
-  //     };
-
-  //     setCustomServices(prev => [...prev, newService]); // add to display list
-  //     setSelectedCustomServiceNames(prev => [...prev, trimmed]); // mark as selected
-  //     setSelectedServices(prev => [...prev, newService]); // ✅ add to selected services
-  //     setCustomService('');
-  //     setShowCustomInput(false);
-  //   }
-  // };
 
   const handleAddCustomService = () => {
     const trimmed = customService.trim();
-
     if (!trimmed) return;
 
-    // Check if service already exists in normal or custom services (case-insensitive)
-    const existsInServices =
-      services.some(s => s.name.toLowerCase() === trimmed.toLowerCase()) ||
-      customServices.some(s => s.name.toLowerCase() === trimmed.toLowerCase());
-
-    if (existsInServices) {
-      setToastMessage('Service already exists');
-      setToastType('error');
-      setToastVisible(true);
-      return;
-    }
-
     const newService = {
-      id: `custom-${Date.now()}`,
+      id: `custom_${Date.now()}`,
       name: trimmed,
+      isCustom: true,
     };
 
-    setCustomServices(prev => [...prev, newService]); // add to display list
-    setSelectedCustomServiceNames(prev => [...prev, trimmed]); // mark as selected
-    setSelectedServices(prev => [
-      ...prev,
-      { ...newService, id: Number(newService.id) },
-    ]); // also add to selected
+    setCustomServicesList(prev => [...prev, newService]);
+    setSelectedServiceIds(prev => [...prev, newService.id]);
     setCustomService('');
     setShowCustomInput(false);
-    console.log('new servie', newService);
-  };
-
-  const selectedSearch = service => {
-    setSelectedServices(prev => {
-      const numericService = { ...service, id: Number(service.id) }; // ensure id is number
-      if (!prev.some(s => s.id === numericService.id)) {
-        return [...prev, numericService];
-      }
-      return prev;
-    });
-
-    setSelectedServiceIds(prevIds => {
-      const serviceId = Number(service.id);
-      if (!prevIds.includes(serviceId)) {
-        return [...prevIds, serviceId];
-      }
-      return prevIds;
-    });
+    Keyboard.dismiss();
   };
 
   const handleLogSelected = async () => {
-    setIsLoading(true);
-    console.log('✅ Selected Preset Service IDs:', selectedServiceIds);
-    console.log(
-      '🛠️ Selected Custom Service Names:',
-      selectedCustomServiceNames,
+    const selected = [...services, ...customServicesList].filter(service =>
+      selectedServiceIds.includes(service.id),
     );
 
+    const customServiceNames = selected
+      .filter(service => service.isCustom)
+      .map(service => service.name);
+
+    const presetServiceIds = selected
+      .filter(service => !service.isCustom)
+      .map(service => service.id);
+
+    console.log(' Custom Service Names:', customServiceNames);
+    console.log(' Preset Service IDs:', presetServiceIds);
+
     const body = {
-      service_ids: selectedServiceIds, // Existing service IDs
-      new_services: selectedCustomServiceNames, // New services to create unduer 'Other' category
+      service_ids: presetServiceIds, // Existing service IDs
+      new_services: customServiceNames, // New services to create unduer 'Other' category
     };
 
     try {
       const result = await dispatch(addServices(body)).unwrap();
 
       if (result.statusCode === 200) {
-        await storage.storeUser(result.data.user);
-        dispatch(setMyServices(result.data.user.services));
-        setIsLoading(false);
         setToastMessage(result.message);
         setToastType('success');
-        setToastVisible(true);
+        setToastVisible(true);        
+        dispatch(setMyServices(result.data.user.services))
+        navigation.pop();
 
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: 'Dashboard' }],
-          }),
-        );
       } else {
         setToastMessage(result.message);
         setToastType('error');
@@ -221,226 +104,128 @@ const ServicesSelectScreen = ({ navigation, route }) => {
     }
   };
 
-const renderCategory = ({ item: category }) => {
-  const isExpanded = expandedCategoryIds.includes(category.id);
+
+  const allServices = [...services, ...customServicesList];
 
   return (
-    <View>
-      <TouchableOpacity
-        onPress={() => toggleCategory(category.id)}
-        style={styles.categoryHeader}
-      >
-        <AppText style={styles.categoryTitle}>{category.name}</AppText>
-        <Ionicons
-          name={isExpanded ? 'chevron-up' : 'chevron-down'}
-          size={20}
-          color="gray"
-        />
-      </TouchableOpacity>
-
-      {isExpanded && (
-        <View style={styles.cardWrapContainer}>
-          {category.services?.map(service => (
-            <ServicesCard
-              key={service.id}
-              item={service}
-              isSelected={selectedServiceIds.includes(Number(service.id))}
-              onToggleSelect={() => toggleSelectService(service)}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        {/* AppBar */}
+        <View style={styles.appBar}>
+          <TouchableOpacity style={styles.locationContainer}>
+            <Ionicons
+              name="location-outline"
+              size={24}
+              color={colors.primary}
             />
-          ))}
+            <Text style={styles.locationText}>Your Location</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Notifications')}
+          >
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color={colors.primary}
+            />
+          </TouchableOpacity>
         </View>
-      )}
-    </View>
-  );
-};
 
-return (
-  <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0} // adjust offset for header
-    >
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.container}>
-          {/* AppBar */}
-          <View style={styles.appBar}>
-            <TouchableOpacity style={styles.locationContainer}>
-              <Ionicons
-                name="location-outline"
-                size={24}
-                color={colors.primary}
-              />
-              <AppText style={styles.locationText}>Your Location</AppText>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Notifications')}
+        {/* Services Header */}
+        <View style={styles.categoryHeader}>
+          <Text style={styles.helpText}>
+            Select Services{' '}
+            <Text style={styles.minimumText}>(atleast 1 existing service required)</Text>
+          </Text>
+        </View>
+
+        {/* Services List */}
+        <View style={styles.content}>
+          {addStatus === 'loading' ? (
+            <ActivityIndicator size="large" color={colors.primary} />
+          ) : (
+            <ScrollView
+              style={{ maxHeight: 180 }}
+              showsVerticalScrollIndicator={false}
             >
-              <Ionicons
-                name="notifications-outline"
-                size={24}
-                color={colors.primary}
-              />
-            </TouchableOpacity>
-          </View>
-
-          {/* Services Header */}
-          <View style={styles.categoryHeader}>
-            <AppText style={styles.helpText}>
-              Select Service{' '}
-              <AppText style={styles.minimumText}>
-                (atleast 1 existing service required)
-              </AppText>
-            </AppText>
-          </View>
-
-          {/* Search */}
-          <SearchBar
-            placeholder='Try "Mount TV" or "leaky tap"'
-            onPress={() => {
-              navigation.navigate('SearchScreen', {
-                type: 'selection',
-                onSelect: selectedItem => {
-                  selectedSearch(selectedItem);
-                },
-              });
-            }}
-          />
-
-          {/* Selected Services */}
-          <View style={{ marginTop: 16 }}>
-            {selectedServices.length > 0 && (
               <View
                 style={{
-                  padding: 10,
-                  backgroundColor: '#f0f0f0',
-                  borderRadius: 8,
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  paddingHorizontal: 8,
                 }}
               >
-                <AppText style={{ fontWeight: 'bold' }}>
-                  Selected Services ({selectedServices.length})
-                </AppText>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                    marginTop: 8,
-                  }}
-                >
-                  {selectedServices.map(service => (
-                    <View
-                      key={service.id}
-                      style={{
-                        paddingHorizontal: 12,
-                        paddingVertical: 6,
-                        margin: 4,
-                        backgroundColor: '#e0e0e0',
-                        borderRadius: 20,
-                      }}
-                    >
-                      <AppText>{service.name}</AppText>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
-          </View>
-
-          {/* Services List */}
-          <View style={styles.content}>
-            {status === 'loading' ? (
-              <ActivityIndicator size="large" color={colors.primary} />
-            ) : (
-              <FlatList
-                data={categories}
-                keyExtractor={item => item.id.toString()}
-                renderItem={renderCategory}
-                extraData={selectedServiceIds}
-                scrollEnabled={false} // Disable inner scroll, rely on ScrollView
-              />
-            )}
-          </View>
-
-          {/* Add Custom Button */}
-          <TouchableOpacity
-            style={styles.addCustomRoundButton}
-            onPress={() => setShowCustomInput(prev => !prev)}
-          >
-            <Ionicons name="add" size={20} color={colors.primary} />
-            <AppText style={styles.addCustomText}>Add Custom</AppText>
-          </TouchableOpacity>
-
-          {/* Custom Input Field */}
-          {showCustomInput && (
-            <View style={styles.customInputRow}>
-              <TextInput
-                placeholder="Enter custom service name"
-                placeholderTextColor="#888"
-                style={styles.customInput}
-                value={customService}
-                onChangeText={setCustomService}
-              />
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={handleAddCustomService}
-              >
-                <AppText style={styles.addButtonText}>Add Service</AppText>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* Custom Services */}
-          {customServices.length > 0 && (
-            <View style={styles.customServicesContainer}>
-              <AppText style={styles.customServicesTitle}>Custom Services</AppText>
-              <View style={styles.cardWrapContainer}>
-                {customServices.map(service => (
-                  <ServicesCard
-                    key={service.name}
-                    item={service}
-                    isSelected={selectedCustomServiceNames.includes(
-                      service.name,
-                    )}
-                    onToggleSelect={() =>
-                      toggleSelectCustomService(service.name)
-                    }
-                  />
+                {allServices.map(item => (
+                  <View
+                    key={item.id.toString()}
+                    style={{
+                      marginRight: 8,
+                      marginBottom: 8,
+                    }}
+                  >
+                    <ServicesCard
+                      item={item}
+                      isSelected={selectedServiceIds.includes(item.id)}
+                      onToggleSelect={() => toggleSelectService(item.id)}
+                    />
+                  </View>
                 ))}
               </View>
-            </View>
+            </ScrollView>
           )}
-
-          {/* Log Button */}
-          <TouchableOpacity
-            style={[
-              styles.logButton,
-              {
-                backgroundColor:
-                  selectedServiceIds.length >= 1 ? colors.primary : '#ccc',
-              },
-            ]}
-            onPress={handleLogSelected}
-            disabled={selectedServiceIds.length < 1}
-          >
-            <AppText style={styles.logButtonText}>Add services</AppText>
-          </TouchableOpacity>
         </View>
-        {isLoading && <AppActivityIndicator />}
-      </ScrollView>
-      <CustomToast
-        visible={toastVisible}
-        message={toastMessage}
-        type={toastType}
-        onHide={() => setToastVisible(false)}
-      />
-    </KeyboardAvoidingView>
-  </TouchableWithoutFeedback>
-);
 
+        {/* Add Custom Button */}
+        <TouchableOpacity
+          style={styles.addCustomRoundButton}
+          onPress={() => setShowCustomInput(prev => !prev)}
+        >
+          <Ionicons name="add" size={20} color={colors.primary} />
+          <Text style={styles.addCustomText}>Add Custom</Text>
+        </TouchableOpacity>
+
+        {/* Custom Input Field */}
+        {showCustomInput && (
+          <View style={styles.customInputRow}>
+            <TextInput
+              placeholder="Enter custom service name"
+              placeholderTextColor="#888"
+              style={styles.customInput}
+              value={customService}
+              onChangeText={setCustomService}
+            />
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={handleAddCustomService}
+            >
+              <Text style={styles.addButtonText}>Add Service</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Log Button */}
+        <TouchableOpacity
+          style={[
+            styles.logButton,
+            {
+              backgroundColor:
+                selectedServiceIds.length >= 1 ? colors.primary : '#ccc',
+            },
+          ]}
+          onPress={handleLogSelected}
+          disabled={selectedServiceIds.length < 1}
+        >
+          <Text style={styles.logButtonText}>Add services</Text>
+        </TouchableOpacity>
+        <CustomToast
+          visible={toastVisible}
+          message={toastMessage}
+          type={toastType}
+          onHide={() => setToastVisible(false)}
+        />
+      </View>
+    </TouchableWithoutFeedback>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -529,37 +314,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'gray',
     fontWeight: 'normal',
-  },
-  categoryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    marginTop: 12,
-  },
-
-  categoryTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  customServicesContainer: {
-    marginTop: 20,
-    paddingHorizontal: 16,
-  },
-
-  customServicesTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: colors.primary,
-  },
-  cardWrapContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10, // optional spacing between cards (RN 0.71+)
   },
 });
 

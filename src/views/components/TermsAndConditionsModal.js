@@ -2,86 +2,86 @@ import React from 'react';
 import {
   Modal,
   View,
+  Text,
   StyleSheet,
   TouchableWithoutFeedback,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
 import colors from '../../config/colors';
-import AppText from './AppText';
+
 const TermsAndConditionsModal = ({ visible, onClose }) => {
-return (
-  <Modal
-    visible={visible}
-    animationType="fade"
-    transparent
-    onRequestClose={onClose}
-  >
-    <TouchableWithoutFeedback onPress={onClose}>
-      <View style={styles.overlay}>
-        <TouchableWithoutFeedback>
-          <View style={styles.modalContainer}>
-            <AppText style={styles.title}>Terms & Conditions</AppText>
-            <ScrollView style={styles.content}>
-              <AppText style={styles.sectionTitle}>1. Introduction</AppText>
-              <AppText style={styles.paragraph}>
-                Welcome to <AppText style={styles.highlight}>Neighbourly</AppText>. By accessing or using our app,
-                you agree to be bound by these terms. Neighbourly connects users with trusted service providers
-                like plumbers, electricians, and other home services.
-              </AppText>
+  return (
+    <Modal
+      visible={visible}
+      animationType="fade"
+      transparent
+      onRequestClose={onClose}
+    >
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.overlay}>
+          <TouchableWithoutFeedback>
+            <View style={styles.modalContainer}>
+              <Text style={styles.title}>Terms & Conditions</Text>
+              <ScrollView style={styles.content}>
+                <Text style={styles.sectionTitle}>1. Introduction</Text>
+                <Text style={styles.paragraph}>
+                  Welcome to <Text style={styles.highlight}>Neighbourly</Text>. By accessing or using our app,
+                  you agree to be bound by these terms. Neighbourly connects users with trusted service providers
+                  like plumbers, electricians, and other home services.
+                </Text>
 
-              <AppText style={styles.sectionTitle}>2. User Responsibilities</AppText>
-              <AppText style={styles.paragraph}>
-                Users must provide accurate information, treat service providers with respect, and not misuse
-                the platform for any illegal activity.
-              </AppText>
+                <Text style={styles.sectionTitle}>2. User Responsibilities</Text>
+                <Text style={styles.paragraph}>
+                  Users must provide accurate information, treat service providers with respect, and not misuse
+                  the platform for any illegal activity.
+                </Text>
 
-              <AppText style={styles.sectionTitle}>3. Service Providers</AppText>
-              <AppText style={styles.paragraph}>
-                All professionals listed on Neighbourly are independent contractors. While we aim to verify each
-                profile, Neighbourly is not liable for any service outcome.
-              </AppText>
+                <Text style={styles.sectionTitle}>3. Service Providers</Text>
+                <Text style={styles.paragraph}>
+                  All professionals listed on Neighbourly are independent contractors. While we aim to verify each
+                  profile, Neighbourly is not liable for any service outcome.
+                </Text>
 
-              <AppText style={styles.sectionTitle}>4. Payments</AppText>
-              <AppText style={styles.paragraph}>
-                Payments for services must be made through the app’s secure gateway. Neighbourly does not store
-                credit/debit card details.
-              </AppText>
+                <Text style={styles.sectionTitle}>4. Payments</Text>
+                <Text style={styles.paragraph}>
+                  Payments for services must be made through the app’s secure gateway. Neighbourly does not store
+                  credit/debit card details.
+                </Text>
 
-              <AppText style={styles.sectionTitle}>5. Cancellation Policy</AppText>
-              <AppText style={styles.paragraph}>
-                Cancellations must be made at least 2 hours prior to the appointment. Frequent cancellations may
-                lead to account suspension.
-              </AppText>
+                <Text style={styles.sectionTitle}>5. Cancellation Policy</Text>
+                <Text style={styles.paragraph}>
+                  Cancellations must be made at least 2 hours prior to the appointment. Frequent cancellations may
+                  lead to account suspension.
+                </Text>
 
-              <AppText style={styles.sectionTitle}>6. Limitation of Liability</AppText>
-              <AppText style={styles.paragraph}>
-                Neighbourly is not responsible for any direct or indirect damages arising from service use. Users
-                agree to use the app at their own risk.
-              </AppText>
+                <Text style={styles.sectionTitle}>6. Limitation of Liability</Text>
+                <Text style={styles.paragraph}>
+                  Neighbourly is not responsible for any direct or indirect damages arising from service use. Users
+                  agree to use the app at their own risk.
+                </Text>
 
-              <AppText style={styles.sectionTitle}>7. Changes to Terms</AppText>
-              <AppText style={styles.paragraph}>
-                We may update these terms from time to time. Continued use of the app after changes implies
-                acceptance.
-              </AppText>
+                <Text style={styles.sectionTitle}>7. Changes to Terms</Text>
+                <Text style={styles.paragraph}>
+                  We may update these terms from time to time. Continued use of the app after changes implies
+                  acceptance.
+                </Text>
 
-              <AppText style={styles.sectionTitle}>8. Contact Us</AppText>
-              <AppText style={styles.paragraph}>
-                For questions or concerns about these terms, please contact us at support@neighbourly.app.
-              </AppText>
-            </ScrollView>
+                <Text style={styles.sectionTitle}>8. Contact Us</Text>
+                <Text style={styles.paragraph}>
+                  For questions or concerns about these terms, please contact us at support@neighbourly.app.
+                </Text>
+              </ScrollView>
 
-            <TouchableOpacity style={styles.button} onPress={onClose}>
-              <AppText style={styles.buttonText}>Close</AppText>
-            </TouchableOpacity>
-          </View>
-        </TouchableWithoutFeedback>
-      </View>
-    </TouchableWithoutFeedback>
-  </Modal>
-);
-
+              <TouchableOpacity style={styles.button} onPress={onClose}>
+                <Text style={styles.buttonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
+  );
 };
 
 export default TermsAndConditionsModal;

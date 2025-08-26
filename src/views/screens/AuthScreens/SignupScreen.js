@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Text,
   Alert,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,88 +22,75 @@ import CheckBox from '@react-native-community/checkbox';
 import TermsAndConditionsModal from '../../components/TermsAndConditionsModal';
 import CircularImagePicker from '../../components/CircularImagePicker';
 import colors from '../../../config/colors';
-import PasswordChecklist from '../../components/PasswordChecklist';
-import AppText from '../../components/AppText';
+
 const validationSchema = Yup.object().shape({
   fullName: Yup.string().required('Full name is required'),
-  screenName: Yup.string().required('Screen name is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
   countryCode: Yup.string().required('Country code is required'),
   phoneNumber: Yup.string().required('Phone number is required'),
+  longitude: Yup.string().required('Longitude is required'),
+  latitude: Yup.string().required('Latitude is required'),
   address: Yup.string().required('Address is required'),
-
-  password: Yup.string()
-    .matches(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
-    .matches(/[a-z]/, 'Password must contain at least 1 lowercase letter')
-    .matches(/\d/, 'Password must contain at least 1 number')
-    .matches(/[@$!%*?&]/, 'Password must contain at least 1 special character')
-    .min(8, 'Password must be at least 8 characters long')
-    .required('Password is required'),
-
+  password: Yup.string().min(6).required('Password is required'),
+  
   confirmPassword: Yup.string()
     .oneOf([Yup.ref('password')], 'Passwords must match')
     .required('Confirm password is required'),
 });
 
-const SignupScreen = ({ navigation, route }) => {
-  const { accountType } = route.params;
-
+const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { loading, success, error, user } = useSelector(
-    state => state.register,
-  );
-  const [toastVisible, setToastVisible] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState('success');
+  const { loading, success, error, user } = useSelector(state => state.register);
+   const [toastVisible, setToastVisible] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState('success');
   const [profileImage, setProfileImage] = useState(null);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
+
   useEffect(() => {
     console.log('🟢 useEffect check:', { success, user, error });
-
+  
     if (success && user) {
       console.log('✅ Navigating to OTPScreen with:', user);
-
+  
       setToastMessage('Please verify your email via OTP.');
       setToastType('success');
       setToastVisible(true);
-
+  
       setTimeout(() => {
         navigation.replace('OTPScreen', {
           userId: user.id,
           email: user.email,
           otp: user.otp,
-          context: 'auth',
+          context : 'auth',
         });
         dispatch(resetRegisterState());
-      }, 1000);
+      }, 1000); 
     } else if (error) {
       console.log('❌ Registration error:', error);
-
+  
       const formattedMessage =
         typeof error.message === 'object'
           ? Object.values(error.message).flat().join('\n')
           : error.message;
-
+  
       // ✅ Show error toast
       setToastMessage(formattedMessage || 'Something went wrong.');
       setToastType('error');
       setToastVisible(true);
-
+  
       dispatch(resetRegisterState());
     }
   }, [success, user, error, dispatch, navigation]);
-
+  
   const handleSignup = values => {
     if (!agreeTerms) {
-      Alert.alert(
-        'Terms Required',
-        'You must agree to the terms and conditions.',
-      );
+      Alert.alert('Terms Required', 'You must agree to the terms and conditions.');
       return;
     }
-
+  
     const payload = {
       name: values.fullName,
       email: values.email,
@@ -111,17 +99,17 @@ const SignupScreen = ({ navigation, route }) => {
       phone: values.phoneNumber,
       country_code: values.countryCode,
       location: values.address,
-      location_lng: '0.0',
-      location_lat: '0.0',
-      slug: values.screenName,
-      role: accountType,
+      location_lng: values.longitude,
+      location_lat: values.latitude,
+      role: 'consumer',
       image: profileImage, // pass raw image object
     };
-     
+  
     console.log('📤 Sending payload to thunk:', payload);
     dispatch(registerUser(payload));
     console.log('✅ registerUser dispatched');
   };
+  
 
   return (
     <KeyboardAvoidingView
@@ -136,9 +124,7 @@ const SignupScreen = ({ navigation, route }) => {
       >
         <CrossIconButton
           onPress={() =>
-            navigation.canGoBack()
-              ? navigation.goBack()
-              : navigation.navigate('Login')
+            navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Welcome')
           }
           size={22}
           color="#212529"
@@ -150,25 +136,19 @@ const SignupScreen = ({ navigation, route }) => {
         <Formik
           initialValues={{
             fullName: '',
-            screenName: '',
             email: '',
             address: '',
             countryCode: '',
             phoneNumber: '',
+            longitude: '',
+            latitude: '',
             password: '',
             confirmPassword: '',
           }}
           validationSchema={validationSchema}
           onSubmit={handleSignup}
         >
-          {({
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            values,
-            errors,
-            touched,
-          }) => (
+          {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
             <View style={styles.formContainer}>
               <CustomTextInput
                 label="Full Name"
@@ -178,15 +158,6 @@ const SignupScreen = ({ navigation, route }) => {
                 onBlur={handleBlur('fullName')}
                 placeholder="Enter your Full Name"
                 error={touched.fullName && errors.fullName}
-              />
-              <CustomTextInput
-                label="Screen Name"
-                required
-                value={values.screenName}
-                onChangeText={handleChange('screenName')}
-                onBlur={handleBlur('screenName')}
-                placeholder="Enter your Screen Name"
-                error={touched.screenName && errors.screenName}
               />
 
               <CustomTextInput
@@ -201,7 +172,27 @@ const SignupScreen = ({ navigation, route }) => {
               />
 
               <CustomTextInput
-                label="Location"
+                label="Longitude"
+                required
+                value={values.longitude}
+                onChangeText={handleChange('longitude')}
+                onBlur={handleBlur('longitude')}
+                placeholder="Enter longitude"
+                error={touched.longitude && errors.longitude}
+              />
+
+              <CustomTextInput
+                label="Latitude"
+                required
+                value={values.latitude}
+                onChangeText={handleChange('latitude')}
+                onBlur={handleBlur('latitude')}
+                placeholder="Enter latitude"
+                error={touched.latitude && errors.latitude}
+              />
+
+              <CustomTextInput
+                label="Address"
                 required
                 value={values.address}
                 onChangeText={handleChange('address')}
@@ -225,7 +216,6 @@ const SignupScreen = ({ navigation, route }) => {
 
               <CustomTextInput
                 label="Password"
-                showError={false}
                 required
                 value={values.password}
                 onChangeText={handleChange('password')}
@@ -234,7 +224,7 @@ const SignupScreen = ({ navigation, route }) => {
                 secureTextEntry
                 error={touched.password && errors.password}
               />
-              <PasswordChecklist password={values.password} />
+
               <CustomTextInput
                 label="Confirm Password"
                 required
@@ -252,15 +242,12 @@ const SignupScreen = ({ navigation, route }) => {
                   onValueChange={setAgreeTerms}
                   tintColors={{ true: colors.primary, false: '#999' }}
                 />
-                <AppText style={styles.termsText}>
+                <Text style={styles.termsText}>
                   I agree to the{' '}
-                  <AppText
-                    style={styles.link}
-                    onPress={() => setModalVisible(true)}
-                  >
+                  <Text style={styles.link} onPress={() => setModalVisible(true)}>
                     Terms & Conditions
-                  </AppText>
-                </AppText>
+                  </Text>
+                </Text>
               </View>
 
               <TermsAndConditionsModal
@@ -270,7 +257,7 @@ const SignupScreen = ({ navigation, route }) => {
 
               <AppButton
                 title={loading ? 'Registering...' : 'Sign Up'}
-                onPress={() => {
+                onPress={() =>{
                   console.log('🔘 Formik handleSubmit triggered');
                   handleSubmit();
                 }}
@@ -283,11 +270,11 @@ const SignupScreen = ({ navigation, route }) => {
           )}
         </Formik>
         <CustomToast
-          visible={toastVisible}
-          message={toastMessage}
-          type={toastType}
-          onHide={() => setToastVisible(false)}
-        />
+        visible={toastVisible}
+        message={toastMessage}
+        type={toastType}
+        onHide={() => setToastVisible(false)}
+      />
       </ScrollView>
     </KeyboardAvoidingView>
   );
