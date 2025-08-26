@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  Text,
 } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -19,11 +20,17 @@ import CustomToast from '../../../components/CustomToast';
 import config from '../../../../config';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateProfile } from '../../../../redux/thunks/auth/updateProfileThunk';
-import PhoneNumberInput from '../../../components/PhoneNumberInput'; // Adjust the import path as needed
+import { checkSlug } from '../../../../redux/thunks/auth/registerThunks';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import PhoneNumberInput from '../../../components/PhoneNumberInput';
 
 const validationSchema = Yup.object().shape({
   fullName: Yup.string().required('Full Name is required'),
-  screenName: Yup.string().required('Screen Name is required'),
+  screenName: Yup.string()
+    .required('Screen Name is required')
+    .min(3, 'Minimum 3 characters')
+    .max(20, 'Maximum 20 characters')
+    .matches(/^[a-z0-9]+$/, 'Only lowercase letters and numbers allowed'),
   email: Yup.string().email('Invalid email').required('Email is required'),
   address: Yup.string().required('Address is required'),
   phoneNumber: Yup.string().required('Phone number is required'),
@@ -39,6 +46,10 @@ const UpdateProfileScreen = ({ navigation }) => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [slugAvailable, setSlugAvailable] = useState(null);
+  const [slugLoading, setSlugLoading] = useState(false);
+  const slugTimeout = useRef(null);
 
   const handleProfileUpdate = async values => {
     try {
@@ -56,18 +67,13 @@ const UpdateProfileScreen = ({ navigation }) => {
         },
       };
 
-      // 🔄 Update profile
       await dispatch(updateProfile(payload)).unwrap();
-
-      // ✅ Re-fetch profile after successful update
       await dispatch(fetchUserProfile(user?.id));
 
-      // ✅ Show success toast
       setToastMessage('Profile updated successfully');
       setToastType('success');
       setToastVisible(true);
 
-      // ⏳ Wait then go back
       setTimeout(() => {
         navigation.goBack();
       }, 1000);
@@ -78,6 +84,35 @@ const UpdateProfileScreen = ({ navigation }) => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const debounceCheckSlug = (slug, userId) => {
+    if (slugTimeout.current) clearTimeout(slugTimeout.current);
+
+    slugTimeout.current = setTimeout(() => {
+      if (slug.trim().length < 3) {
+        setSlugAvailable(null);
+        return;
+      }
+
+      setSlugLoading(true);
+      dispatch(checkSlug({ slug, user_id: userId || null }))
+        .unwrap()
+        .then(res => {
+          console.log('✅ SLUG CHECK RESPONSE:', res);
+          if (res.success && res.statusCode === 200) {
+            setSlugAvailable(true);
+          } else {
+            setSlugAvailable(false);
+          }
+        })
+        .catch(() => {
+          setSlugAvailable(false);
+        })
+        .finally(() => {
+          setSlugLoading(false);
+        });
+    }, 500);
   };
 
   return (
@@ -139,15 +174,31 @@ const UpdateProfileScreen = ({ navigation }) => {
                 placeholder="Enter your full name"
                 error={touched.fullName && errors.fullName}
               />
-              <CustomTextInput
+
+                       <CustomTextInput
                 label="Screen Name"
                 required
                 value={values.screenName}
-                onChangeText={handleChange('screenName')}
+                onChangeText={text => {
+                  handleChange('screenName')(text);
+                  setSlugAvailable(null); // reset
+                  debounceCheckSlug(text);
+                }}
                 onBlur={handleBlur('screenName')}
-                placeholder="Enter your screen name"
+                placeholder="Enter your Screen Name"
                 error={touched.screenName && errors.screenName}
+                rightIcon={
+                  slugLoading ? (
+                    <ActivityIndicator size="small" color={colors.primary} />
+                  ) : slugAvailable === true ? (
+                    <Ionicons name="checkmark-circle" size={20} color="green" />
+                  ) : slugAvailable === false ? (
+                    <Ionicons name="close-circle" size={20} color="red" />
+                  ) : null
+                }
               />
+
+
               <CustomTextInput
                 label="Email"
                 required
@@ -168,6 +219,7 @@ const UpdateProfileScreen = ({ navigation }) => {
                 placeholder="Enter your address"
                 error={touched.address && errors.address}
               />
+
               <PhoneNumberInput
                 label="Phone Number"
                 countryCode={values.countryCode}
@@ -180,12 +232,13 @@ const UpdateProfileScreen = ({ navigation }) => {
                   (touched.phoneNumber && errors.phoneNumber)
                 }
               />
+
               <AppButton
                 title="Update Profile"
                 onPress={handleSubmit}
                 btnStyles={styles.loginButton}
                 textStyle={styles.buttonText}
-                disabled={isSubmitting}
+                disabled={isSubmitting || slugAvailable === false}
               />
             </View>
           )}
@@ -252,5 +305,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 999,
+  },
+  screenNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statusIcon: {
+    marginLeft: 10,
   },
 });

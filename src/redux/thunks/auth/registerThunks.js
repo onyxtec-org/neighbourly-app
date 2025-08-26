@@ -18,6 +18,7 @@ export const registerUser = createAsyncThunk(
       formData.append('location_lng', userData.location_lng ?? '');
       formData.append('location_lat', userData.location_lat ?? '');
       formData.append('role', userData.role ?? 'consumer');
+      formData.append('slug', userData.slug ?? '');
 
       if (userData.image?.uri) {
         const filename = userData.image.uri.split('/').pop();
@@ -34,6 +35,8 @@ export const registerUser = createAsyncThunk(
         console.log(`${pair[0]}:`, pair[1]);
       }
 
+
+      
       const response = await apiClient.post('/register', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -55,6 +58,43 @@ export const registerUser = createAsyncThunk(
       const message =
         error.response?.data?.message || error.message || 'Unexpected error';
 
+      return rejectWithValue({
+        message,
+        data: error.response?.data?.data,
+      });
+    }
+  }
+);
+
+
+
+export const checkSlug = createAsyncThunk(
+  'register/checkSlug',
+  async ({ slug, user_id = null }, { rejectWithValue }) => {
+    try {
+      // ✅ Build query params
+      const params = new URLSearchParams();
+      params.append('slug', slug);
+      if (user_id) {
+        params.append('user_id', user_id);
+      }
+
+      const response = await apiClient.get(`/check-slug?${params.toString()}`);
+
+      const res = response.data;
+      console.log('✅ SLUG CHECK RESPONSE:', res);
+
+      if (!res.success) {
+        return rejectWithValue({
+          message: res.message || 'Slug check failed',
+          data: res.data || null,
+        });
+      }
+
+      return res;
+    } catch (error) {
+      const message =
+        error.response?.data?.message || error.message || 'Unexpected error';
       return rejectWithValue({
         message,
         data: error.response?.data?.data,
