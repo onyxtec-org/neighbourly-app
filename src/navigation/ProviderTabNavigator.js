@@ -47,8 +47,8 @@ const ProviderTabNavigator = () => {
     >
       <Tab.Screen name="Dashboard" component={ProviderNavigator} />
       {/* <Tab.Screen name="MyServices" component={MyServicesScreen} /> */}
-      <Tab.Screen name="Stage" component={StageScreen} />
       <Tab.Screen name="Jobs" component={JobsScreen} />
+      <Tab.Screen name="Stage" component={StageScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

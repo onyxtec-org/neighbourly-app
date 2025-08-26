@@ -15,6 +15,7 @@ import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice'; // <
 import { useDispatch, useSelector } from 'react-redux';
 import { useCallback, useState } from 'react';
 import ZoomableImage from '../../components/ZoomableImage';
+import Header from '../../components/Header';
 
 const AccountScreen = ({ navigation, route }) => {
   const { userId } = route.params; // user id passed from StageScreen
@@ -23,6 +24,8 @@ const AccountScreen = ({ navigation, route }) => {
   const [profile, setProfile] = useState(null);
   const { user: status } = useSelector(state => state.profile); // logged-in user
   const aauthUser = useSelector(state => state.login.user);
+
+  console.log('auth user-', aauthUser);
 
   useFocusEffect(
     useCallback(() => {
@@ -35,23 +38,13 @@ const AccountScreen = ({ navigation, route }) => {
   return (
     <ScrollView style={styles.container}>
       {/* Header with Back Button and Edit Icon */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Icon name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile Details</Text>
-        {isAuthUser && (
-          <TouchableOpacity
-            onPress={() => navigation.navigate('UpdateProfileScreen')}
-            style={styles.editButton}
-          >
-            <Icon name="create-outline" size={24} color="#000" />
-          </TouchableOpacity>
-        )}
-      </View>
+      <Header
+        title={'Profile Details'}
+        bookmark={false}
+        onIconPress={() => navigation.navigate('UpdateProfileScreen')}
+        icon={'create-outline'}
+        isIcon={!!isAuthUser}
+      />
 
       <View style={styles.profileSummary}>
         <View style={{ alignItems: 'center' }}>
@@ -156,29 +149,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    paddingTop: 25,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-  },
-  backButton: {
-    paddingRight: 10,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#111827',
-    flex: 1,
-    textAlign: 'center',
-  },
-  editButton: {
-    paddingLeft: 10,
   },
   profileSummary: {
     alignItems: 'center',
