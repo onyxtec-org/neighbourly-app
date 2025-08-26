@@ -11,11 +11,14 @@ import { useCallback, useState } from 'react';
 import ZoomableImage from '../../../components/ImageComponent/ZoomableImage';
 import Header from '../../../components/HeaderComponent/Header';
 import AppText from '../../../components/AppText';
+import colors from '../../../../config/colors';
 const AccountScreen = ({ navigation, route }) => {
   const { userId } = route.params; // user id passed from StageScreen
   const dispatch = useDispatch();
   const [profile, setProfile] = useState(null);
   const { status, user } = useSelector(state => state.profile);
+    const { myServices } = useSelector(state => state.services);
+
   const aauthUser = user.id;
 
   useFocusEffect(
@@ -35,7 +38,7 @@ const AccountScreen = ({ navigation, route }) => {
         bookmark={false}
         onIconPress={() => navigation.navigate('UpdateProfileScreen')}
         icon={'create-outline'}
-        isIcon={isAuthUser}
+        isIcon={!!isAuthUser}
       />
 
       <View style={styles.profileSummary}>
@@ -132,6 +135,36 @@ const AccountScreen = ({ navigation, route }) => {
           </View>
         </View>
         {/* My Services Card */}
+        {user.role==='provider' && <View style={styles.card}>
+          <View style={{flexDirection:'row',justifyContent:"space-between",alignItems:'flex-start'}}>
+         {isAuthUser && <AppText style={styles.cardTitle}>My Services</AppText>}
+          <Icon name={'create-outline'} color={colors.black} pressed={true} onPress={()=>navigation.navigate('EditServices')}/>
+            </View>
+          {myServices && myServices.length > 0 ? (
+            myServices.map((service, index) => (
+              <View key={index}>
+                <View style={styles.infoRow}>
+                  <Icon name="construct-outline" size={20} color="#888" />
+                  <View style={styles.textContainer}>
+                    <AppText style={styles.value}>
+                      {service.name || 'Unnamed Service'}
+                    </AppText>
+                  </View>
+                </View>
+                {index < myServices.length - 1 && (
+                  <View style={styles.divider} />
+                )}
+              </View>
+            ))
+          ) : (
+            <View style={styles.infoRow}>
+              <Icon name="alert-circle-outline" size={20} color="#888" />
+              <View style={styles.textContainer}>
+                <AppText style={styles.value}>No services found</AppText>
+              </View>
+            </View>
+          )}
+        </View>}
       </View>
     </ScrollView>
   );

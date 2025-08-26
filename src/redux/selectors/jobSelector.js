@@ -12,7 +12,7 @@ export const selectJobsByTab = (tabKey, role) =>
           );
         case 'my_jobs': // "To Start"
           return jobs.filter(
-            job => job.status === 'open' && job.accepted_offer !== null,
+            job => job.status === 'scheduled',
           );
         case 'in_progress':
           return jobs.filter(job => job.status === 'in_progress');
@@ -38,12 +38,8 @@ export const selectJobsByTab = (tabKey, role) =>
                 job.my_offer?.id !== job.accepted_offer?.id),
           );
         case 'my_jobs':
-          return jobs.filter(
-            job =>
-              job.status === 'open' &&
-              job.my_offer !== null &&
-              job.accepted_offer != null &&
-              job.my_offer?.id === job.accepted_offer?.id,
+         return jobs.filter(
+            job => job.status === 'scheduled',
           );
         case 'in_progress':
           return jobs.filter(job => job.status === 'in_progress');
