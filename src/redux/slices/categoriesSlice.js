@@ -8,7 +8,6 @@ export const fetchCategories = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiClient.get('/categories');
-        console.log('categories',response.data);
         
       const { success, data } = response.data;
       if (success && data.categories) {

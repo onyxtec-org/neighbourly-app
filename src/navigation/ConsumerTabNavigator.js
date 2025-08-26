@@ -12,14 +12,14 @@ const Tab = createBottomTabNavigator();
 const ConsumerTabNavigator = () => {
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="Dashboard"
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
           switch (route.name) {
-            case 'Home':
+            case 'Dashboard':
               iconName = 'home-outline';
               break;
             case 'Jobs':
@@ -47,7 +47,7 @@ const ConsumerTabNavigator = () => {
         },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Dashboard" component={HomeScreen} />
       <Tab.Screen name="Jobs" component={TaskScreen} />
       <Tab.Screen name="Stage" component={StageScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />

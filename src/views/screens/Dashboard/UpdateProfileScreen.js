@@ -95,7 +95,7 @@ const UpdateProfileScreen = ({ navigation }) => {
           onPress={() =>
             navigation.canGoBack()
               ? navigation.goBack()
-              : navigation.navigate('Home')
+              : navigation.navigate('Dashboard')
           }
           size={22}
           color="#212529"

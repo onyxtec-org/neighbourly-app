@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import StatusBox from './StatusBox';
 import { useSelector } from 'react-redux';
+import { formatStatusText } from '../../../utils/stringHelpers';
 
 const isAndroid = Platform.OS === 'android';
 
@@ -38,7 +39,6 @@ function JobCard({
     <TouchableOpacity
       style={[styles.container, { height: cardHeight }]}
       onPress={() => onPress(item.id, status, item)}
-      onPress={() => onPress(item.id, status, item)}
     >
       <View style={[styles.contentContainer, { width: '75%' }]}>
         {/* Title */}
@@ -47,7 +47,11 @@ function JobCard({
           ellipsizeMode="tail"
           style={[
             styles.title,
-            { fontSize: titleFont, lineHeight: titleFont * 1.2, paddingBottom: 2 },
+            {
+              fontSize: titleFont,
+              lineHeight: titleFont * 1.2,
+              paddingBottom: 2,
+            },
           ]}
         >
           {item.title}
@@ -123,33 +127,34 @@ function JobCard({
       </View>
 
       <View style={styles.header}>
-        <View>
-          <StatusBox
-            color={colors.statusColors(item.status)}
-            text={item.status}
-          />
+        <StatusBox
+          color={colors.statusColors(item.status)}
+          text={
+            item.my_offer && item.accepted_offer === null
+              ? formatStatusText(item.my_offer.status)
+              : formatStatusText(item.status)
+          }
+        />
 
-          {/* Action Buttons */}
-          {profileUser.role === 'provider' && item.my_offer === null && (
-            <View style={styles.actionsColumn}>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.offerButton]}
-                onPress={() => onInterestedPress(item.id, item.price_type)}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.actionButtonText}>Offer</Text>
-              </TouchableOpacity>
+        {profileUser.role === 'provider' && item.my_offer === null && (
+          <View style={styles.actionsColumn}>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.offerButton]}
+              onPress={() => onInterestedPress(item.id, item.price_type)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.actionButtonText}>Offer</Text>
+            </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[styles.actionButton, styles.rejectButton]}
-                onPress={() => onRejectedPress(item.id, 'rejected')}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.actionButtonText}>Reject</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.rejectButton]}
+              onPress={() => onRejectedPress(item.id, 'rejected')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.actionButtonText}>Reject</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -205,7 +210,7 @@ const styles = StyleSheet.create({
   actionsColumn: {
     flexDirection: 'column',
     gap: 10, // better spacing
-    marginTop: 10,
+    marginTop: 30,
   },
   actionButton: {
     paddingVertical: 5,

@@ -29,11 +29,11 @@ function StatusBox({color, text}) {
 
 const styles = StyleSheet.create({
  statusBox: {
-    width: isAndroid?70:80,
-    height: isAndroid?20:30,
-    borderRadius:isAndroid?10:20,
+   
+    borderRadius:30,
     alignItems:'center',
     justifyContent:'center',
+    padding:10
   },
   statusText: {
     fontSize: 10,
