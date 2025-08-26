@@ -1,14 +1,18 @@
 // export default CreateStageScreen;
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, ScrollView } from 'react-native';
 import MediaPicker from '../../../components/Mediapicker/MediaPicker';
 import colors from '../../../../config/colors';
 import CustomTextInput from '../../../components/CustomTextInput';
 import AppButton from '../../../components/ButtonComponents/AppButton';
 import { useDispatch, useSelector } from 'react-redux';
-import { createPost, getPosts } from '../../../../redux/slices/stageSlice/postSlice';
+import {
+  createPost,
+  getPosts,
+} from '../../../../redux/slices/stageSlice/postSlice';
 import AppText from '../../../components/AppText';
 import Header from '../../../components/HeaderComponent/Header';
+import CustomDropdown from '../../../components/customdropdown';
 const CreateStageScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector(state => state.post);
@@ -17,7 +21,21 @@ const CreateStageScreen = ({ navigation }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [submitted, setSubmitted] = useState(false);
-
+  const [serviceOpen, setServiceOpen] = useState(false);
+  const [serviceValue, setServiceValue] = useState(null);
+  const [serviceItems, setServiceItems] = useState([]);
+  const {
+    myServices,
+  } = useSelector(state => state.services);
+  useEffect(() => {
+    if (myServices?.length > 0) {
+      const formattedServices = myServices.map(service => ({
+        label: service.name,
+        value: service.id,
+      }));
+      setServiceItems(formattedServices);
+    }
+  }, [myServices]);
   const handleSubmit = async () => {
     setSubmitted(true);
 
@@ -29,7 +47,7 @@ const CreateStageScreen = ({ navigation }) => {
       const formData = new FormData();
       formData.append('title', title);
       formData.append('content', description);
-
+      formData.append('service_id', serviceValue);
       media.forEach((file, index) => {
         const uri = file.uri;
         const name = uri.split('/').pop() || `media_${index}`;
@@ -71,7 +89,19 @@ const CreateStageScreen = ({ navigation }) => {
             At least one image/video is required
           </AppText>
         )}
-
+        <CustomDropdown
+          label="Select Service"
+          open={serviceOpen}
+          value={serviceValue}
+          items={serviceItems}
+          setOpen={setServiceOpen}
+          setValue={val => setServiceValue(val)}
+          setItems={setServiceItems}
+          placeholder="Select service"
+          error={submitted && !serviceValue ? 'Service is required' : ''}
+          required
+          zIndex={3000}
+        />
         <CustomTextInput
           label="Title"
           required
@@ -97,7 +127,7 @@ const CreateStageScreen = ({ navigation }) => {
         />
 
         <AppButton
-          title={loading ? 'Creating...' : 'Create Stage'}
+          title={loading ? 'Creating...' : 'Create post'}
           onPress={handleSubmit}
           disabled={loading}
           btnStyles={styles.loginButton}
@@ -143,6 +173,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: 'center',
+    marginBottom: 30,
   },
   buttonText: {
     color: colors.white,
