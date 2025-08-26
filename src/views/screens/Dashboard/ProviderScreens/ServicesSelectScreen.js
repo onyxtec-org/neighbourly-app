@@ -11,8 +11,9 @@ import {
   TextInput,
   KeyboardAvoidingView,
   ScrollView,
+  Platform,
 } from 'react-native';
-import Ionicons from '../../../components/IconComponent';
+import Ionicons from '../../../components/ImageComponent/IconComponent';
 import { useDispatch, useSelector } from 'react-redux';
 import CustomToast from '../../../components/CustomToast';
 import colors from '../../../../config/colors';
@@ -21,7 +22,7 @@ import {
   fetchServices,
   addServices,
   setMyServices,
-} from '../../../../redux/slices/servicesSlice';
+} from '../../../../redux/slices/servicesSlice/servicesSlice';
 import SearchBar from '../../../components/SearchBar';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
@@ -456,13 +457,13 @@ const styles = StyleSheet.create({
   },
   locationContainer: { flexDirection: 'row', alignItems: 'center' },
   locationText: { marginLeft: 8, fontSize: 16 },
-  categoryHeader: {
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 12,
-  },
+  // categoryHeader: {
+  //   paddingHorizontal: 16,
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-between',
+  //   alignItems: 'center',
+  //   marginTop: 12,
+  // },
   helpText: { fontSize: 18, fontWeight: 'bold' },
   seeAllText: { fontSize: 14, color: colors.primary },
   content: { paddingLeft: 8, marginTop: 12 },

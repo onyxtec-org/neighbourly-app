@@ -7,7 +7,7 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
 } from 'react-native';
-import Ionicons from './IconComponent';
+import Ionicons from './ImageComponent/IconComponent';
 import colors from '../../config/colors'; // Your color file
 import AppText from './AppText';
 const { width } = Dimensions.get('window');

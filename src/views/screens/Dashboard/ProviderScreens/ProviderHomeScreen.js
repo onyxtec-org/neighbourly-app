@@ -13,9 +13,10 @@ import colors from '../../../../config/colors';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { selectJobsByTab } from '../../../../redux/selectors/jobSelector';
-import { getJobs } from '../../../../redux/slices/jobSlice';
-import AppBar from '../../../components/AppBar';
-import { fetchNotifications } from '../../../../redux/slices/notificationSlice';
+import { getJobs } from '../../../../redux/slices/jobSlice/jobSlice';
+import AppBar from '../../../components/HeaderComponent/AppBar';
+import { fetchNotifications } from '../../../../redux/slices/notificationSlice/notificationSlice';
+
 const ProviderHomeScreen = ({ navigation }) => {
   const { myServices } = useSelector(state => state.services);
   const myJobs = useSelector(selectJobsByTab('my_jobs', 'provider'));
@@ -33,7 +34,7 @@ const ProviderHomeScreen = ({ navigation }) => {
       }
 
       dispatch(getJobs());
-    }, [myServices.length, navigation]),
+    }, [dispatch, myServices?.length, navigation]),
   );
 
   useEffect(() => {

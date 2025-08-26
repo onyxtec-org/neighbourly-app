@@ -5,30 +5,30 @@ import SignupScreen from '../views/screens/AuthScreens/SignupScreen';
 import LoginScreen from '../views/screens/AuthScreens/LoginScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import ForgotPasswordScreen from '../views/screens/AuthScreens/ForgetPasswordScreen';
-import AppEntryScreen from '../views/screens/AppEntryScreen';
+import AppEntryScreen from '../views/screens/AuthScreens/AppEntryScreen';
 import OTPScreen from '../views/screens/AuthScreens/OTPScreen';
 import WelcomeScreen from '../views/screens/AuthScreens/WelcomeScreen';
-import JobCreateScreen from '../views/screens/Dashboard/JobCreateScreen';
+import JobCreateScreen from '../views/screens/Dashboard/jobScreens/JobCreateScreen';
 import ConsumerTabNavigator from './ConsumerTabNavigator';
-import SearchScreen from '../views/screens/Dashboard/SearchScreen'; // Import SearchScreen
-import CategoryDetailsScreen from '../views/screens/Dashboard/CategoryDetailsScreen'; // Import CategoryDetailsScreen
-import ProfileScreen from '../views/screens/Dashboard/ProfileScreen'; 
-import AccountScreen from '../views/screens/Dashboard/AccountScreen'; // Import AccountScreen
+import SearchScreen from '../views/screens/Dashboard/consumerScreens/SearchScreen'; // Import SearchScreen
+import CategoryDetailsScreen from '../views/screens/Dashboard/consumerScreens/CategoryDetailsScreen'; // Import CategoryDetailsScreen
+import ProfileScreen from '../views/screens/Dashboard/profileScreens/ProfileScreen'; 
+import AccountScreen from '../views/screens/Dashboard/profileScreens/AccountScreen'; // Import AccountScreen
 import ChangePasswordScreen from '../views/screens/AuthScreens/ChangePasswordScreen';
 import ResetPasswordScreen from '../views/screens/AuthScreens/ResetPasswordScreen'; // Import ResetPasswordScreen
-import UpdateProfileScreen from '../views/screens/Dashboard/UpdateProfileScreen'; // Import UpdateProfileScreen
-import AllCategoriesScreen from '../views/screens/Dashboard/AllCategoriesScreen'; // Import AllCategoriesScreen
+import UpdateProfileScreen from '../views/screens/Dashboard/profileScreens/UpdateProfileScreen'; // Import UpdateProfileScreen
+import AllCategoriesScreen from '../views/screens/Dashboard/consumerScreens/AllCategoriesScreen'; // Import AllCategoriesScreen
 import ProviderTabNavigator from './ProviderTabNavigator';
 import DashboardRouter from './DashboardRouter';
-import NotificationSettingsScreen from '../views/screens/Dashboard/NotificationSettingsScreen'; // Import NotificationSettingsScreen
-import PrivacyPolicyScreen from '../views/screens/Dashboard/PrivacyPolicyScreen'; // Import PrivacyPolicyScreen
-import TermsandconditionScreen from '../views/screens/Dashboard/TermsandconditionScreen'; // Import TermsandconditionScreen
-import JobDetailsScreen from '../views/screens/JobDetailsScreen';
-import OfferListScreen from '../views/screens/Dashboard/OffersScreen';
+import NotificationSettingsScreen from '../views/screens/Dashboard/notifications/NotificationSettingsScreen'; // Import NotificationSettingsScreen
+import PrivacyPolicyScreen from '../views/screens/Dashboard/profileScreens/PrivacyPolicyScreen'; // Import PrivacyPolicyScreen
+import TermsandconditionScreen from '../views/screens/Dashboard/profileScreens/TermsandconditionScreen'; // Import TermsandconditionScreen
+import JobDetailsScreen from '../views/screens/Dashboard/jobScreens/JobDetailsScreen';
+import OfferListScreen from '../views/screens/Dashboard/jobScreens/offers/OffersScreen';
 import { navigationRef } from '../navigation/NavigationService'; // adjust path
-import NotificationsScreen from '../views/screens/Dashboard/NotificationScreen';
-import JobsScreen from '../views/screens/Dashboard/JobsScreen'; // Import JobsScreen
-import StageScreen from '../views/screens/Dashboard/StageScreen'; // Import StageScreen
+import NotificationsScreen from '../views/screens/Dashboard/notifications/NotificationScreen';
+import JobsScreen from '../views/screens/Dashboard/jobScreens/JobsScreen'; // Import JobsScreen
+import StageScreen from '../views/screens/Dashboard/StageScreens/StageScreen'; // Import StageScreen
 import CreateStage from '../views/screens/Dashboard/StageScreens/CreateStage';
 
 const Stack = createNativeStackNavigator();
@@ -68,11 +68,6 @@ const AppNavigator = () => {
         <Stack.Screen name="JobsScreen" component={JobsScreen} />
         <Stack.Screen name="StageScreen" component={StageScreen} />
         <Stack.Screen name="CreateStage" component={CreateStage} />
-
-
-
-
-        
 
       </Stack.Navigator>
     </NavigationContainer>

@@ -1,23 +1,23 @@
 // src/redux/store.js
 import { configureStore } from '@reduxjs/toolkit';
-import registerReducer from './slices/auth/registerSlice';
-import verifyOtpReducer from './slices/auth/verifyOtpSlice';
-import loginReducer from './slices/auth/loginSlice';
-import resendOtpReducer from './slices/auth/resendOtpSlice';
-import servicesReducer from './slices/servicesSlice';
-import categoriesReducer from './slices/categoriesSlice';
-import profileReducer from './slices/auth/profileSlice';
-import passwordReducer from './slices/auth/passwordSlice';
-import forgotPasswordReducer from './slices/auth/forgotPasswordSlice';
-import verifyForgetOtpReducer from './slices/auth/verifyForgotOtpSlice';
-import resetForgotPasswordreducer from './slices/auth/resetPasswordSlice';
-import jobDetailReducer from './slices/jobDetailSlice';
-import jobReducer from './slices/jobSlice';
-import offerReducer from './slices/offerSlice';
-import notificationsReducer from './slices/notificationSlice';
-import featuredCategoriesReducer from './slices/ConsumerDashboard/featuredCategoriesSlice';
-import featuredServicesReducer from './slices/ConsumerDashboard/featuredServicesSlice';
-import postReducer from './slices/postSlice';
+import registerReducer from './slices/authSlice/registerSlice';
+import verifyOtpReducer from './slices/authSlice/verifyOtpSlice';
+import loginReducer from './slices/authSlice/loginSlice';
+import resendOtpReducer from './slices/authSlice/resendOtpSlice';
+import servicesReducer from './slices/servicesSlice/servicesSlice';
+import categoriesReducer from './slices/categorySlice/categoriesSlice';
+import profileReducer from './slices//authSlice/profileSlice';
+import passwordReducer from './slices/authSlice/passwordSlice';
+import forgotPasswordReducer from './slices/authSlice/forgotPasswordSlice';
+import verifyForgetOtpReducer from './slices/authSlice/verifyForgotOtpSlice';
+import resetForgotPasswordreducer from './slices/authSlice/resetPasswordSlice';
+import jobDetailReducer from './slices/jobSlice/jobDetailSlice';
+import jobReducer from './slices/jobSlice/jobSlice';
+import offerReducer from './slices/jobSlice/offerSlice/offerSlice';
+import notificationsReducer from './slices/notificationSlice/notificationSlice';
+import featuredCategoriesReducer from './slices/consumerSlice/featuredCategoriesSlice';
+import featuredServicesReducer from './slices/consumerSlice/featuredServicesSlice';
+import postReducer from './slices/stageSlice/postSlice';
 
 
 

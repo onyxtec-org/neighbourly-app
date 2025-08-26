@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import Ionicons from './IconComponent';
+import Ionicons from './ImageComponent/IconComponent';
 import AppText from './AppText';
 const CustomTextInput = ({
   label,

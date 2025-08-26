@@ -7,7 +7,7 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import Ionicons from './IconComponent';
+import Ionicons from './ImageComponent/IconComponent';
 import AppText from './AppText';
 const isAndroid = Platform.OS === 'android';
 

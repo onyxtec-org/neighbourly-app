@@ -11,7 +11,7 @@ import {
 import Video from "react-native-video";
 import ImageInput from "../../components/FormComponents/ImageInput";
 import AppText from "../AppText";
-import Icon from "../IconComponent";
+import Icon from "../ImageComponent/IconComponent";
 function ImageInputList({ imageUris = [], onRemoveImage, onAddImage }) {
   const scrollView = useRef();
 

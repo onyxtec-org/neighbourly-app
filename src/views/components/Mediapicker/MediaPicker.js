@@ -6,7 +6,7 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-import Icon from "../IconComponent";
+import Icon from "../ImageComponent/IconComponent";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import ActionSheet from "react-native-actionsheet";
 import AppText from "../AppText";

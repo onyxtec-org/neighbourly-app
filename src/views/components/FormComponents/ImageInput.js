@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import AppText from "../AppText";
-import Icon from "../IconComponent";
+import Icon from "../ImageComponent/IconComponent";
 function ImageInput({ onChangeImage , currentCount}) {
   const [uploading, setUploading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);

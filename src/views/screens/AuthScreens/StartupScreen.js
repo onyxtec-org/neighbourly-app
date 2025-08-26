@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import AppButton from '../../components/AppButton';
-import CrossIconButton from '../../components/CrossIconButton';
+import AppButton from '../../components/ButtonComponents/AppButton';
+import CrossIconButton from '../../components/FormComponents/CrossIconButton';
 import colors from '../../../config/colors';
 import StartupSVG from '../../../assets/icons/startup.svg';
 import AppText from '../../components/AppText';

@@ -4,11 +4,11 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import MediaPicker from '../../../components/Mediapicker/MediaPicker';
 import colors from '../../../../config/colors';
 import CustomTextInput from '../../../components/CustomTextInput';
-import AppButton from '../../../components/AppButton';
+import AppButton from '../../../components/ButtonComponents/AppButton';
 import { useDispatch, useSelector } from 'react-redux';
-import { createPost, getPosts } from '../../../../redux/slices/postSlice';
+import { createPost, getPosts } from '../../../../redux/slices/stageSlice/postSlice';
 import AppText from '../../../components/AppText';
-import Header from '../../../components/Header';
+import Header from '../../../components/HeaderComponent/Header';
 const CreateStageScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector(state => state.post);

@@ -111,7 +111,7 @@
 
 import React from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import Icon from './IconComponent';
+import Icon from './ImageComponent/IconComponent';
 import defaultStyles from '../../config/styles';
 import colors from '../../config/colors';
 

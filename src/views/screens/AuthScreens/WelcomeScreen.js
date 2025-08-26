@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import AppButton from '../../components/AppButton';
+import AppButton from '../../components/ButtonComponents/AppButton';
 import colors from '../../../config/colors'; 
 import StartupSVG from '../../../assets/icons/startup.svg';
 import AppText from '../../components/AppText';

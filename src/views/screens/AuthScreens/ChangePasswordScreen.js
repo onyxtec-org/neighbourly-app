@@ -15,16 +15,16 @@ import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import AppText from '../../components/AppText';
 import CustomTextInput from '../../components/CustomTextInput';
-import AppButton from '../../components/AppButton';
+import AppButton from '../../components/ButtonComponents/AppButton';
 import colors from '../../../config/colors';
 import authStorage from '../../../app/storage';
 import {
   changePassword,
   resetPasswordState,
-} from '../../../redux/slices/auth/passwordSlice';
+} from '../../../redux/slices/authSlice/passwordSlice';
 import CustomToast from '../../components/CustomToast'; // 🔔 Import your custom toast
 import PasswordChecklist from '../../components/PasswordChecklist';
-import Header from '../../components/Header';
+import Header from '../../components/HeaderComponent/Header';
 const ChangePasswordScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const login = useSelector(state => state.login);

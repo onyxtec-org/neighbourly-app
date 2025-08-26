@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import colors from '../../../config/colors';
 import { useNavigation } from '@react-navigation/native';
-import Icon from '../IconComponent';
+import Icon from '../ImageComponent/IconComponent';
 import StatusBox from './StatusBox';
 import { useSelector } from 'react-redux';
 import { formatStatusText } from '../../../utils/stringHelpers';

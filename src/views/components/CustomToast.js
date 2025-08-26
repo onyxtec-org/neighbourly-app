@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Dimensions } from 'react-native';
-import Ionicons from './IconComponent';
+import Ionicons from './ImageComponent/IconComponent';
 import AppText from './AppText';
 const { width } = Dimensions.get('window');
 

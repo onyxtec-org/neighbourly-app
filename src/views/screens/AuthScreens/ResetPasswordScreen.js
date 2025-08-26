@@ -12,11 +12,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import CustomTextInput from '../../components/CustomTextInput';
-import AppButton from '../../components/AppButton';
+import AppButton from '../../components/ButtonComponents/AppButton';
 import {
   resetPassword,
   resetResetPasswordState,
-} from '../../../redux/slices/auth/resetPasswordSlice';
+} from '../../../redux/slices/authSlice/resetPasswordSlice';
 import PasswordChecklist from '../../components/PasswordChecklist';
 import AppText from '../../components/AppText';
 const validationSchema = Yup.object().shape({
