@@ -5,7 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
+  Alert,ActivityIndicator
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -23,9 +23,14 @@ import CircularImagePicker from '../../components/ImageComponent/CircularImagePi
 import colors from '../../../config/colors';
 import PasswordChecklist from '../../components/PasswordChecklist';
 import AppText from '../../components/AppText';
+import { checkSlug } from '../../../redux/thunks/auth/registerThunks';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 const validationSchema = Yup.object().shape({
   fullName: Yup.string().required('Full name is required'),
-  screenName: Yup.string().required('Screen name is required'),
+  screenName: Yup.string()
+    .required('Screen name is required')
+    .matches(/^\S+$/, 'Screen name cannot contain spaces'),
   email: Yup.string().email('Invalid email').required('Email is required'),
   countryCode: Yup.string().required('Country code is required'),
   phoneNumber: Yup.string().required('Phone number is required'),
@@ -57,6 +62,46 @@ const SignupScreen = ({ navigation, route }) => {
   const [profileImage, setProfileImage] = useState(null);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [slugAvailable, setSlugAvailable] = useState(null); // true, false, or null
+  const [slugLoading, setSlugLoading] = useState(false);
+
+  let slugTimeout = null;
+
+  const debounceCheckSlug = slug => {
+    if (slugTimeout) clearTimeout(slugTimeout);
+
+    slugTimeout = setTimeout(() => {
+      if (slug.trim().length === 0) {
+        setSlugAvailable(null);
+        return;
+      }
+
+      setSlugLoading(true);
+      dispatch(checkSlug({ slug }))
+        .unwrap()
+        .then(res => {
+          if (res.success && res.statusCode === 200) {
+            setSlugAvailable(true);
+          } else {
+            setSlugAvailable(false);
+          }
+        })
+        .catch(() => {
+          setSlugAvailable(false);
+        })
+        .finally(() => {
+          setSlugLoading(false);
+        });
+    }, 500);
+  };
+
+  const validateScreenName = values => {
+    const errors = {};
+    if (slugAvailable === false) {
+      errors.screenName = 'Screen name is already taken';
+    }
+    return errors;
+  };
 
   useEffect(() => {
     console.log('🟢 useEffect check:', { success, user, error });
@@ -117,7 +162,7 @@ const SignupScreen = ({ navigation, route }) => {
       role: accountType,
       image: profileImage, // pass raw image object
     };
-     
+
     console.log('📤 Sending payload to thunk:', payload);
     dispatch(registerUser(payload));
     console.log('✅ registerUser dispatched');
@@ -159,6 +204,7 @@ const SignupScreen = ({ navigation, route }) => {
             confirmPassword: '',
           }}
           validationSchema={validationSchema}
+          validate={validateScreenName}
           onSubmit={handleSignup}
         >
           {({
@@ -183,11 +229,26 @@ const SignupScreen = ({ navigation, route }) => {
                 label="Screen Name"
                 required
                 value={values.screenName}
-                onChangeText={handleChange('screenName')}
+                onChangeText={text => {
+                  handleChange('screenName')(text);
+                  setSlugAvailable(null); // reset
+                  debounceCheckSlug(text);
+                }}
                 onBlur={handleBlur('screenName')}
                 placeholder="Enter your Screen Name"
                 error={touched.screenName && errors.screenName}
+                rightIcon={
+                  slugLoading ? (
+                    <ActivityIndicator size="small" color={colors.primary} />
+                  ) : slugAvailable === true ? (
+                    <Ionicons name="checkmark-circle" size={20} color="green" />
+                  ) : slugAvailable === false ? (
+                    <Ionicons name="close-circle" size={20} color="red" />
+                  ) : null
+                }
               />
+
+
 
               <CustomTextInput
                 label="Email"
@@ -277,7 +338,7 @@ const SignupScreen = ({ navigation, route }) => {
                 disabled={loading}
                 btnStyles={styles.loginButton}
                 textStyle={styles.buttonText}
-                IconName="login"
+                IconName="log-in-outline"
               />
             </View>
           )}

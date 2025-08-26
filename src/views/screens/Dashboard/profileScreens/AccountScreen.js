@@ -12,12 +12,16 @@ import ZoomableImage from '../../../components/ImageComponent/ZoomableImage';
 import Header from '../../../components/HeaderComponent/Header';
 import AppText from '../../../components/AppText';
 import colors from '../../../../config/colors';
+import InfoItems from '../../../components/ProfileComponents/InfoItems';
+import Seperator from '../../../components/Seperator';
 const AccountScreen = ({ navigation, route }) => {
   const { userId } = route.params; // user id passed from StageScreen
   const dispatch = useDispatch();
   const [profile, setProfile] = useState(null);
   const { status, user } = useSelector(state => state.profile);
-    const { myServices } = useSelector(state => state.services);
+  const { myServices } = useSelector(state => state.services);
+
+  console.log('user----------', user);
 
   const aauthUser = user.id;
 
@@ -89,27 +93,24 @@ const AccountScreen = ({ navigation, route }) => {
           ) : (
             <>
               {profile?.email && (
-                <View style={styles.infoRow}>
-                  <Icon name="mail-outline" size={20} color="#888" />
-                  <View style={styles.textContainer}>
-                    <AppText style={styles.label}>Email</AppText>
-                    <AppText style={styles.value}>{profile.email}</AppText>
-                  </View>
-                </View>
+                <InfoItems
+                  icon={'mail-outline'}
+                  text={profile.email}
+                  title={'Email'}
+                />
               )}
-
+              {profile?.slug && (
+                <InfoItems icon={'person'} text={profile.slug} title={'Slug'} />
+              )}
               {profile?.phone && (
                 <>
                   <View style={styles.divider} />
-                  <View style={styles.infoRow}>
-                    <Icon name="call-outline" size={20} color="#888" />
-                    <View style={styles.textContainer}>
-                      <AppText style={styles.label}>Phone</AppText>
-                      <AppText style={styles.value}>
-                        +{profile?.country_code} {profile.phone}
-                      </AppText>
-                    </View>
-                  </View>
+
+                  <InfoItems
+                    icon={'call-outline'}
+                    text={+profile.phone}
+                    title={'Phone'}
+                  />
                 </>
               )}
             </>
@@ -118,53 +119,67 @@ const AccountScreen = ({ navigation, route }) => {
 
         <View style={styles.card}>
           <AppText style={styles.cardTitle}>Additional Details</AppText>
-          <View style={styles.infoRow}>
-            <Icon name="location-outline" size={20} color="#888" />
-            <View style={styles.textContainer}>
-              <AppText style={styles.label}>Location</AppText>
-              <AppText style={styles.value}>{profile?.location || '—'}</AppText>
-            </View>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.infoRow}>
-            <Icon name="briefcase-outline" size={20} color="#888" />
-            <View style={styles.textContainer}>
-              <AppText style={styles.label}>Role</AppText>
-              <AppText style={styles.value}>{profile?.role || '—'}</AppText>
-            </View>
-          </View>
+
+          <InfoItems
+            icon={'location-outline'}
+            text={profile?.location || '—'}
+            title={'Location'}
+          />
+
+          <Seperator />
+
+          <InfoItems
+            icon={'briefcase-outline'}
+            text={profile?.role || '—'}
+            title={'Role'}
+          />
         </View>
         {/* My Services Card */}
-        {user.role==='provider' && <View style={styles.card}>
-          <View style={{flexDirection:'row',justifyContent:"space-between",alignItems:'flex-start'}}>
-         {isAuthUser && <AppText style={styles.cardTitle}>My Services</AppText>}
-          <Icon name={'create-outline'} color={colors.black} pressed={true} onPress={()=>navigation.navigate('EditServices')}/>
+        {user.role === 'provider' && (
+          <View style={styles.card}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+              }}
+            >
+              {isAuthUser && (
+                <AppText style={styles.cardTitle}>My Services</AppText>
+              )}
+              <Icon
+                name={'create-outline'}
+                color={colors.black}
+                pressed={true}
+                onPress={() => navigation.navigate('EditServices')}
+              />
             </View>
-          {myServices && myServices.length > 0 ? (
-            myServices.map((service, index) => (
-              <View key={index}>
-                <View style={styles.infoRow}>
-                  <Icon name="construct-outline" size={20} color="#888" />
-                  <View style={styles.textContainer}>
-                    <AppText style={styles.value}>
-                      {service.name || 'Unnamed Service'}
-                    </AppText>
+            {myServices && myServices.length > 0 ? (
+              myServices.map((service, index) => (
+                <View key={index}>
+                  <View style={styles.infoRow}>
+                    <Icon name="construct-outline" size={20} color="#888" />
+                    <View style={styles.textContainer}>
+                      <AppText style={styles.value}>
+                        {service.name || 'Unnamed Service'}
+                      </AppText>
+                    </View>
                   </View>
+                  {index < myServices.length - 1 && (
+                    <View style={styles.divider} />
+                  )}
                 </View>
-                {index < myServices.length - 1 && (
-                  <View style={styles.divider} />
-                )}
+              ))
+            ) : (
+              <View style={styles.infoRow}>
+                <Icon name="alert-circle-outline" size={20} color="#888" />
+                <View style={styles.textContainer}>
+                  <AppText style={styles.value}>No services found</AppText>
+                </View>
               </View>
-            ))
-          ) : (
-            <View style={styles.infoRow}>
-              <Icon name="alert-circle-outline" size={20} color="#888" />
-              <View style={styles.textContainer}>
-                <AppText style={styles.value}>No services found</AppText>
-              </View>
-            </View>
-          )}
-        </View>}
+            )}
+          </View>
+        )}
       </View>
     </ScrollView>
   );
