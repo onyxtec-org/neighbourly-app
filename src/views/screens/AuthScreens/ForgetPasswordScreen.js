@@ -7,15 +7,15 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import StartupSVG from '../../../assets/icons/startup.svg';
 import CustomTextInput from '../../components/CustomTextInput';
-import AppButton from '../../components/AppButton';
-import BackButton from '../../components/BackButton';
+import AppButton from '../../components/ButtonComponents/AppButton';
+import BackButton from '../../components/ButtonComponents/BackButton';
 import CustomToast from '../../components/CustomToast';
 import colors from '../../../config/colors';
 
 import {
   sendForgotPasswordOtp,
   resetForgotPasswordState,
-} from '../../../redux/slices/auth/forgotPasswordSlice';
+} from '../../../redux/slices/authSlice/forgotPasswordSlice';
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email address').required('Email is required'),

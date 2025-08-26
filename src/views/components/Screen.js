@@ -11,7 +11,7 @@ import {
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 
-import colors from "../config/color";
+import colors from "../../config/colors";
 
 function Screen({
   children,

@@ -1,11 +1,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import HomeScreen from '../views/screens/Dashboard/ConsumerHomeScreen';
-import TaskScreen from '../views/screens/Dashboard/JobsScreen';
-import ProfileScreen from '../views/screens/Dashboard/ProfileScreen';
+import HomeScreen from '../views/screens/Dashboard/consumerScreens/ConsumerHomeScreen';
+import TaskScreen from '../views/screens/Dashboard/jobScreens/JobsScreen';
+import ProfileScreen from '../views/screens/Dashboard/profileScreens/ProfileScreen';
 import colors from '../config/colors';
-import StageScreen from '../views/screens/Dashboard/StageScreen';
+import StageScreen from '../views/screens/Dashboard/StageScreens/StageScreen';
 
 const Tab = createBottomTabNavigator();
 

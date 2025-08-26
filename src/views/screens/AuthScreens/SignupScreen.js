@@ -11,16 +11,16 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { resetRegisterState } from '../../../redux/slices/auth/registerSlice';
+import { resetRegisterState } from '../../../redux/slices/authSlice/registerSlice';
 import { registerUser } from '../../../redux/thunks/auth/registerThunks';
 import CustomTextInput from '../../components/CustomTextInput';
 import PhoneNumberInput from '../../components/PhoneNumberInput';
-import CrossIconButton from '../../components/CrossIconButton';
+import CrossIconButton from '../../components/FormComponents/CrossIconButton';
 import CustomToast from '../../components/CustomToast';
-import AppButton from '../../components/AppButton';
+import AppButton from '../../components/ButtonComponents/AppButton';
 import CheckBox from '@react-native-community/checkbox';
 import TermsAndConditionsModal from '../../components/TermsAndConditionsModal';
-import CircularImagePicker from '../../components/CircularImagePicker';
+import CircularImagePicker from '../../components/ImageComponent/CircularImagePicker';
 import colors from '../../../config/colors';
 import PasswordChecklist from '../../components/PasswordChecklist';
 const validationSchema = Yup.object().shape({

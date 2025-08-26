@@ -1,11 +1,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import JobsScreen from '../views/screens/Dashboard/JobsScreen';
-import ProfileScreen from '../views/screens/Dashboard/ProfileScreen';
+import JobsScreen from '../views/screens/Dashboard/jobScreens/JobsScreen';
+import ProfileScreen from '../views/screens/Dashboard/profileScreens/ProfileScreen';
 import colors from '../config/colors';
 import ProviderNavigator from './ProviderNavigator';
-import StageScreen from '../views/screens/Dashboard/StageScreen';
+import StageScreen from '../views/screens/Dashboard/StageScreens/StageScreen';
 const Tab = createBottomTabNavigator();
 
 const ProviderTabNavigator = () => {

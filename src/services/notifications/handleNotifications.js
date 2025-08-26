@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as NavigationService from '../../navigation/NavigationService';
 import { normalizeNotificationData } from '../notifications/notificationUtils';
 import store from '../../redux/store';
-import { incrementUnreadCount } from '../../redux/slices/notificationSlice';
+import { incrementUnreadCount } from '../../redux/slices/notificationSlice/notificationSlice';
 
 const PENDING_KEY = '@notif_pending_data_v1';
 const app = getApp();

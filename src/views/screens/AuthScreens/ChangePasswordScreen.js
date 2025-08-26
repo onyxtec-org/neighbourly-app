@@ -16,14 +16,14 @@ import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 
 import CustomTextInput from '../../components/CustomTextInput';
-import AppButton from '../../components/AppButton';
+import AppButton from '../../components/ButtonComponents/AppButton';
 import colors from '../../../config/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import authStorage from '../../../app/storage';
 import {
   changePassword,
   resetPasswordState,
-} from '../../../redux/slices/auth/passwordSlice';
+} from '../../../redux/slices/authSlice/passwordSlice';
 import CustomToast from '../../components/CustomToast'; // 🔔 Import your custom toast
 import PasswordChecklist from '../../components/PasswordChecklist';
 const ChangePasswordScreen = ({ navigation }) => {

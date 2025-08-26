@@ -4,24 +4,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CommonActions } from '@react-navigation/native';
 import storage from '../../../app/storage';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserProfile } from '../../../redux/slices/auth/profileSlice';
+import { fetchUserProfile } from '../../../redux/slices/authSlice/profileSlice';
 
 import {
   verifyForgotPasswordOtp,
   resetVerifyForgotOtpState,
-} from '../../../redux/slices/auth/verifyForgotOtpSlice';
+} from '../../../redux/slices/authSlice/verifyForgotOtpSlice';
 import {
   verifyOtp,
   resetVerifyOtpState,
-} from '../../../redux/slices/auth/verifyOtpSlice';
+} from '../../../redux/slices/authSlice/verifyOtpSlice';
 import {
   resendOtp,
   resetResendOtpState,
-} from '../../../redux/slices/auth/resendOtpSlice';
-import { setLoginUser } from '../../../redux/slices/auth/loginSlice';
+} from '../../../redux/slices/authSlice/resendOtpSlice';
+import { setLoginUser } from '../../../redux/slices/authSlice/loginSlice';
 import StartupSVG from '../../../assets/icons/startup.svg';
-import AppButton from '../../components/AppButton';
-import BackButton from '../../components/BackButton';
+import AppButton from '../../components/ButtonComponents/AppButton';
+import BackButton from '../../components/ButtonComponents/BackButton';
 import colors from '../../../config/colors';
 import CustomToast from '../../components/CustomToast';
 

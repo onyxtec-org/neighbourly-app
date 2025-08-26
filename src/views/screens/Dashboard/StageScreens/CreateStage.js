@@ -5,9 +5,9 @@ import MediaPicker from '../../../components/Mediapicker/MediaPicker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors from '../../../../config/colors';
 import CustomTextInput from '../../../components/CustomTextInput';
-import AppButton from '../../../components/AppButton';
+import AppButton from '../../../components/ButtonComponents/AppButton';
 import { useDispatch, useSelector } from 'react-redux';
-import { createPost, getPosts, resetPostState } from '../../../../redux/slices/postSlice';
+import { createPost, getPosts, resetPostState } from '../../../../redux/slices/stageSlice/postSlice';
 
 const CreateStageScreen = ({ navigation }) => {
   const dispatch = useDispatch();
