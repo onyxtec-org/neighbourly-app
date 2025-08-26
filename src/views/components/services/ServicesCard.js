@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import Ionicons from '../ImageComponent/IconComponent';
 import colors from '../../../config/colors';
+import AppText from '../AppText';
 
 function ServicesCard({ item, isSelected, onToggleSelect }) {
   return (
@@ -17,14 +18,14 @@ function ServicesCard({ item, isSelected, onToggleSelect }) {
       activeOpacity={0.8}
     >
       <View style={styles.cardContent}>
-        <Text
+        <AppText
           style={[
             styles.categoryName,
             { color: isSelected ? colors.white : colors.primary },
           ]}
         >
           {item.name}
-        </Text>
+        </AppText>
 
         {isSelected && (
           <TouchableOpacity onPress={onToggleSelect} style={styles.crossButton}>

@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   View,
-  Text,
   FlatList,
   StyleSheet,
   TouchableOpacity,
@@ -9,13 +8,14 @@ import {
   SafeAreaView,
   Image,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from '../../../components/ImageComponent/IconComponent';
 import colors from '../../../../config/colors';
 import { useDispatch } from 'react-redux'; // Import useDispatch
 import {
   resetJobState,
 } from '../../../../redux/slices/jobSlice/jobSlice';
-
+import AppText from '../../../components/AppText';
+import Header from '../../../components/HeaderComponent/Header';
 const CategoryDetailsScreen = ({ route, navigation }) => {
   const { category } = route.params;
   const dispatch = useDispatch();
@@ -27,98 +27,91 @@ const CategoryDetailsScreen = ({ route, navigation }) => {
     });
   };
 
-  const renderSubCategory = ({ item }) => (
-    <View style={styles.subCategoryContainer}>
-      <Text style={styles.subCategoryTitle}>{item.name}</Text>
-      <View style={styles.subServiceList}>
-        {item.services?.map(service => (
-          <TouchableOpacity
-            key={service.id}
-            style={styles.serviceRow}
-            onPress={() => handleServicePress(service)}
-          >
-            <Ionicons name="settings-outline" size={20} color={colors.medium} />
-            <Text style={styles.serviceText}>{service.name}</Text>
-            <Ionicons
-              name="chevron-forward"
-              size={20}
-              color={colors.lightGrey}
-              style={styles.chevronIcon}
-            />
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
-  );
-
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+const renderSubCategory = ({ item }) => (
+  <View style={styles.subCategoryContainer}>
+    <AppText style={styles.subCategoryTitle}>{item.name}</AppText>
+    <View style={styles.subServiceList}>
+      {item.services?.map(service => (
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.iconButton}
+          key={service.id}
+          style={styles.serviceRow}
+          onPress={() => handleServicePress(service)}
         >
-          <Ionicons name="arrow-back" size={24} color={colors.dark} />
+          <Ionicons name="settings-outline" size={20} color={colors.medium} />
+          <AppText style={styles.serviceText}>{service.name}</AppText>
+          <Ionicons
+            name="chevron-forward"
+            size={20}
+            color={colors.lightGrey}
+            style={styles.chevronIcon}
+          />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Category Details</Text>
-        <View style={styles.iconButton} /> 
-      </View>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      
-        {category.services?.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>Popular Services</Text>
-            <View style={styles.serviceList}>
-              {category.services.map(service => (
-                <TouchableOpacity
-                  key={service.id}
-                  style={styles.serviceListItem}
-                  onPress={() => handleServicePress(service)}
-                >
-                  {service.image ? (
-                    <View style={styles.serviceImageContainer}>
-                      <Image
-                        source={{ uri: service.image }}
-                        style={styles.serviceImage}
-                      />
-                    </View>
-                  ) : (
-                    <Ionicons
-                      name="construct-outline"
-                      size={28}
-                      color={colors.primary}
-                      style={styles.serviceIconPlaceholder}
-                    />
-                  )}
-                  <Text style={styles.serviceName}>{service.name}</Text>
-                  <Ionicons
-                    name="chevron-forward"
-                    size={20}
-                    color={colors.lightGrey}
-                    style={styles.chevronIcon}
-                  />
-                </TouchableOpacity>
-              ))}
-            </View>
-          </>
-        )}
+      ))}
+    </View>
+  </View>
+);
 
-        {/* Subcategories and Their Services */}
-        {category.children?.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>Explore More Categories</Text>
-            <FlatList
-              data={category.children}
-              keyExtractor={item => item.id.toString()}
-              renderItem={renderSubCategory}
-              scrollEnabled={false}
-              ListFooterComponent={<View style={{ height: 30 }} />}
-            />
-          </>
-        )}
-      </ScrollView>
-    </SafeAreaView>
-  );
+return (
+  <SafeAreaView style={styles.safeArea}>
+    <Header title={'Category Details'} bookmark={false}/>
+
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    
+      {category.services?.length > 0 && (
+        <>
+          <AppText style={styles.sectionTitle}>Popular Services</AppText>
+          <View style={styles.serviceList}>
+            {category.services.map(service => (
+              <TouchableOpacity
+                key={service.id}
+                style={styles.serviceListItem}
+                onPress={() => handleServicePress(service)}
+              >
+                {service.image ? (
+                  <View style={styles.serviceImageContainer}>
+                    <Image
+                      source={{ uri: service.image }}
+                      style={styles.serviceImage}
+                    />
+                  </View>
+                ) : (
+                  <Ionicons
+                    name="construct-outline"
+                    size={28}
+                    color={colors.primary}
+                    style={styles.serviceIconPlaceholder}
+                  />
+                )}
+                <AppText style={styles.serviceName}>{service.name}</AppText>
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color={colors.lightGrey}
+                  style={styles.chevronIcon}
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </>
+      )}
+
+      {/* Subcategories and Their Services */}
+      {category.children?.length > 0 && (
+        <>
+          <AppText style={styles.sectionTitle}>Explore More Categories</AppText>
+          <FlatList
+            data={category.children}
+            keyExtractor={item => item.id.toString()}
+            renderItem={renderSubCategory}
+            scrollEnabled={false}
+            ListFooterComponent={<View style={{ height: 30 }} />}
+          />
+        </>
+      )}
+    </ScrollView>
+  </SafeAreaView>
+);
+
 };
 
 const styles = StyleSheet.create({
@@ -131,26 +124,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: colors.background,
   },
-  header: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.dark,
-  },
-  iconButton: {
-    width: 32,
-    alignItems: 'center',
-  },
+
   serviceList: {
     backgroundColor: colors.white,
     borderRadius: 12,

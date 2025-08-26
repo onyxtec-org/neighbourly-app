@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  Text,
   Switch,
   StyleSheet,
   FlatList,
@@ -13,7 +12,8 @@ import colors from '../../../../config/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 import { setEmailNotifications } from '../../../../redux/slices/notificationSlice/notficationSlice';
-
+import AppText from '../../../components/AppText';
+import Header from '../../../components/HeaderComponent/Header';
 const initialSettings = [
   { id: 'email_notifications', title: 'Email Notifications', enabled: true },
 ];
@@ -73,7 +73,7 @@ const NotificationSettingsScreen = ({ navigation }) => {
 
   const renderItem = ({ item }) => (
     <View style={styles.settingItem}>
-      <Text style={styles.settingText}>{item.title}</Text>
+      <AppText style={styles.settingText}>{item.title}</AppText>
       <Switch
         value={item.enabled}
         onValueChange={() => toggleSwitch(item.id)}
@@ -86,20 +86,8 @@ const NotificationSettingsScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.iconWrapper}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.dark} />
-        </TouchableOpacity>
-
-        <View style={styles.headerTitleWrapper}>
-          <Text style={styles.headerTitle}>Notification Settings</Text>
-        </View>
-
-        <View style={styles.iconWrapper} />
-      </View>
+      <Header title={'Notification Settings'} bookmark={false}/>
+      
 
       <FlatList
         data={settings}
@@ -118,28 +106,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  header: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomColor: '#eee',
-    borderBottomWidth: 1,
-    backgroundColor: '#fff',
-  },
-  iconWrapper: {
-    width: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitleWrapper: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.dark,
-  },
+
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',

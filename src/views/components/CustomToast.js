@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Text, StyleSheet, Dimensions, View } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import { Animated, StyleSheet, Dimensions } from 'react-native';
+import Ionicons from './ImageComponent/IconComponent';
+import AppText from './AppText';
 const { width } = Dimensions.get('window');
 
 const ICONS = {
@@ -76,11 +76,11 @@ const CustomToast = ({
         color="#fff"
         style={styles.icon}
       />
-      <Text style={styles.toastText}>
+      <AppText style={styles.toastText}>
         {typeof message === 'string'
           ? message
           : message?.message || 'Something went wrong'}
-      </Text>
+      </AppText>
     </Animated.View>
   );
 };

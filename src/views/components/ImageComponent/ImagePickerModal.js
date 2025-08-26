@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Modal,
   View,
-  Text,
   TouchableOpacity,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -10,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-
+import AppText from './../AppText';
 const ImagePickerModal = ({ visible, onClose, onImagePicked }) => {
   const handlePickImageFromGallery = () => {
     launchImageLibrary({ mediaType: 'photo' }, response => {
@@ -72,14 +71,14 @@ const ImagePickerModal = ({ visible, onClose, onImagePicked }) => {
         <View style={styles.backdrop}>
           <TouchableWithoutFeedback>
             <View style={styles.modalContainer}>
-              <Text style={styles.title}>Pick an Image</Text>
+              <AppText style={styles.title}>Pick an Image</AppText>
 
               <TouchableOpacity style={styles.optionButton} onPress={handlePickImageFromGallery}>
-                <Text style={styles.optionText}>Choose from Gallery</Text>
+                <AppText style={styles.optionText}>Choose from Gallery</AppText>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.optionButton} onPress={handlePickImageFromCamera}>
-                <Text style={styles.optionText}>Use Camera</Text>
+                <AppText style={styles.optionText}>Use Camera</AppText>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>

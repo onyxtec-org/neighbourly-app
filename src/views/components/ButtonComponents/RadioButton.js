@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import colors from '../../../config/colors';
+import AppText from './AppText';
 const RadioButton = ({ label, value, selected, onPress }) => {
   return (
     <TouchableOpacity style={styles.radioContainer} onPress={onPress}>
       <View style={[styles.outerCircle]}>
         {selected && <View style={styles.innerCircle} />}
       </View>
-      <Text style={styles.label}>{label}</Text>
+      <AppText style={styles.label}>{label}</AppText>
     </TouchableOpacity>
   );
 };

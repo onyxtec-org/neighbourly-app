@@ -1,11 +1,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import JobsScreen from '../views/screens/Dashboard/jobScreens/JobsScreen';
 import ProfileScreen from '../views/screens/Dashboard/profileScreens/ProfileScreen';
 import colors from '../config/colors';
 import ProviderNavigator from './ProviderNavigator';
 import StageScreen from '../views/screens/Dashboard/StageScreens/StageScreen';
+import Icon from '../views/components/ImageComponent/IconComponent';
 const Tab = createBottomTabNavigator();
 
 const ProviderTabNavigator = () => {
@@ -34,7 +34,7 @@ const ProviderTabNavigator = () => {
               iconName = 'ellipse-outline';
           }
 
-          return <Ionicons name={iconName} size={size} color={color} />;
+          return <Icon name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: 'gray',

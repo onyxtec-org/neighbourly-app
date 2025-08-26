@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-
+import AppText from '../../components/AppText';
 import StartupSVG from '../../../assets/icons/startup.svg';
 import CustomTextInput from '../../components/CustomTextInput';
 import AppButton from '../../components/ButtonComponents/AppButton';
@@ -86,15 +86,15 @@ const ForgotPasswordScreen = ({ navigation }) => {
           <View style={styles.backWrapper}>
             <BackButton onPress={() => navigation.goBack()} />
           </View>
-          <Text style={styles.headerTitle}>Forgot Password</Text>
+          <AppText style={styles.headerTitle}>Forgot Password</AppText>
         </View>
 
         {/* Image & Subtext */}
         <View style={styles.imageContainer}>
           <StartupSVG width={150} height={150} />
-          <Text style={styles.instructionText}>
+          <AppText style={styles.instructionText}>
             Please enter your registered Email, so we will send you OTP.
-          </Text>
+          </AppText>
         </View>
 
         {/* Form */}

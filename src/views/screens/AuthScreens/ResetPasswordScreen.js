@@ -6,7 +6,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-  Text,
+
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -18,7 +18,7 @@ import {
   resetResetPasswordState,
 } from '../../../redux/slices/authSlice/resetPasswordSlice';
 import PasswordChecklist from '../../components/PasswordChecklist';
-// Validation schema
+import AppText from '../../components/AppText';
 const validationSchema = Yup.object().shape({
   password: Yup.string()
     .matches(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
@@ -67,7 +67,7 @@ const ResetPasswordScreen = ({ route, navigation }) => {
         style={styles.container}
       >
         <View style={styles.inner}>
-          <Text style={styles.title}>Reset Your Password</Text>
+          <AppText style={styles.title}>Reset Your Password</AppText>
 
           <Formik
             initialValues={{ password: '', confirmPassword: '' }}

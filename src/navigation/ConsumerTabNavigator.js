@@ -6,7 +6,7 @@ import TaskScreen from '../views/screens/Dashboard/jobScreens/JobsScreen';
 import ProfileScreen from '../views/screens/Dashboard/profileScreens/ProfileScreen';
 import colors from '../config/colors';
 import StageScreen from '../views/screens/Dashboard/StageScreens/StageScreen';
-
+import Icon from '../views/components/ImageComponent/IconComponent';
 const Tab = createBottomTabNavigator();
 
 const ConsumerTabNavigator = () => {
@@ -36,7 +36,7 @@ const ConsumerTabNavigator = () => {
               iconName = 'ellipse-outline';
           }
 
-          return <Ionicons name={iconName} size={size} color={color} />;
+          return <Icon name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: 'gray',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Image, Text,FlatList } from 'react-native';
+import { View, StyleSheet,FlatList } from 'react-native';
 import JobCard from './JobCard';
 import NoRecordFound from '../NoRecordFound';
 

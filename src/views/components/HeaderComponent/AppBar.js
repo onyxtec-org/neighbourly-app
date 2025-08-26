@@ -5,7 +5,8 @@ import colors from '../../../config/colors';
 import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import { selectUnreadCount } from '../../../redux/slices/notificationSlice/notificationSlice';
-
+import AppText from './../AppText';
+import Icon from './../ImageComponent/IconComponent';
 function AppBar(props) {
   const unreadCount = useSelector(selectUnreadCount);
   console.log('unread count',unreadCount);
@@ -16,22 +17,21 @@ function AppBar(props) {
     <View style={styles.container}>
       <View style={styles.appBar}>
         <TouchableOpacity style={styles.locationContainer}>
-          <Ionicons name="location-outline" size={24} color={colors.primary} />
-          <Text style={styles.locationText}>Your Location</Text>
+          <Icon name={"location-outline"}/>
+          <AppText style={styles.locationText}>Your Location</AppText>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate('NotificationsScreen')}>
           <View style={{ position: 'relative' }}>
-            <Ionicons
+            <Icon
               name="notifications-outline"
               size={28}
-              color={colors.primary}
             />
             {unreadCount > 0 && (
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>
+                <AppText style={styles.badgeText}>
                   {unreadCount > 9 ? '9+' : unreadCount}
-                </Text>
+                </AppText>
               </View>
             )}
           </View>

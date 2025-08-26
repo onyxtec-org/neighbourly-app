@@ -1,12 +1,10 @@
 import React from 'react';
 import {
   View,
-  Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from '../../../components/ImageComponent/IconComponent';
 import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
 import LinearGradient from 'react-native-linear-gradient';
 import config from '../../../../config';
@@ -16,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useCallback, useState } from 'react';
 import ZoomableImage from '../../../components/ImageComponent/ZoomableImage';
 import Header from '../../../components/HeaderComponent/Header';
-
+import AppText from '../../../components/AppText';
 const AccountScreen = ({ navigation, route }) => {
   const { userId } = route.params; // user id passed from StageScreen
   console.log('AccountScreen userId:', userId);
@@ -35,112 +33,113 @@ const AccountScreen = ({ navigation, route }) => {
     }, [dispatch, userId]),
   );
   const isAuthUser = aauthUser?.id?.toString() === userId?.toString();
-  return (
-    <ScrollView style={styles.container}>
-      {/* Header with Back Button and Edit Icon */}
-      <Header
-        title={'Profile Details'}
-        bookmark={false}
-        onIconPress={() => navigation.navigate('UpdateProfileScreen')}
-        icon={'create-outline'}
-        isIcon={!!isAuthUser}
-      />
+return (
+  <ScrollView style={styles.container}>
+    {/* Header with Back Button and Edit Icon */}
+    <Header
+      title={'Profile Details'}
+      bookmark={false}
+      onIconPress={() => navigation.navigate('UpdateProfileScreen')}
+      icon={'create-outline'}
+      isIcon={!!isAuthUser}
+    />
 
-      <View style={styles.profileSummary}>
-        <View style={{ alignItems: 'center' }}>
-          {status === 'loading' ? (
-            <ShimmerPlaceholder
-              LinearGradient={LinearGradient}
-              style={styles.profileImage}
-            />
-          ) : (
-            <ZoomableImage
-              uri={
-                profile?.image ? `${config.userimageURL}${profile.image}` : null
-              }
-              placeholderUri="https://placehold.co/96x96/e0e0e0/000000?text=Profile"
-              style={styles.profileImage}
-            />
-          )}
-        </View>
-
+    <View style={styles.profileSummary}>
+      <View style={{ alignItems: 'center' }}>
         {status === 'loading' ? (
           <ShimmerPlaceholder
             LinearGradient={LinearGradient}
-            style={{ width: 120, height: 20, borderRadius: 8, marginTop: 10 }}
+            style={styles.profileImage}
           />
         ) : (
-          profile?.name && <Text style={styles.userName}>{profile.name}</Text>
+          <ZoomableImage
+            uri={
+              profile?.image ? `${config.userimageURL}${profile.image}` : null
+            }
+            placeholderUri="https://placehold.co/96x96/e0e0e0/000000?text=Profile"
+            style={styles.profileImage}
+          />
         )}
       </View>
 
-      {/* Information Cards */}
-      <View style={styles.content}>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Personal Information</Text>
-          {status === 'loading' ? (
-            <>
-              <ShimmerPlaceholder
-                LinearGradient={LinearGradient}
-                style={{ height: 20, borderRadius: 6, marginVertical: 10 }}
-              />
-              <ShimmerPlaceholder
-                LinearGradient={LinearGradient}
-                style={{ height: 20, borderRadius: 6, marginVertical: 10 }}
-              />
-            </>
-          ) : (
-            <>
-              {profile?.email && (
+      {status === 'loading' ? (
+        <ShimmerPlaceholder
+          LinearGradient={LinearGradient}
+          style={{ width: 120, height: 20, borderRadius: 8, marginTop: 10 }}
+        />
+      ) : (
+        profile?.name && <AppText style={styles.userName}>{profile.name}</AppText>
+      )}
+    </View>
+
+    {/* Information Cards */}
+    <View style={styles.content}>
+      <View style={styles.card}>
+        <AppText style={styles.cardTitle}>Personal Information</AppText>
+        {status === 'loading' ? (
+          <>
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 20, borderRadius: 6, marginVertical: 10 }}
+            />
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 20, borderRadius: 6, marginVertical: 10 }}
+            />
+          </>
+        ) : (
+          <>
+            {profile?.email && (
+              <View style={styles.infoRow}>
+                <Icon name="mail-outline" size={20} color="#888" />
+                <View style={styles.textContainer}>
+                  <AppText style={styles.label}>Email</AppText>
+                  <AppText style={styles.value}>{profile.email}</AppText>
+                </View>
+              </View>
+            )}
+
+            {profile?.phone && (
+              <>
+                <View style={styles.divider} />
                 <View style={styles.infoRow}>
-                  <Icon name="mail-outline" size={20} color="#888" />
+                  <Icon name="call-outline" size={20} color="#888" />
                   <View style={styles.textContainer}>
-                    <Text style={styles.label}>Email</Text>
-                    <Text style={styles.value}>{profile.email}</Text>
+                    <AppText style={styles.label}>Phone</AppText>
+                    <AppText style={styles.value}>
+                      +{profile?.country_code} {profile.phone}
+                    </AppText>
                   </View>
                 </View>
-              )}
-
-              {profile?.phone && (
-                <>
-                  <View style={styles.divider} />
-                  <View style={styles.infoRow}>
-                    <Icon name="call-outline" size={20} color="#888" />
-                    <View style={styles.textContainer}>
-                      <Text style={styles.label}>Phone</Text>
-                      <Text style={styles.value}>
-                        +{profile?.country_code} {profile.phone}
-                      </Text>
-                    </View>
-                  </View>
-                </>
-              )}
-            </>
-          )}
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Additional Details</Text>
-          <View style={styles.infoRow}>
-            <Icon name="location-outline" size={20} color="#888" />
-            <View style={styles.textContainer}>
-              <Text style={styles.label}>Location</Text>
-              <Text style={styles.value}>{profile?.location || '—'}</Text>
-            </View>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.infoRow}>
-            <Icon name="briefcase-outline" size={20} color="#888" />
-            <View style={styles.textContainer}>
-              <Text style={styles.label}>Role</Text>
-              <Text style={styles.value}>{profile?.role || '—'}</Text>
-            </View>
-          </View>
-        </View>
-        {/* My Services Card */}
+              </>
+            )}
+          </>
+        )}
       </View>
-    </ScrollView>
-  );
+
+      <View style={styles.card}>
+        <AppText style={styles.cardTitle}>Additional Details</AppText>
+        <View style={styles.infoRow}>
+          <Icon name="location-outline" size={20} color="#888" />
+          <View style={styles.textContainer}>
+            <AppText style={styles.label}>Location</AppText>
+            <AppText style={styles.value}>{profile?.location || '—'}</AppText>
+          </View>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.infoRow}>
+          <Icon name="briefcase-outline" size={20} color="#888" />
+          <View style={styles.textContainer}>
+            <AppText style={styles.label}>Role</AppText>
+            <AppText style={styles.value}>{profile?.role || '—'}</AppText>
+          </View>
+        </View>
+      </View>
+      {/* My Services Card */}
+    </View>
+  </ScrollView>
+);
+
 };
 
 export default AccountScreen;

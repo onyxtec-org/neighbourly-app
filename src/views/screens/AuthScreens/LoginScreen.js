@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -15,6 +15,7 @@ import CustomTextInput from '../../components/CustomTextInput';
 import AppButton from '../../components/ButtonComponents/AppButton';
 import CustomToast from '../../components/CustomToast';
 import colors from '../../../config/colors';
+import AppText from '../../components/AppText';
 const validationSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email address').required('Email is required'),
   password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
@@ -95,8 +96,8 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
       {/* Animated Logo */}
       <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
         <StartupSVG width={160} height={160} />
-        <Text style={styles.welcomeText}>Welcome Back 👋</Text>
-        <Text style={styles.subText}>Log in to continue</Text>
+        <AppText style={styles.welcomeText}>Welcome Back 👋</AppText>
+        <AppText style={styles.subText}>Log in to continue</AppText>
       </Animated.View>
 
       {/* Login Form */}
@@ -135,7 +136,7 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
               onPress={() => navigation.navigate('ForgotPassword')}
               style={styles.forgotPasswordContainer}
             >
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              <AppText style={styles.forgotPasswordText}>Forgot Password?</AppText>
             </TouchableOpacity>
 
             <AppButton
@@ -151,7 +152,7 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
       </Formik>
 
       {/* Divider */}
-      <Text style={styles.signupPrompt}>Don’t have an account?</Text>
+      <AppText style={styles.signupPrompt}>Don’t have an account?</AppText>
 
       {/* Signup Buttons */}
       <View style={styles.buttonContainer}>

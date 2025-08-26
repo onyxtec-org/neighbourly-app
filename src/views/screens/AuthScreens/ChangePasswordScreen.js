@@ -5,7 +5,6 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  Text,
   KeyboardAvoidingView,
   Platform,
   Keyboard,
@@ -14,11 +13,10 @@ import {
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
-
+import AppText from '../../components/AppText';
 import CustomTextInput from '../../components/CustomTextInput';
 import AppButton from '../../components/ButtonComponents/AppButton';
 import colors from '../../../config/colors';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import authStorage from '../../../app/storage';
 import {
   changePassword,
@@ -26,6 +24,7 @@ import {
 } from '../../../redux/slices/authSlice/passwordSlice';
 import CustomToast from '../../components/CustomToast'; // 🔔 Import your custom toast
 import PasswordChecklist from '../../components/PasswordChecklist';
+import Header from '../../components/HeaderComponent/Header';
 const ChangePasswordScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const login = useSelector(state => state.login);
@@ -103,16 +102,7 @@ const ChangePasswordScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.iconButton}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.dark} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Change Password</Text>
-        <View style={styles.iconButton} />
-      </View>
+      <Header title={'Change Password'} bookmark={false} />
 
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
@@ -160,7 +150,7 @@ const ChangePasswordScreen = ({ navigation }) => {
                     error={touched.newPassword && errors.newPassword}
                     secureTextEntry
                   />
-              <PasswordChecklist password={values.newPassword} />
+                  <PasswordChecklist password={values.newPassword} />
 
                   <CustomTextInput
                     label="Confirm Password"

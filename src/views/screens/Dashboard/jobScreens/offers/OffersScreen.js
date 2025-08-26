@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   FlatList,
   View,
-  Text,
   SafeAreaView,
   ActivityIndicator,
   StyleSheet,
@@ -14,6 +13,7 @@ import CustomPopup from '../../../../components/CustomPopup';
 import colors from '../../../../../config/colors';
 import { useDispatch } from 'react-redux';
 import { offerStatusUpdate } from '../../../../../redux/slices/jobSlice/offerSlice/offerSlice';
+import AppText from '../../../../components/AppText';
 const OfferListScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const initialOffers = (route.params?.offers || []).filter(
@@ -118,7 +118,7 @@ const OfferListScreen = ({ navigation, route }) => {
 
   const ListEmptyComponent = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>No Offers</Text>
+      <AppText style={styles.emptyText}>No Offers</AppText>
     </View>
   );
 

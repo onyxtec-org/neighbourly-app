@@ -3,7 +3,6 @@ import {
   View,
   TextInput,
   FlatList,
-  Text,
   TouchableOpacity,
   SafeAreaView,
   ActivityIndicator,
@@ -11,10 +10,11 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchServices } from '../../../../redux/slices/servicesSlice/servicesSlice';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from '../../../components/ImageComponent/IconComponent';
 import colors from '../../../../config/colors';
 import NoRecordFound from '../../../components/NoRecordFound';
-
+import AppText from '../../../components/AppText';
+import Header from '../../../components/HeaderComponent/Header';
 const SearchScreen = ({ navigation, route }) => {
   const { type ,onSelect } = route.params || {};
   const handleItemPress = (item) => {
@@ -47,17 +47,8 @@ const SearchScreen = ({ navigation, route }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.iconButton}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.dark} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Search Services</Text>
-        <View style={styles.iconButton} /> {/* Spacer */}
-      </View>
-
+      <Header title={'Search Services'} bookmark={false}/>
+    
       {/* Search Bar */}
       <View style={styles.searchBar}>
         <Ionicons name="search" size={20} color={colors.textMedium} />
@@ -108,8 +99,8 @@ const SearchScreen = ({ navigation, route }) => {
                     />
                   </View>
                   <View style={styles.cardContent}>
-                    <Text style={styles.cardTitle}>{item.name}</Text>
-                    <Text style={styles.categoryText}>{categoryName}</Text>
+                    <AppText style={styles.cardTitle}>{item.name}</AppText>
+                    <AppText style={styles.categoryText}>{categoryName}</AppText>
                   </View>
                 </TouchableOpacity>
               );
@@ -126,26 +117,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  header: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.dark,
-  },
-  iconButton: {
-    width: 32,
-    alignItems: 'center',
-  },
+
   searchBar: {
     flexDirection: 'row',
     backgroundColor: '#f2f2f2',

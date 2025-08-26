@@ -1,42 +1,41 @@
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from '../../components/ImageComponent/IconComponent';
 import colors from '../../../config/colors';
-
+import AppText from '../../components/AppText';
 const VerfiyUserScreen = ({ navigation }) => {
   const [isVerified, setIsVerified] = useState(false);
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.headerText}>
-        Complete the following steps to proceed
-      </Text>
+ return (
+  <SafeAreaView style={styles.container}>
+    <AppText style={styles.headerText}>
+      Complete the following steps to proceed
+    </AppText>
 
-      {/* Step 1 */}
-      <View style={styles.stepContainer}>
-        <Text style={styles.stepText}>1. Verify user via email</Text>
+    {/* Step 1 */}
+    <View style={styles.stepContainer}>
+      <AppText style={styles.stepText}>1. Verify user via email</AppText>
+      <Ionicons name="checkmark-circle" size={24} color="green" />
+    </View>
 
-        <Ionicons name="checkmark-circle" size={24} color="green" />
-      </View>
+    {/* Step 2 */}
+    <View style={styles.stepContainer}>
+      <AppText style={styles.stepText}>2. Select services</AppText>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => navigation.navigate('ServicesSelection')}
+      >
+        <AppText style={styles.addText}>Add Services</AppText>
+      </TouchableOpacity>
+    </View>
+  </SafeAreaView>
+);
 
-      {/* Step 2 */}
-      <View style={styles.stepContainer}>
-        <Text style={styles.stepText}>2. Select services</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => navigation.navigate('ServicesSelection')}
-        >
-          <Text style={styles.addText}>Add Services</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
-  );
 };
 
 const styles = StyleSheet.create({

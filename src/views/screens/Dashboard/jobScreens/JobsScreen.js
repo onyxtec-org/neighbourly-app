@@ -20,7 +20,7 @@ import { createOffer } from '../../../../redux/slices/jobSlice/offerSlice/offerS
 import AppActivityIndicator from '../../../components/AppActivityIndicator';
 import CreateOfferPopup from '../../../screens/Dashboard/jobScreens/offers/CreateOfferPopup';
 import CustomPopup from '../../../components/CustomPopup';
-
+import AppText from '../../../components/AppText';
 const { width } = Dimensions.get('window');
 const scale = width / 375;
 const normalize = size => Math.round(PixelRatio.roundToNearestPixel(size * scale));
@@ -185,7 +185,7 @@ useEffect(() => {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Jobs</Text>
+          <AppText style={styles.headerTitle}>Jobs</AppText>
         </View>
       </View>
 
@@ -207,14 +207,14 @@ useEffect(() => {
                 ]}
                 onPress={() => setActiveTab(tab.key)}
               >
-                <Text
+                <AppText
                   style={[
                     styles.tabText,
                     activeTab === tab.key && styles.activeTabText,
                   ]}
                 >
                   {tab.label}
-                </Text>
+                </AppText>
               </TouchableOpacity>
             ))}
           </ScrollView>

@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Platform,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,10 +25,14 @@ import storage from '../../../../app/storage';
 import ZoomableImage from '../../../components/ImageComponent/ZoomableImage';
 import { setMyServices } from '../../../../redux/slices/servicesSlice/servicesSlice';
 import AppActivityIndicator from '../../../components/AppActivityIndicator';
+import AppText from '../../../components/AppText';
+import colors from '../../../../config/colors';
 const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const nav = useNavigation(); // for logout navigation
   const [deletePopupVisible, setDeletePopupVisible] = useState(false);
+  const [logoutPopupVisible, setLogoutPopupVisible] = useState(false);
+
   const handleDeleteAccount = async () => {
     console.log('🗑 Account deletion confirmed');
     setDeletePopupVisible(false);
@@ -83,61 +85,103 @@ const ProfileScreen = ({ navigation }) => {
     setToastVisible(true);
   };
 
+  // const handleLogout = () => {
+  //   Alert.alert(
+  //     'Logout',
+  //     'Are you sure you want to logout?',
+  //     [
+  //       { text: 'Cancel', style: 'cancel' },
+  //       {
+  //         text: 'Logout',
+  //         style: 'destructive',
+  //         onPress: async () => {
+  //           setIsLoading(true);
+  //           try {
+  //             const result = await dispatch(logoutUser());
+  //             console.log('resulg logout--', result);
+
+  //             if (result.payload === 'Logout successful') {
+  //               showToast('Logout successful', 'success');
+  //               setShouldNavigate(true);
+
+  //               setTimeout(async () => {
+  //                 try {
+  //                   setIsLoading(false);
+
+  //                   nav.dispatch(
+  //                     CommonActions.reset({
+  //                       index: 0,
+  //                       routes: [{ name: 'Login' }],
+  //                     }),
+  //                   );
+  //                   const tokenRemoved = await storage.removeToken();
+  //                   const userRemoved = await storage.removeUser();
+
+  //                   if (!tokenRemoved || !userRemoved) {
+  //                     throw new Error('Failed to clear local storage');
+  //                   }
+  //                 } catch (err) {
+  //                   console.error('Logout cleanup failed:', err);
+  //                   showToast('Something went wrong during logout', 'error');
+  //                 }
+  //               }, 0);
+  //             } else {
+  //               setIsLoading(false);
+
+  //               throw new Error(result.payload || 'Logout failed');
+  //             }
+  //           } catch (err) {
+  //             setIsLoading(false);
+
+  //             showToast(err.message || 'Logout failed', 'error');
+  //           }
+  //         },
+  //       },
+  //     ],
+  //     { cancelable: true },
+  //   );
+  // };
+
   const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            setIsLoading(true);
-            try {
-              const result = await dispatch(logoutUser());
-              console.log('resulg logout--', result);
+    setLogoutPopupVisible(true);
+  };
 
-              if (result.payload === 'Logout successful') {
-                showToast('Logout successful', 'success');
-                setShouldNavigate(true);
+  const confirmLogout = async () => {
+    setLogoutPopupVisible(false);
+    setIsLoading(true);
+    try {
+      const result = await dispatch(logoutUser());
+      if (result.payload === 'Logout successful') {
+        showToast('Logout successful', 'success');
+        setShouldNavigate(true);
 
-                setTimeout(async () => {
-                  try {
-                    setIsLoading(false);
-
-                    nav.dispatch(
-                      CommonActions.reset({
-                        index: 0,
-                        routes: [{ name: 'Login' }],
-                      }),
-                    );
-                    const tokenRemoved = await storage.removeToken();
-                    const userRemoved = await storage.removeUser();
-
-                    if (!tokenRemoved || !userRemoved) {
-                      throw new Error('Failed to clear local storage');
-                    }
-                  } catch (err) {
-                    console.error('Logout cleanup failed:', err);
-                    showToast('Something went wrong during logout', 'error');
-                  }
-                }, 0);
-              } else {
-                setIsLoading(false);
-
-                throw new Error(result.payload || 'Logout failed');
-              }
-            } catch (err) {
-              setIsLoading(false);
-
-              showToast(err.message || 'Logout failed', 'error');
+        setTimeout(async () => {
+          try {
+            setIsLoading(false);
+            nav.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+              }),
+            );
+            const tokenRemoved = await storage.removeToken();
+            const userRemoved = await storage.removeUser();
+            if (!tokenRemoved || !userRemoved) {
+              throw new Error('Failed to clear local storage');
             }
-          },
-        },
-      ],
-      { cancelable: true },
-    );
+          } catch (err) {
+            console.error('Logout cleanup failed:', err);
+            showToast('Something went wrong during logout', 'error');
+          }
+        }, 0);
+      } else {
+        setIsLoading(false);
+        throw new Error(result.payload || 'Logout failed');
+      }
+    } catch (err) {
+      setIsLoading(false);
+      showToast(err.message || 'Logout failed', 'error');
+    }
   };
 
   const handleToastHide = () => {
@@ -185,7 +229,7 @@ const ProfileScreen = ({ navigation }) => {
     }
   }, [dispatch, userId]);
 
-  if (loading || profileStatus === "loading") {
+  if (loading || profileStatus === 'loading') {
     return <ProfileShimmer />;
   }
 
@@ -198,7 +242,7 @@ const ProfileScreen = ({ navigation }) => {
   return (
     <View style={profileStyles.container}>
       <View style={profileStyles.header}>
-        <Text style={profileStyles.headerText}>Profile</Text>
+        <AppText style={profileStyles.headerText}>Profile</AppText>
       </View>
 
       <ScrollView contentContainerStyle={profileStyles.scrollViewContent}>
@@ -214,30 +258,34 @@ const ProfileScreen = ({ navigation }) => {
               style={profileStyles.profileImage}
             />
           </View>
-          <Text style={profileStyles.profileName}>
+          <AppText style={profileStyles.profileName}>
             {profileUser?.name || 'User'}
-          </Text>
+          </AppText>
           <TouchableOpacity style={profileStyles.helpFriendsButton}>
-            <Text style={profileStyles.helpFriendsButtonText}>
+            <AppText style={profileStyles.helpFriendsButtonText}>
               🎁 Help Your Friends, Get $10
-            </Text>
+            </AppText>
           </TouchableOpacity>
         </View>
 
         <View style={profileStyles.menuSection}>
           <TouchableOpacity
             style={profileStyles.menuItem}
-            onPress={() => navigation.navigate('AccountScreen' ,{ userId: profileUser.id })}
+            onPress={() =>
+              navigation.navigate('AccountScreen', { userId: profileUser.id })
+            }
           >
             <View>
-              <Text style={profileStyles.menuItemText}>Profile Details</Text>
-              <Text style={profileStyles.menuItemSubText}>
+              <AppText style={profileStyles.menuItemText}>
+                Profile Details
+              </AppText>
+              <AppText style={profileStyles.menuItemSubText}>
                 {profileUser?.email || 'user@example.com'}
-              </Text>
+              </AppText>
             </View>
-            <Text style={profileStyles.arrowIcon}>›</Text>
+            <AppText style={profileStyles.arrowIcon}>›</AppText>
           </TouchableOpacity>
-              
+
           {[
             'Change Password',
             'Notifications Settings',
@@ -266,8 +314,8 @@ const ProfileScreen = ({ navigation }) => {
                 }
               }}
             >
-              <Text style={profileStyles.menuItemText}>{item}</Text>
-              <Text style={profileStyles.arrowIcon}>›</Text>
+              <AppText style={profileStyles.menuItemText}>{item}</AppText>
+              <AppText style={profileStyles.arrowIcon}>›</AppText>
             </TouchableOpacity>
           ))}
         </View>
@@ -277,11 +325,11 @@ const ProfileScreen = ({ navigation }) => {
             style={profileStyles.centeredMenuItem}
             onPress={handleSwitchProfile}
           >
-            <Text style={profileStyles.centeredMenuItemText}>
+            <AppText style={profileStyles.centeredMenuItemText}>
               {profileUser.role === 'provider'
                 ? 'Swtich to Consumer'
                 : 'Switch to Provider'}
-            </Text>
+            </AppText>
           </TouchableOpacity>
 
           <View style={profileStyles.dividerLine} />
@@ -291,11 +339,11 @@ const ProfileScreen = ({ navigation }) => {
               onPress={handleLogout}
               style={{ alignItems: 'center' }}
             >
-              <Text
+              <AppText
                 style={{ fontSize: 16, fontWeight: '500', color: '#DC2626' }}
               >
                 Logout
-              </Text>
+              </AppText>
             </TouchableOpacity>
           </View>
         </View>
@@ -313,12 +361,25 @@ const ProfileScreen = ({ navigation }) => {
         title="Delete Account"
         message="Are you sure you want to delete your account? This action cannot be undone."
         icon="trash-outline"
-        iconColor="#DC2626"
+        iconColor={colors.red}
         cancelText="Cancel"
         confirmText="Delete"
         onCancel={() => setDeletePopupVisible(false)}
         onConfirm={handleDeleteAccount}
       />
+      <CustomPopup
+        visible={logoutPopupVisible}
+        onClose={() => setLogoutPopupVisible(false)}
+        title="Logout"
+        message="Are you sure you want to logout from your account?"
+        icon="log-out-outline"
+        iconColor={colors.red}
+        cancelText="Cancel"
+        confirmText="Logout"
+        onCancel={() => setLogoutPopupVisible(false)}
+        onConfirm={confirmLogout}
+      />
+
       {isLoading && <AppActivityIndicator />}
     </View>
   );
@@ -362,7 +423,7 @@ const profileStyles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     padding: 24,
     alignItems: 'center',
-    marginBottom:3,
+    marginBottom: 3,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
