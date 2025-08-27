@@ -20,7 +20,7 @@ export default function App() {
         console.error('❌ Branch Error:', error);
         return;
       }
-
+//branch deep link
       if (params['+clicked_branch_link']) {
         console.log('✅ Branch Deep Link Params:', params);
         handleBranchNavigation(params);
