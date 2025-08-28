@@ -6,33 +6,30 @@ import { logoutUser } from '../../thunks/auth/logoutThunk';
 
 export const fetchUserProfile = createAsyncThunk(
   'profile/fetchUserProfile',
-  async (userId, { rejectWithValue }) => {
+  async ({ userId, authId = null }, { rejectWithValue }) => {
     try {
       const token = await storage.getToken();
-      console.log('🛑 Token fetched inside thunk:', token);
-      console.log('🛑 User ID passed to thunk:', userId);
+      console.log(' Token fetched inside thunk:', token);
+      console.log(' User ID passed to thunk:', userId);
+      console.log(' Auth ID passed to thunk:', authId);
 
       const response = await apiClient.get(`/profile/${userId}`);
 
-      console.log('✅ Profile API response:', response.data);
+      console.log('Profile API response:', response.data);
 
       const { success, data } = response.data;
       if (success && data) {
-        return data;
+        return { data, userId, authId }; // ✅ return both fetched data & IDs
       } else {
         return rejectWithValue('Failed to fetch profile');
       }
     } catch (error) {
-      console.log(
-        '❌ Profile API error:',
-        error.response?.data || error.message,
-      );
-      return rejectWithValue(
-        error.response?.data?.message || 'Something went wrong',
-      );
+      console.log('Profile API error:', error.response?.data || error.message);
+      return rejectWithValue(error.response?.data?.message || 'Something went wrong');
     }
   },
 );
+
 // profileSlice.js
 export const deleteAccount = createAsyncThunk(
   'profile/deleteAccount',
@@ -48,7 +45,7 @@ export const deleteAccount = createAsyncThunk(
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log('✅ Delete account response:', response.data);
+      console.log(' Delete account response:', response.data);
 
       if (response.data.success) {
         // Clear storage after deletion
@@ -59,7 +56,7 @@ export const deleteAccount = createAsyncThunk(
         return rejectWithValue(response.data.message || 'Failed to delete account');
       }
     } catch (error) {
-      console.log('❌ Delete account error:', error.response?.data || error.message);
+      console.log(' Delete account error:', error.response?.data || error.message);
       return rejectWithValue(error.response?.data?.message || 'Something went wrong');
     }
   },
@@ -81,7 +78,7 @@ export const switchUserProfile = createAsyncThunk(
       }
     } catch (error) {
       console.log(
-        '❌ switch profile error:',
+        'switch profile error:',
         error.response?.data || error.message,
       );
       return rejectWithValue(
@@ -117,10 +114,21 @@ const profileSlice = createSlice({
       .addCase(fetchUserProfile.pending, state => {
         state.status = 'loading';
       })
-      .addCase(fetchUserProfile.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.user = action.payload;
-      })
+.addCase(fetchUserProfile.fulfilled, (state, action) => {
+  state.status = 'succeeded';
+
+  const { data: fetchedUser, userId, authId } = action.payload;
+
+  if (!authId || authId === userId) {
+    // ✅ If authId is null/undefined OR matches userId, update state.user
+    state.user = fetchedUser;
+  } else {
+    // ✅ If authId exists and is different, just log and skip state update
+    console.log('✅ Different user profile fetched, not updating state.user');
+  }
+})
+
+
       .addCase(fetchUserProfile.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;

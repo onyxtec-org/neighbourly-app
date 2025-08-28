@@ -28,11 +28,15 @@ const AccountScreen = ({ navigation, route }) => {
   useFocusEffect(
     useCallback(() => {
       if (userId) {
-        dispatch(fetchUserProfile(userId)).then(res => setProfile(res.payload));
+        dispatch(fetchUserProfile({ userId, authId: user.id })).then(res => {
+          setProfile(res.payload.data);
+        });
       }
     }, [dispatch, userId]),
   );
   const isAuthUser = aauthUser === userId;
+
+  console.log('porfile user', profile);
 
   return (
     <ScrollView style={styles.container}>
@@ -57,7 +61,7 @@ const AccountScreen = ({ navigation, route }) => {
               uri={
                 profile?.image ? `${config.userimageURL}${profile.image}` : null
               }
-              placeholderUri="https://placehold.co/96x96/e0e0e0/000000?text=Profile"
+              placeholder={require('../../../../assets/images/profile_icon.jpeg')}
               style={styles.profileImage}
             />
           )}
@@ -100,11 +104,15 @@ const AccountScreen = ({ navigation, route }) => {
                 />
               )}
               {profile?.slug && (
-                <InfoItems icon={'person'} text={profile.slug} title={'Slug'} />
+                <InfoItems
+                  icon={'person'}
+                  text={profile.slug}
+                  title={'Screen Name'}
+                />
               )}
               {profile?.phone && (
                 <>
-                  <View style={styles.divider} />
+                  <Seperator color="#f0f0f0" />
 
                   <InfoItems
                     icon={'call-outline'}
@@ -126,7 +134,7 @@ const AccountScreen = ({ navigation, route }) => {
             title={'Location'}
           />
 
-          <Seperator />
+          <Seperator color="#f0f0f0" />
 
           <InfoItems
             icon={'briefcase-outline'}
@@ -135,7 +143,7 @@ const AccountScreen = ({ navigation, route }) => {
           />
         </View>
         {/* My Services Card */}
-        {user.role === 'provider' && (
+        {profile?.role === 'provider' && (
           <View style={styles.card}>
             <View
               style={{
@@ -144,29 +152,51 @@ const AccountScreen = ({ navigation, route }) => {
                 alignItems: 'flex-start',
               }}
             >
+              <AppText style={styles.cardTitle}>
+                {isAuthUser ? 'My Services' : 'Services'}
+              </AppText>
+
               {isAuthUser && (
-                <AppText style={styles.cardTitle}>My Services</AppText>
+                <Icon
+                  name={'create-outline'}
+                  color={colors.black}
+                  pressed={true}
+                  onPress={() => navigation.navigate('EditServices')}
+                />
               )}
-              <Icon
-                name={'create-outline'}
-                color={colors.black}
-                pressed={true}
-                onPress={() => navigation.navigate('EditServices')}
-              />
             </View>
-            {myServices && myServices.length > 0 ? (
-              myServices.map((service, index) => (
-                <View key={index}>
-                  <View style={styles.infoRow}>
-                    <Icon name="construct-outline" size={20} color="#888" />
-                    <View style={styles.textContainer}>
-                      <AppText style={styles.value}>
-                        {service.name || 'Unnamed Service'}
-                      </AppText>
-                    </View>
+            {isAuthUser ? (
+              // ✅ Show myServices for authenticated user
+              myServices && myServices.length > 0 ? (
+                myServices.map((service, index) => (
+                  <View key={index}>
+                    <InfoItems
+                      icon={'construct-outline'}
+                      text={service.name || 'Unnamed Service'}
+                    />
+                    {index < myServices.length - 1 && (
+                      <Seperator color="#f0f0f0" />
+                    )}
                   </View>
-                  {index < myServices.length - 1 && (
-                    <View style={styles.divider} />
+                ))
+              ) : (
+                <View style={styles.infoRow}>
+                  <Icon name="alert-circle-outline" size={20} color="#888" />
+                  <View style={styles.textContainer}>
+                    <AppText style={styles.value}>No services selected</AppText>
+                  </View>
+                </View>
+              )
+            ) : // ✅ Show profileServices for other users
+            profile.services && profile.services.length > 0 ? (
+              profile.services.map((service, index) => (
+                <View key={index}>
+                  <InfoItems
+                    icon={'construct-outline'}
+                    text={service.name || 'Unnamed Service'}
+                  />
+                  {index < profile.services.length - 1 && (
+                    <Seperator color="#f0f0f0" />
                   )}
                 </View>
               ))
@@ -174,7 +204,9 @@ const AccountScreen = ({ navigation, route }) => {
               <View style={styles.infoRow}>
                 <Icon name="alert-circle-outline" size={20} color="#888" />
                 <View style={styles.textContainer}>
-                  <AppText style={styles.value}>No services found</AppText>
+                  <AppText style={styles.value}>
+                    This user does not offer any services yet
+                  </AppText>
                 </View>
               </View>
             )}
@@ -258,10 +290,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     marginTop: 2,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#f0f0f0',
-    marginLeft: 35,
   },
 });

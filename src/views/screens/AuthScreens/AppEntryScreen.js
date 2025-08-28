@@ -38,7 +38,7 @@ const AppEntryScreen = ({ navigation }) => {
           
           
           
-          const result = await dispatch(fetchUserProfile(user.id)); // ✅ Re-hydrate Redux
+          const result = await dispatch(fetchUserProfile({userId:user.id})); // ✅ Re-hydrate Redux
           dispatch(fetchNotifications())
          
           if (fetchUserProfile.fulfilled.match(result)) {

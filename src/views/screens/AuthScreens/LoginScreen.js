@@ -53,7 +53,7 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (success && user && token) {
       dispatch(setMyServices(user.services));
-      dispatch(fetchUserProfile(user.id));
+      dispatch(fetchUserProfile({userId:user.id}));
        dispatch(fetchNotifications())
       setToastMessage('Login Successful!');
       setToastType('success');
