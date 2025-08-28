@@ -135,7 +135,7 @@ const OTPScreen = ({ navigation, route }) => {
             await storage.storeUser(data.user);
             await storage.storeToken(data.token);
             console.log('✅ User and Token saved in AsyncStorage');
-            dispatch(fetchUserProfile(data?.user.id));
+            dispatch(fetchUserProfile({userId:data?.user.id}));
 
             // ✅ UPDATE REDUX LOGIN STATE
             dispatch(setLoginUser({ user: data.user, token: data.token }));

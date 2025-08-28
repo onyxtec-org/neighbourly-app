@@ -1,4 +1,3 @@
-// export default CreateStageScreen;
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
 import MediaPicker from '../../../components/Mediapicker/MediaPicker';
@@ -13,6 +12,7 @@ import {
 import AppText from '../../../components/AppText';
 import Header from '../../../components/HeaderComponent/Header';
 import CustomDropdown from '../../../components/customdropdown';
+import AppActivityIndicator from '../../../components/AppActivityIndicator';
 const CreateStageScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector(state => state.post);
@@ -27,6 +27,8 @@ const CreateStageScreen = ({ navigation }) => {
   const {
     myServices,
   } = useSelector(state => state.services);
+
+  
   useEffect(() => {
     if (myServices?.length > 0) {
       const formattedServices = myServices.map(service => ({
@@ -36,6 +38,8 @@ const CreateStageScreen = ({ navigation }) => {
       setServiceItems(formattedServices);
     }
   }, [myServices]);
+
+
   const handleSubmit = async () => {
     setSubmitted(true);
 
@@ -65,14 +69,14 @@ const CreateStageScreen = ({ navigation }) => {
       const response = await dispatch(createPost(formData));
 
       if (response?.payload?.success) {
-        console.log('✅ Post successfully created');
+        console.log(' Post successfully created');
         dispatch(getPosts());
         navigation.goBack();
       } else {
-        console.log('❌ Post creation failed:', error || response?.payload);
+        console.log(' Post creation failed:', error || response?.payload);
       }
     } catch (err) {
-      console.log('❌ Error in handleSubmit:', err);
+      console.log(' Error in handleSubmit:', err);
     }
   };
 
@@ -135,8 +139,9 @@ const CreateStageScreen = ({ navigation }) => {
           IconName="briefcase"
         />
 
-        {error && <AppText style={styles.errorText}>❌ {error}</AppText>}
+        {error && <AppText style={styles.errorText}> {error}</AppText>}
       </ScrollView>
+      {loading && <AppActivityIndicator />}
     </>
   );
 };

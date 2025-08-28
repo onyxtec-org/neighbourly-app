@@ -10,19 +10,29 @@ import Ionicons from './IconComponent';
 import colors from '../../../config/colors';
 import ImagePickerModal from './ImagePickerModal';
 
-const CircularImagePicker = ({ size = 120, onImagePicked, defaultImageUri = null }) => {
+const CircularImagePicker = ({
+  size = 120,
+  onImagePicked,
+  onImageRemoved,
+  defaultImageUri = null,
+}) => {
   const [imageUri, setImageUri] = useState(null);
-  const [loading, setLoading] = useState(false); // 👈 loader state
+  const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     setImageUri(defaultImageUri);
   }, [defaultImageUri]);
 
-  const handleImagePicked = asset => {
+  const handleImagePicked = (asset) => {
     setImageUri(asset.uri);
     onImagePicked?.(asset);
     setModalVisible(false);
+  };
+
+  const handleRemoveImage = () => {
+    setImageUri(null);
+    onImageRemoved?.(); // optional callback for parent
   };
 
   const iconSize = size / 8;
@@ -49,15 +59,24 @@ const CircularImagePicker = ({ size = 120, onImagePicked, defaultImageUri = null
               <Image
                 source={{ uri: imageUri }}
                 style={styles.image}
-                onLoadStart={() => setLoading(true)} // 👈 start loading
-                onLoadEnd={() => setLoading(false)}   // 👈 stop loading
+                onLoadStart={() => setLoading(true)}
+                onLoadEnd={() => setLoading(false)}
               />
+
+              {/* ✅ Remove Image Button */}
+              {/* <TouchableOpacity
+                style={styles.removeIconContainer}
+                onPress={handleRemoveImage}
+              >
+                <Ionicons name="close-circle" size={22} color="#FF3B30" />
+              </TouchableOpacity> */}
             </>
           ) : (
             <Ionicons name="person-outline" size={size / 2} color="#A0A0A0" />
           )}
         </View>
 
+        {/* ✅ Camera Button */}
         <TouchableOpacity
           style={[
             styles.cameraIconContainer,
@@ -125,6 +144,15 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
+    elevation: 4,
+  },
+  removeIconContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 8,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 2,
     elevation: 4,
   },
 });

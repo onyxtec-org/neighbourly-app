@@ -78,6 +78,15 @@ const ProfileScreen = ({ navigation }) => {
   const [shouldNavigate, setShouldNavigate] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (userId) {
+      console.log('Dispatching fetchUserProfile with userId:', userId);
+      dispatch(fetchUserProfile({ userId: userId }));
+    } else {
+      console.log('Skipped fetching user profile – user ID not available');
+    }
+  }, [dispatch, userId]);
+
   const showToast = (msg, type = 'success') => {
     console.log(' Showing toast:', msg);
     setToastMessage(msg);
@@ -85,7 +94,6 @@ const ProfileScreen = ({ navigation }) => {
     setToastVisible(true);
   };
 
- 
   const handleLogout = () => {
     setLogoutPopupVisible(true);
   };
@@ -164,15 +172,6 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
-  useEffect(() => {
-    if (userId) {
-      console.log('Dispatching fetchUserProfile with userId:', userId);
-      dispatch(fetchUserProfile(userId));
-    } else {
-      console.log('Skipped fetching user profile – user ID not available');
-    }
-  }, [dispatch, userId]);
-
   if (loading || profileStatus === 'loading') {
     return <ProfileShimmer />;
   }
@@ -198,7 +197,7 @@ const ProfileScreen = ({ navigation }) => {
                   ? `${config.userimageURL}${profileUser.image}`
                   : null
               }
-              placeholderUri="https://placehold.co/96x96/e0e0e0/000000?text=Profile"
+              placeholder={require('../../../../assets/images/profile_icon.jpeg')}
               style={profileStyles.profileImage}
             />
           </View>
