@@ -14,40 +14,64 @@ import AppText from '../../../components/AppText';
 import colors from '../../../../config/colors';
 import InfoItems from '../../../components/ProfileComponents/InfoItems';
 import Seperator from '../../../components/Seperator';
+import { generateBranchLink } from '../../../../utils/branchUtils';
+import ShareBottomSheet from '../../../components/ShareBottomSheet';
 const AccountScreen = ({ navigation, route }) => {
   const { userId } = route.params; // user id passed from StageScreen
   const dispatch = useDispatch();
   const [profile, setProfile] = useState(null);
+  const [isShareSheetVisible, setIsShareSheetVisible] = useState(false);
+  const [branchLink, setBranchLink] = useState('');
   const { status, user } = useSelector(state => state.profile);
   const { myServices } = useSelector(state => state.services);
 
   console.log('user----------', user);
 
-  const aauthUser = user.id;
+  const aauthUser = user?.id ?? null;
 
   useFocusEffect(
     useCallback(() => {
       if (userId) {
-        dispatch(fetchUserProfile({ userId, authId: user.id })).then(res => {
+        dispatch(fetchUserProfile({ 
+          userId, 
+          authId: user?.id ?? null   
+        })).then(res => {
           setProfile(res.payload.data);
         });
       }
-    }, [dispatch, userId]),
+    }, [dispatch, user?.id, userId]),
   );
-  const isAuthUser = aauthUser === userId;
+  
+  const isAuthUser = aauthUser && userId && aauthUser.toString() === userId.toString();
 
+  const handleShareProfile = async () => {
+    try {
+      const url = await generateBranchLink({
+        id: userId,
+        type: 'user',
+        title: `${profile?.name}'s Profile on Neighbourly`,
+        description: `${profile?.name} is inviting you to view their profile`,
+      });
+      setBranchLink(url);
+      setIsShareSheetVisible(true);
+    } catch (error) {
+      console.error('Error generating Branch link:', error);
+    }
+  };
   console.log('porfile user', profile);
 
   return (
+    <>
     <ScrollView style={styles.container}>
       {/* Header with Back Button and Edit Icon */}
       <Header
-        title={'Profile Details'}
-        bookmark={false}
-        onIconPress={() => navigation.navigate('UpdateProfileScreen')}
-        icon={'create-outline'}
-        isIcon={!!isAuthUser}
-      />
+          title="Profile Details"
+          bookmark={false}
+          onIconPress={() => navigation.navigate('UpdateProfileScreen')}
+          icon="create-outline"
+          isIcon={!!isAuthUser}
+          onSharePress={handleShareProfile}
+        />
 
       <View style={styles.profileSummary}>
         <View style={{ alignItems: 'center' }}>
@@ -214,6 +238,12 @@ const AccountScreen = ({ navigation, route }) => {
         )}
       </View>
     </ScrollView>
+    <ShareBottomSheet
+        url={branchLink}
+        onClose={() => setIsShareSheetVisible(false)}
+        visible={isShareSheetVisible}
+      />
+    </>
   );
 };
 
