@@ -8,7 +8,7 @@ function InfoItems({icon,title,text}) {
    <View style={styles.infoRow}>
       <Icon name={icon} size={20} color="#888" />
       <View style={styles.textContainer}>
-        <AppText style={styles.label}>{title}</AppText>
+       {title && <AppText style={styles.label}>{title}</AppText>}
         <AppText style={styles.value}>{text}</AppText>
       </View>
     </View>

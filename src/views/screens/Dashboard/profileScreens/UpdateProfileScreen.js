@@ -37,23 +37,34 @@ const validationSchema = Yup.object().shape({
   countryCode: Yup.string().required('Country code is required'),
 });
 
+
 const UpdateProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.profile);
 
+  
   const [profileImage, setProfileImage] = useState(null);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [slugAvailable, setSlugAvailable] = useState(null);
+  const [slugAvailable, setSlugAvailable] = useState(null); // true, false, or null
   const [slugLoading, setSlugLoading] = useState(false);
-  const slugTimeout = useRef(null);
 
+  const slugTimeout = useRef(null);
+const validateScreenName = values => {
+  const errors = {};
+  if (slugAvailable === false) {
+    errors.screenName = 'Screen name is already taken';
+  }
+  return errors;
+};
   const handleProfileUpdate = async values => {
     try {
       setIsSubmitting(true);
+
+      console.log('user id', user?.id);
 
       const payload = {
         id: user?.id,
@@ -64,11 +75,14 @@ const UpdateProfileScreen = ({ navigation }) => {
           phoneNumber: values.phoneNumber,
           countryCode: values.countryCode,
           profileImage: profileImage,
+          slug: values.screenName,
         },
       };
 
+      console.log('payload', payload);
+
       await dispatch(updateProfile(payload)).unwrap();
-      await dispatch(fetchUserProfile(user?.id));
+      await dispatch(fetchUserProfile({userId:user?.id}));
 
       setToastMessage('Profile updated successfully');
       setToastType('success');
@@ -140,7 +154,7 @@ const UpdateProfileScreen = ({ navigation }) => {
         <CircularImagePicker
           onImagePicked={asset => setProfileImage(asset)}
           defaultImageUri={
-            user?.image ? `${config.imageURL}${user.image}` : null
+            user?.image ? `${config.userimageURL}${user.image}` : null
           }
         />
 
@@ -154,6 +168,7 @@ const UpdateProfileScreen = ({ navigation }) => {
             countryCode: user?.country_code || '',
           }}
           validationSchema={validationSchema}
+          validate={validateScreenName}
           onSubmit={handleProfileUpdate}
         >
           {({
@@ -175,7 +190,7 @@ const UpdateProfileScreen = ({ navigation }) => {
                 error={touched.fullName && errors.fullName}
               />
 
-                       <CustomTextInput
+              <CustomTextInput
                 label="Screen Name"
                 required
                 value={values.screenName}
@@ -197,7 +212,6 @@ const UpdateProfileScreen = ({ navigation }) => {
                   ) : null
                 }
               />
-
 
               <CustomTextInput
                 label="Email"

@@ -8,6 +8,7 @@ import AppText from './../AppText';
 import Seperator from './../Seperator';
 import colors from '../../../config/colors';
 import { markNotificationAsRead } from '../../../redux/slices/notificationSlice/notificationSlice';
+import { formatStatusText } from '../../../utils/stringHelpers';
 function NotificationsCard({ item }) {
   const { user: profileUser } = useSelector(state => state.profile);
   const role = profileUser?.role;
@@ -33,21 +34,25 @@ function NotificationsCard({ item }) {
         item: {},
       });
     } else if (item.type.includes('OfferAcceptedNotification')) {
-       role==='provider'?   navigation.navigate('ProviderDashboard', {
-        screen: 'Jobs',
-        params: { defaultTab: 'my_jobs' },
-      }):   navigation.navigate('ConsumerDashboard', {
-        screen: 'Jobs',
-        params: { defaultTab: 'my_jobs' },
-      });
+      role === 'provider'
+        ? navigation.navigate('ProviderDashboard', {
+            screen: 'Jobs',
+            params: { defaultTab: 'my_jobs' },
+          })
+        : navigation.navigate('ConsumerDashboard', {
+            screen: 'Jobs',
+            params: { defaultTab: 'my_jobs' },
+          });
     } else if (item.type.includes('JobStatusUpdatedNotification')) {
-     role==='provider'? navigation.navigate('ProviderDashboard', {
-        screen: 'Jobs',
-        params: { defaultTab: item.data.job_status },
-      }): navigation.navigate('ConsumerDashboard', {
-        screen: 'Jobs',
-        params: { defaultTab: item.data.job_status },
-      });
+      role === 'provider'
+        ? navigation.navigate('ProviderDashboard', {
+            screen: 'Jobs',
+            params: { defaultTab: item.data.job_status },
+          })
+        : navigation.navigate('ConsumerDashboard', {
+            screen: 'Jobs',
+            params: { defaultTab: item.data.job_status },
+          });
     } else if (item.type.includes('NewOfferNotification')) {
       navigation.navigate('JobDetailsScreen', {
         jobId: item.data.job_id,
@@ -82,7 +87,11 @@ function NotificationsCard({ item }) {
           <View style={styles.textWrapper}>
             <AppText style={styles.title}>
               {readable === 'Job Status Updated'
-                ? `${readable} to ${item.data.job_status}`
+                ? `${readable} to ${formatStatusText(item.data.job_status)}`
+                : readable === 'New Job'
+                ? `${readable} created for ${item.data.service}`
+                : readable === 'New Offer'
+                ? `${readable} recived for ${item.data.job_title.split(" - ")[1]}`
                 : readable}
             </AppText>
 

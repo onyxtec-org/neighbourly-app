@@ -13,7 +13,7 @@ export const updateProfile = createAsyncThunk(
       formData.append('country_code', data.countryCode);
       formData.append('phone', data.phoneNumber);
       formData.append('location', data.address);
-
+formData.append('slug', data.slug);
       if (data.profileImage) {
         formData.append('image', {
           uri: data.profileImage.uri,
