@@ -18,6 +18,7 @@ import notificationsReducer from './slices/notificationSlice/notificationSlice';
 import featuredCategoriesReducer from './slices/consumerSlice/featuredCategoriesSlice';
 import featuredServicesReducer from './slices/consumerSlice/featuredServicesSlice';
 import postReducer from './slices/stageSlice/postSlice';
+import deepLinkReducer from './slices/deepLinkSlice';
 
 
 
@@ -41,6 +42,7 @@ const store = configureStore({
     featuredCategories: featuredCategoriesReducer,
     featuredServices: featuredServicesReducer,
     post: postReducer,
+    deepLink: deepLinkReducer,
   },
 });
 

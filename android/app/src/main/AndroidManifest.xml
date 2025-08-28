@@ -1,32 +1,82 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Required Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-  android:maxSdkVersion="28" />
+        android:maxSdkVersion="28" />
 
 
     <application
-      android:name=".MainApplication"
-      android:label="@string/app_name"
-      android:icon="@mipmap/ic_launcher"
-      android:roundIcon="@mipmap/ic_launcher_round"
-      android:allowBackup="false"
-      android:theme="@style/AppTheme"
-      android:supportsRtl="true">
-      <activity
-        android:name=".MainActivity"
+        android:name=".MainApplication"
         android:label="@string/app_name"
-        android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
-        android:launchMode="singleTask"
-        android:windowSoftInputMode="adjustResize"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-      </activity>
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:allowBackup="false"
+        android:theme="@style/AppTheme"
+        android:supportsRtl="true">
+
+        <!-- ✅ Branch.io Keys -->
+        <!-- <meta-data
+            android:name="io.branch.sdk.BranchKey"
+            android:value="key_live_pqj5wxDsUmZx1eTs28He1afcADaxLJpl" /> -->
+        <meta-data
+            android:name="io.branch.sdk.BranchKey.test"
+            android:value="key_test_oxpWxtyEJp0A8lHEY3RaUkimFFmxIFZY" />
+        <meta-data
+            android:name="io.branch.sdk.TestMode"
+            android:value="true" />
+
+        <!-- ✅ Google Play Services (optional but recommended) -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
+
+            <!-- ✅ Launcher Intent -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- ✅ Custom Scheme Deep Link -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="neighbourly" android:host="open"/>
+            </intent-filter>
+
+            
+            <!-- ✅ Branch App Links - Live -->
+            <!-- <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="8ra9a.test-app.link"/>
+                <data android:scheme="https" android:host="8ra9a-alternate.test-app.link"/>
+            </intent-filter> -->
+
+            <!-- ✅ Branch App Links - Test -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="8ra9a.test-app.link"/>
+                <data android:scheme="https" android:host="8ra9a-alternate.test-app.link"/>
+            </intent-filter>
+
+        </activity>
     </application>
 </manifest>

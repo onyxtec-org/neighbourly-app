@@ -1,62 +1,59 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Image } from 'react-native';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import colors from '../../../config/colors'; // Ensure this has primary/white/etc.
 import StartupSVG from '../../../assets/icons/startup.svg';
-import { useDispatch } from 'react-redux';
+import { useDispatch , useSelector} from 'react-redux';
 import { fetchUserProfile } from '../../../redux/slices/authSlice/profileSlice';
 import storage from '../../../app/storage';
 import { setMyServices } from '../../../redux/slices/servicesSlice/servicesSlice';
 import { fetchNotifications } from '../../../redux/slices/notificationSlice/notificationSlice';
-import { fetchCategories } from '../../../redux/slices/categorySlice/categoriesSlice';
 import AppText from '../../components/AppText';
+import { clearDeepLinkParams } from '../../../redux/slices/deepLinkSlice';
+
 const AppEntryScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const deepLink = useSelector(state => state.deepLink.params);
+
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        // Wait 2 seconds to show splash
         await new Promise(resolve => setTimeout(resolve, 2000));
         const user = await storage.getUser();
         const token = await storage.getToken();
-        
-        console.log('Retrieved token from AsyncStorage:', token);
-        console.log('Retrieved user from AsyncStorage:', user);
 
-        if (!token ||
-           !user) {
-          console.log('No token found → Navigating to Login');
+        if (!token || !user) {
+          navigation.replace('Login');
+          return;
+        }
+
+        const result = await dispatch(fetchUserProfile({ userId: user.id }));
+        dispatch(fetchNotifications());
+
+        if (fetchUserProfile.fulfilled.match(result)) {
+          dispatch(setMyServices(user.services || []));
+
+          // ✅ Agar deep link params hain → wahan navigate karo
+          if (deepLink) {
+            if (deepLink.type === "user") {
+              navigation.replace("AccountScreen", { userId: parseInt(deepLink.id, 10) });
+            } else if (deepLink.type === "group") {
+              navigation.replace("GroupScreen", { groupId: deepLink.id });
+            }
+            dispatch(clearDeepLinkParams()); // reset after navigation
+          } else {
+            navigation.replace('DashboardRouter'); // normal flow
+          }
+        } else {
           navigation.replace('Login');
         }
-        // else 
-        //   if (!user) {
-        //   console.log(
-        //     'User missing or no account → Navigating to WelcomeScreen',
-        //   );
-        //   navigation.replace('Welcome');
-        // }
-         else if (token && user) {
-          
-          
-          
-          const result = await dispatch(fetchUserProfile({userId:user.id})); // ✅ Re-hydrate Redux
-          dispatch(fetchNotifications())
-         
-          if (fetchUserProfile.fulfilled.match(result)) {
-            dispatch(setMyServices(user.services || []));
-            navigation.replace('DashboardRouter');
-          } else {
-            console.log('Failed to fetch profile:', result.payload);
-            navigation.replace('Login'); // or error fallback
-          }
-        }
       } catch (err) {
-        console.log('Error while checking login:', err);
         navigation.replace('Login');
       }
     };
 
     checkLogin();
-  }, [dispatch, navigation]);
+  }, [dispatch, navigation, deepLink]);
+
 
   return (
     <View style={styles.container}>

@@ -9,6 +9,7 @@ import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
+import io.branch.rnbranch.RNBranchModule
 
 class MainApplication : Application(), ReactApplication {
 
@@ -16,8 +17,7 @@ class MainApplication : Application(), ReactApplication {
       object : DefaultReactNativeHost(this) {
         override fun getPackages(): List<ReactPackage> =
             PackageList(this).packages.apply {
-              // Packages that cannot be autolinked yet can be added manually here, for example:
-              // add(MyReactNativePackage())
+              // Packages that cannot be autolinked yet can be added manually here
             }
 
         override fun getJSMainModuleName(): String = "index"
@@ -33,6 +33,13 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
+    
+    // 🔹 Branch.io SDK Init
+    RNBranchModule.getAutoInstance(this)
+    RNBranchModule.enableLogging() // optional, remove in production
+
+    // 🔹 Initialize React Native
     loadReactNative(this)
   }
 }
+
