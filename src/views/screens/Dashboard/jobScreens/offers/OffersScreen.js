@@ -14,6 +14,7 @@ import colors from '../../../../../config/colors';
 import { useDispatch } from 'react-redux';
 import { offerStatusUpdate } from '../../../../../redux/slices/jobSlice/offerSlice/offerSlice';
 import AppText from '../../../../components/AppText';
+import AppActivityIndicator from '../../../../components/AppActivityIndicator';
 const OfferListScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const initialOffers = (route.params?.offers || []).filter(
@@ -23,11 +24,11 @@ const OfferListScreen = ({ navigation, route }) => {
 
   const [offers, setOffers] = useState(initialOffers);
   const [loadingId, setLoadingId] = useState(null);
-
+  
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
-
+  const [loader, setLoader] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupConfig, setPopupConfig] = useState({
     title: '',
@@ -50,7 +51,7 @@ const OfferListScreen = ({ navigation, route }) => {
 
     try {
       setLoadingId(offerId);
-
+      setLoader(true);
       const body = { status: action === 'accept' ? 'accepted' : 'rejected' };
       const response = await dispatch(offerStatusUpdate({ body, id: offerId }));
 
@@ -58,21 +59,30 @@ const OfferListScreen = ({ navigation, route }) => {
            
       if (response.payload.data.success) {
         if (action === 'accept') {
+          setLoader(false);
           setOffers([]);
           showToast('Offer has been accepted!', 'success');
           navigation.pop(2);
         } else {
+                    setLoader(false);
+
           setOffers(prev => prev.filter(o => o.id !== offerId));
           showToast('Offer has been rejected!', 'success');
         }
       } else {
+                  setLoader(false);
+
         showToast(response.data?.message || 'Offer update failed','error');
       }
     } catch (error) {
+                setLoader(false);
+
               showToast(error?.message || 'Network error or server not reachable','error');
 
     
     } finally {
+                setLoader(false);
+
       setLoadingId(null);
     }
   };
@@ -108,13 +118,7 @@ const OfferListScreen = ({ navigation, route }) => {
         onAccept={() => onOfferAccepted(item.id)}
         onReject={() => onOfferRejected(item.id)}
       />
-      {loadingId === item.id && (
-        <ActivityIndicator
-          style={{ marginVertical: 8 }}
-          size="small"
-          color="blue"
-        />
-      )}
+      
     </View>
   );
 
@@ -159,6 +163,7 @@ const OfferListScreen = ({ navigation, route }) => {
         onCancel={() => setPopupVisible(false)}
         onConfirm={handleConfirmAction}
       />
+      {loader && <AppActivityIndicator />}
     </SafeAreaView>
   );
 };

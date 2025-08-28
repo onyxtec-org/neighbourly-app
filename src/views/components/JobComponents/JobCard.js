@@ -20,6 +20,7 @@ function JobCard({
   onPress,
   onInterestedPress,
   onRejectedPress,
+  onReinvitePress,
   status,
 }) {
   const navigation = useNavigation();
@@ -154,6 +155,16 @@ function JobCard({
             </TouchableOpacity>
           </View>
         )}
+
+        {/* {item.status === 'completed' && (
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: colors.primary, marginTop: 10 }]}
+            onPress={() => onReinvitePress(item.id)}
+            activeOpacity={0.8}
+          >
+            <AppText style={styles.actionButtonText}>Re invite</AppText>
+          </TouchableOpacity>
+        )} */}
       </View>
     </TouchableOpacity>
   );
@@ -223,10 +234,10 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   offerButton: {
-    backgroundColor: '#4CAF50', // green
+    backgroundColor: '#B6E269', // green
   },
   rejectButton: {
-    backgroundColor: '#E53935', // red
+    backgroundColor: '#DC644E', // red
   },
   actionButtonText: {
     color: '#fff',
