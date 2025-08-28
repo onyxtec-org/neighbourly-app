@@ -2,16 +2,21 @@ import React, { useState } from 'react';
 import { View, TouchableOpacity, Modal, StyleSheet, Image, Dimensions } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import Ionicons from './IconComponent';
-const { width, } = Dimensions.get('window');
 
-const ZoomableImage = ({ uri, style, placeholderUri }) => {
+const { width } = Dimensions.get('window');
+
+const ZoomableImage = ({ uri, style, placeholder }) => {
   const [modalVisible, setModalVisible] = useState(false);
+
+  // Determine if placeholder is local (require) or remote URL
+  const placeholderSource =
+    typeof placeholder === 'number' ? placeholder : { uri: placeholder };
 
   if (!uri) {
     return (
       <TouchableOpacity>
         <Image 
-          source={{ uri: placeholderUri }} 
+          source={placeholderSource} 
           style={[style, { resizeMode: 'contain' }]} 
         />
       </TouchableOpacity>
@@ -32,37 +37,37 @@ const ZoomableImage = ({ uri, style, placeholderUri }) => {
 
       {/* Modal Preview */}
       <Modal visible={modalVisible} transparent onRequestClose={() => setModalVisible(false)}>
-  <View style={styles.modalBackground}>
-    <ImageViewer
-      imageUrls={images}
-      enableSwipeDown
-      onSwipeDown={() => setModalVisible(false)}
-      onCancel={() => setModalVisible(false)}
-      renderHeader={() => (
-        <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-          <View style={styles.closeIconCircle}>
-            <Ionicons name="close" size={24} color="white" />
-          </View>
-        </TouchableOpacity>
-      )}
-      backgroundColor="transparent"  // 👈 full black hat gaya
-      saveToLocalByLongPress={false}
-      renderIndicator={() => null}
-      renderImage={(props) => (
-        <View style={styles.previewContainer}>
-          <Image
-            {...props}
-            style={{
-              width: width - 40,
-              height: 400,
-              resizeMode: 'contain',
-            }}
+        <View style={styles.modalBackground}>
+          <ImageViewer
+            imageUrls={images}
+            enableSwipeDown
+            onSwipeDown={() => setModalVisible(false)}
+            onCancel={() => setModalVisible(false)}
+            renderHeader={() => (
+              <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+                <View style={styles.closeIconCircle}>
+                  <Ionicons name="close" size={24} color="white" />
+                </View>
+              </TouchableOpacity>
+            )}
+            backgroundColor="transparent"
+            saveToLocalByLongPress={false}
+            renderIndicator={() => null}
+            renderImage={(props) => (
+              <View style={styles.previewContainer}>
+                <Image
+                  {...props}
+                  style={{
+                    width: width - 40,
+                    height: 400,
+                    resizeMode: 'contain',
+                  }}
+                />
+              </View>
+            )}
           />
         </View>
-      )}
-    />
-  </View>
-</Modal>
+      </Modal>
     </>
   );
 };
@@ -89,12 +94,12 @@ const styles = StyleSheet.create({
   },
   previewContainer: {
     flex: 1,
-    justifyContent: 'center', // center vertically
-    alignItems: 'center',     // center horizontally
+    justifyContent: 'center', 
+    alignItems: 'center',    
   },
   modalBackground: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.80)', // 👈 light black shade
+    backgroundColor: 'rgba(0,0,0,0.80)', 
   },
 });
 

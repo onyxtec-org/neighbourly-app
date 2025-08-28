@@ -14,8 +14,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { likePost, unlikePost , getPosts } from '../../../../redux/slices/stageSlice/postSlice';
 import timeAgo from './../../../../utils/timeago'; // utility to format time
 import config from '../../../../config'; // ✅ baseURL here
-import PostMediaGrid from '../../../components/Mediapicker/PostMediaGrid'; // ✅ reusable media grid component
 import AppText from '../../../components/AppText';
+import PostCard from '../../../components/StageComponents/PostCard';
 const StageScreen = ({ navigation }) => {
   const { user: profileUser } = useSelector(state => state.profile);
   const userRole = profileUser?.role;
@@ -41,102 +41,29 @@ const StageScreen = ({ navigation }) => {
       setLiking(prev => ({ ...prev, [post.id]: false }));
     }
   };
-  const renderPost = ({ item }) => {
-    const expanded = expandedPostId === item.id;
-    const isLiked = item.likes?.some(l => l.user_id === profileUser?.id);
-    const userAvatar = item.user?.image
-      ? `${config.userimageURL}${item.user.image}`
-      : 'https://ui-avatars.com/api/?name=' + item.user?.name; // fallback avatar
+const renderPost = ({ item }) => {
+  const expanded = expandedPostId === item.id;
+  const isLiked = item.likes?.some(l => l.user_id === profileUser?.id);
+  const userAvatar = item.user?.image
+    ? `${config.userimageURL}${item.user.image}`
+    : 'https://ui-avatars.com/api/?name=' + item.user?.name;
 
-    return (
-      <View style={styles.card}>
-        {/* User Info */}
-
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate('AccountScreen', { userId: item.user.id })
-          }
-        >
-          <View style={styles.postHeader}>
-            {/* LEFT SIDE: Avatar + Name + Time */}
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Image source={{ uri: userAvatar }} style={styles.avatar} />
-              <View style={{ marginLeft: 10 }}>
-                <AppText style={styles.userName}>{item.user?.name}</AppText>
-                <AppText style={styles.time}>{timeAgo(item.created_at)}</AppText>
-              </View>
-            </View>
-
-            {/* RIGHT SIDE: Options Icon */}
-            <Icon name="ellipsis-horizontal" size={20} color="#666" />
-          </View>
-        </TouchableOpacity>
-
-        {/* Post Content */}
-        <View style={styles.descriptionContainer}>
-          <AppText style={styles.description}>
-            {expanded
-              ? item.content || ''
-              : (item.content || '').substring(0, 100) +
-                ((item.content?.length || 0) > 100 ? '...' : '')}
-          </AppText>
-          {item.content && item.content.length > 100 && (
-            <TouchableOpacity
-              onPress={() => setExpandedPostId(expanded ? null : item.id)}
-            >
-              <AppText style={styles.seeMore}>
-                {expanded ? 'See less' : 'See more'}
-              </AppText>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* Post Image */}
-        {item.attachments?.length > 0 && (
-          <PostMediaGrid
-            attachments={item.attachments.map(
-              a => `${config.postAttachmentImageURL}${a.attachment}`,
-            )}
-            onPressImage={index => {
-              // 🔥 later you can open full-screen viewer here
-              console.log('Open image at index:', index);
-            }}
-          />
-        )}
-
-        {/* Divider */}
-        <View style={styles.divider} />
-
-        {/* Actions */}
-        <View style={styles.actions}>
-          <TouchableOpacity
-            style={styles.actionButton}
-            disabled={liking[item.id]}
-            onPress={() => handleLikeToggle(item)}
-          >
-            <Icon
-              name={isLiked ? 'thumbs-up' : 'thumbs-up-outline'}
-              size={20}
-              color={isLiked ? colors.primary : '#666'}
-            />
-            <AppText style={styles.actionText}>
-              {item.likes?.length || 0} Like
-            </AppText>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
-            <Icon name="chatbubble-outline" size={20} color="#666" />
-            <AppText style={styles.actionText}>Comment</AppText>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
-            <Icon name="arrow-redo-outline" size={20} color="#666" />
-            <AppText style={styles.actionText}>Share</AppText>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
+  return (
+    <PostCard
+      item={item}
+      expanded={expanded}
+      isLiked={isLiked}
+      userAvatar={userAvatar}
+      colors={colors}
+      navigation={navigation}
+      timeAgo={timeAgo}
+      setExpandedPostId={setExpandedPostId}
+      liking={liking}
+      handleLikeToggle={handleLikeToggle}
+      config={config}
+    />
+  );
+};
 
   if (loading) {
     return (
