@@ -580,6 +580,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     color: '#444',
+    fontSize: 14,
   },
   selectedOptionText: {
     color: '#fff',
