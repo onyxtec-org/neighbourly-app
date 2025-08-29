@@ -1,4 +1,4 @@
-import React, { useState, useCallback,useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,10 +9,17 @@ import {
   Dimensions,
   PixelRatio,
 } from 'react-native';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import colors from '../../../../config/colors';
 import JobListings from '../../../components/JobComponents/JobListings';
-import { getJobs, removeJobById } from '../../../../redux/slices/jobSlice/jobSlice';
+import {
+  getJobs,
+  removeJobById,
+} from '../../../../redux/slices/jobSlice/jobSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectJobsByTab } from '../../../../redux/selectors/jobSelector';
 import CustomToast from '../../../components/CustomToast';
@@ -23,7 +30,8 @@ import CustomPopup from '../../../components/CustomPopup';
 import AppText from '../../../components/AppText';
 const { width } = Dimensions.get('window');
 const scale = width / 375;
-const normalize = size => Math.round(PixelRatio.roundToNearestPixel(size * scale));
+const normalize = size =>
+  Math.round(PixelRatio.roundToNearestPixel(size * scale));
 
 const providerTabs = [
   { key: 'new', label: 'New Requests' },
@@ -41,22 +49,22 @@ const consumerTabs = [
 
 const JobsScreen = () => {
   const route = useRoute();
-const { defaultTab } = route?.params || {};
-  
+  const { defaultTab } = route?.params || {};
+
   const { user: profileUser } = useSelector(state => state.profile);
   const userRole = profileUser?.role;
-const [activeTab, setActiveTab] = useState(() => {
-  if (userRole === 'provider') {
-    return defaultTab ? defaultTab : providerTabs[0].key;
-  }
-  return consumerTabs[0].key;
-});
+  const [activeTab, setActiveTab] = useState(() => {
+    if (userRole === 'provider') {
+      return defaultTab ? defaultTab : providerTabs[0].key;
+    }
+    return consumerTabs[0].key;
+  });
 
-useEffect(() => {
-  if (defaultTab) {
-    setActiveTab(defaultTab);
-  }
-}, [defaultTab]);
+  useEffect(() => {
+    if (defaultTab) {
+      setActiveTab(defaultTab);
+    }
+  }, [defaultTab]);
   const [showOfferPopup, setShowOfferPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [jobId, setJobId] = useState();
@@ -101,7 +109,8 @@ useEffect(() => {
     // Show confirmation popup before rejecting
     setPopupConfig({
       title: 'Reject Job',
-      message: 'Are you sure you want to reject this job? This action cannot be undone.',
+      message:
+        'Are you sure you want to reject this job? This action cannot be undone.',
       confirmText: 'Reject',
       action: 'reject',
       jobId,
@@ -150,7 +159,7 @@ useEffect(() => {
   };
 
   const renderJobs = () => {
-    const jobData = jobsByStatus[activeTab] || [];
+    const jobData = jobsByStatus[activeTab]?.jobs || [];
     const emptyMessages = {
       new: 'No new requests',
       pending: 'No pending jobs',
@@ -178,8 +187,6 @@ useEffect(() => {
     );
   };
 
-  
-
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Header */}
@@ -198,25 +205,30 @@ useEffect(() => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.tabContainer}
           >
-            {tabs.map(tab => (
-              <TouchableOpacity
-                key={tab.key}
-                style={[
-                  styles.tabButton,
-                  activeTab === tab.key && styles.activeTab,
-                ]}
-                onPress={() => setActiveTab(tab.key)}
-              >
-                <AppText
+            {tabs.map(tab => {
+              const tabData = jobsByStatus[tab.key].count || 0 ;
+
+              
+              return (
+                <TouchableOpacity
+                  key={tab.key}
                   style={[
-                    styles.tabText,
-                    activeTab === tab.key && styles.activeTabText,
+                    styles.tabButton,
+                    activeTab === tab.key && styles.activeTab,
                   ]}
+                  onPress={() => setActiveTab(tab.key)}
                 >
-                  {tab.label}
-                </AppText>
-              </TouchableOpacity>
-            ))}
+                  <AppText
+                    style={[
+                      styles.tabText,
+                      activeTab === tab.key && styles.activeTabText,
+                    ]}
+                  >
+                    {`${tab.label} (${tabData})`}
+                  </AppText>
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
         </View>
 
@@ -230,7 +242,7 @@ useEffect(() => {
         type={toastType}
         onHide={() => setToastVisible(false)}
       />
-           {/* Create Offer Popup */}
+      {/* Create Offer Popup */}
       <CreateOfferPopup
         visible={showOfferPopup}
         onClose={() => setShowOfferPopup(false)}
@@ -247,7 +259,11 @@ useEffect(() => {
         onClose={() => setPopupVisible(false)}
         title={popupConfig.title}
         message={popupConfig.message}
-        icon={popupConfig.action === 'reject' ? 'close-circle-outline' : 'checkmark-circle-outline'}
+        icon={
+          popupConfig.action === 'reject'
+            ? 'close-circle-outline'
+            : 'checkmark-circle-outline'
+        }
         iconColor={popupConfig.action === 'reject' ? colors.red : colors.green}
         cancelText="Cancel"
         confirmText={popupConfig.confirmText}

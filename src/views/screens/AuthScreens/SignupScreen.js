@@ -25,6 +25,7 @@ import PasswordChecklist from '../../components/PasswordChecklist';
 import AppText from '../../components/AppText';
 import { checkSlug } from '../../../redux/thunks/auth/registerThunks';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AppActivityIndicator from '../../components/AppActivityIndicator';
 
 const validationSchema = Yup.object().shape({
   fullName: Yup.string().required('Full name is required'),
@@ -349,6 +350,7 @@ const SignupScreen = ({ navigation, route }) => {
           type={toastType}
           onHide={() => setToastVisible(false)}
         />
+        {loading && <AppActivityIndicator/>}
       </ScrollView>
     </KeyboardAvoidingView>
   );

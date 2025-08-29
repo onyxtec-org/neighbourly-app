@@ -16,6 +16,7 @@ import AppButton from '../../components/ButtonComponents/AppButton';
 import CustomToast from '../../components/CustomToast';
 import colors from '../../../config/colors';
 import AppText from '../../components/AppText';
+import AppActivityIndicator from '../../components/AppActivityIndicator';
 const validationSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email address').required('Email is required'),
   password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
@@ -182,6 +183,7 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
         type={toastType}
         onHide={() => setToastVisible(false)}
       />
+      {loading && <AppActivityIndicator/>}
     </ScrollView>
   );
 };
