@@ -3,7 +3,6 @@ import {
   View,
   FlatList,
   TouchableOpacity,
-  Image,
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
@@ -12,7 +11,7 @@ import AppText from '../../../components/AppText';
 import { fetchCategories } from '../../../../redux/slices/categorySlice/categoriesSlice';
 import colors from '../../../../config/colors';
 import Header from '../../../components/HeaderComponent/Header';
-
+import Image from '../../../components/ImageComponent/ImageComponent';
 const AllCategoriesScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { categories, status } = useSelector(state => state.categories);

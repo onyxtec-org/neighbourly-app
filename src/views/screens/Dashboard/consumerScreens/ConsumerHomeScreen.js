@@ -8,7 +8,6 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   ActivityIndicator,
-  Image,
   ScrollView,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,6 +18,7 @@ import colors from '../../../../config/colors';
 import SearchBar from '../../../components/SearchBar';
 import AppBar from '../../../components/HeaderComponent/AppBar';
 import AppText from '../../../components/AppText';
+import Image from '../../../components/ImageComponent/ImageComponent';
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 

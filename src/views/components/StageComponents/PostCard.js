@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 // Update these import paths as needed for your project structure
 import AppText from '../AppText';
 import PostMediaGrid from '../Mediapicker/PostMediaGrid';
 import Icon from '../ImageComponent/IconComponent';
+import Image from '../ImageComponent/ImageComponent';
 const PostCard = ({
   item,
   expanded,
