@@ -45,6 +45,8 @@ const HomeScreen = ({ navigation }) => {
   const renderCard = (item, isService = false) => {
     const displayName = isService ? item.name : item.title || item.name; // ✅ Service ke liye name, category ke liye title fallback
 
+    console.log('itemmmmm', item.image);
+
     return (
       <TouchableOpacity
         style={styles.cardContainer}
@@ -61,11 +63,11 @@ const HomeScreen = ({ navigation }) => {
       >
         <View style={styles.cardImageWrapper}>
           <Image
-            source={{
-              uri: item.image?.trim()
-                ? item.image
-                : 'https://via.placeholder.com/300x200.png?text=No+Image',
-            }}
+            source={
+              item.image?.trim()
+                ? { uri: item.image }
+                : require('../../../../assets/images/tools_placeholder.png')
+            }
             style={styles.cardImage}
             resizeMode="cover"
           />

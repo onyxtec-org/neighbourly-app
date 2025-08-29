@@ -144,7 +144,7 @@ const validateScreenName = values => {
           onPress={() =>
             navigation.canGoBack()
               ? navigation.goBack()
-              : navigation.navigate('Dashboard')
+              : navigation.navigate('RouterDashboard')
           }
           size={22}
           color="#212529"

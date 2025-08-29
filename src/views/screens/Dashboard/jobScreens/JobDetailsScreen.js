@@ -56,11 +56,22 @@ const JobDetailsScreen = ({ navigation, route }) => {
   const [popupTitle, setPopupTitle] = useState('');
   const [popupMessage, setPopupMessage] = useState('');
 
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchJobDetails(jobId));
+
+      return () => {
+        dispatch(clearJobDetails());
+      };
+    }, [dispatch, jobId]),
+  );
+
   const showToast = (message, type = 'success') => {
     setToastMessage(message);
     setToastType(type);
     setToastVisible(true);
   };
+
   const statusChange = async () => {
     setIsLoading(true);
     try {
@@ -104,15 +115,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
     setShowPopup(true);
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      dispatch(fetchJobDetails(jobId));
-
-      return () => {
-        dispatch(clearJobDetails());
-      };
-    }, [dispatch, jobId]),
-  );
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -195,6 +197,17 @@ const JobDetailsScreen = ({ navigation, route }) => {
     const offers = job.offers;
     navigation.navigate('OffersScreen', { offers });
   };
+
+  const InfoItem = ({ icon, label, value }) => (
+    <View style={styles.infoItem}>
+      <Ionicons name={icon} size={18} color="#666" />
+      <View style={styles.infoTextContainer}>
+        <AppText style={styles.infoLabel}>{label}</AppText>
+        <AppText style={styles.infoText}>{value}</AppText>
+      </View>
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <Header title={'Job details'} />
@@ -371,227 +384,224 @@ const JobDetailsScreen = ({ navigation, route }) => {
         <AppText style={styles.jobDescription}>{job.description}</AppText>
 
         {/* Main Details Card (Start Date, Estimated Time, Payment Type, Location, Price, Buttons) */}
-    <View style={styles.mainDetailsCard}>
-  {/* Start Date */}
-  <View style={styles.rowWrapper}>
-    <View style={[styles.infoItem]}>
-      <Ionicons name="calendar-outline" size={18} color="#666" />
-      <View style={styles.infoTextContainer}>
-        <AppText style={styles.infoLabel}>Start Date</AppText>
-        <AppText style={styles.infoText}>
-          {job.starts_at.substring(0, 10)}
-        </AppText>
-      </View>
-    </View>
-    <View style={styles.infoItem}>
-      <Ionicons name="hourglass-outline" size={18} color="#666" />
-      <View style={styles.infoTextContainer}>
-        <AppText style={styles.infoLabel}>Estimated Time</AppText>
-        <AppText style={styles.infoText}>{job.no_of_hours} hrs</AppText>
-      </View>
-    </View>
-  </View>
+        <View style={styles.mainDetailsCard}>
+          {/* Start Date */}
+          <View style={styles.rowWrapper}>
+            <InfoItem
+              icon={'calendar-outline'}
+              label={'Start Date'}
+              value={job.starts_at.substring(0, 10)}
+            />
 
-  {/* Estimated Time & Payment Type (Grouped) */}
-  <View style={styles.rowWrapper}>
-    <View style={styles.infoItem}>
-      <Ionicons name="wallet-outline" size={18} color="#666" />
-      <View style={styles.infoTextContainer}>
-        <AppText style={styles.infoLabel}>Price Type</AppText>
-        <AppText style={styles.infoText}>
-          {job.price_type === 'perhour' ? 'Per hour' : job.price_type}
-        </AppText>
-      </View>
-    </View>
+            <InfoItem
+              icon={'hourglass-outline'}
+              label={'Estimated Time'}
+              value={`${job.no_of_hours} hrs`}
+            />
+          </View>
 
-    {job.price_type === 'fixed' ? (
-      <View style={styles.infoItem}>
-        <Ionicons name="wallet-outline" size={18} color="#666" />
-        <View style={styles.infoTextContainer}>
-          <AppText style={styles.infoLabel}>Amount</AppText>
-          <AppText style={styles.infoText}>${parseFloat(job.rate)}</AppText>
-        </View>
-      </View>
-    ) : (
-      <View style={styles.pricingContainer}>
-        <AppText style={styles.priceText}>
-          ${job.rate}
-          <AppText style={styles.perText}> / hr</AppText>
-        </AppText>
-        <AppText style={styles.estimatedTotal}>
-          Estimated Total: $
-          {(parseFloat(job.rate) * parseFloat(job.no_of_hours)).toFixed(2)}
-        </AppText>
-      </View>
-    )}
-  </View>
-
-  <View style={styles.rowWrapper}>
-    <View style={styles.infoItem}>
-      <Ionicons name="wallet-outline" size={18} color="#666" />
-      <View style={styles.infoTextContainer}>
-        <AppText style={styles.infoLabel}>Payment Type</AppText>
-        <AppText style={styles.infoText}>{job?.payment_type}</AppText>
-      </View>
-    </View>
-    {status === 'my_jobs' && userRole === 'provider' && (
-      <TouchableOpacity
-        style={[
-          styles.progressButton,
-          {
-            backgroundColor: inProgress ? colors.inProgress : colors.pending,
-          },
-        ]}
-        onPress={() => handlePopupOpen('in_progress')}
-        disabled={inProgress}
-      >
-        <AppText style={styles.progressButtonText}>
-          {inProgress ? 'In Progress' : 'Mark as In Progress'}
-        </AppText>
-      </TouchableOpacity>
-    )}
-
-    {status === 'in_progress' && userRole === 'provider' && (
-      <TouchableOpacity
-        style={[
-          styles.progressButton,
-          {
-            backgroundColor: completed ? colors.completed : colors.inProgress,
-          },
-        ]}
-        onPress={() => handlePopupOpen('completed')}
-        disabled={completed}
-      >
-        <AppText style={styles.progressButtonText}>
-          {completed ? 'Completed' : 'Mark as Complete'}
-        </AppText>
-      </TouchableOpacity>
-    )}
-  </View>
-
-  {/* Location (Separate) */}
-  <View style={[styles.infoItem, styles.infoItemFullWidth]}>
-    <Ionicons name="location-outline" size={18} color="#666" />
-    <View style={styles.infoTextContainer}>
-      <AppText style={styles.infoLabel}>Location</AppText>
-      <AppText style={styles.infoText}>{job.location}</AppText>
-    </View>
-  </View>
-
-  {/* Action Buttons (Small, Text-Based) */}
-  {userRole === 'consumer' &&
-  Number(job?.offers?.length) > 0 &&
-  job.accepted_offer === null ? (
-    <TouchableOpacity
-      style={styles.textButton}
-      onPress={onInterestedPersonPress}
-    >
-      <AppText style={styles.textButtonText}>View Offers</AppText>
-    </TouchableOpacity>
-  ) : (
-    status === 'new' &&
-    job.my_offer === null && (
-      <View style={styles.textButtonRow}>
-        <TouchableOpacity style={[styles.textButton, { marginRight: 10 }]}>
-          <AppText style={styles.textButtonText}>Ignore</AppText>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => setShowOffer(true)}
-          style={[styles.textButton, styles.filledButton]}
-        >
-          <AppText style={[styles.textButtonText, styles.filledButtonText]}>
-            Interested
-          </AppText>
-        </TouchableOpacity>
-      </View>
-    )
-  )}
-</View>
-{userRole === 'provider' ? (
-  // Show Consumer Section
-  <View style={styles.mainDetailsCard}>
-    <View>
-      <AppText style={styles.sectionHeading}>Consumer</AppText>
-    </View>
-    <View style={styles.userRow}>
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate('AccountScreen', {
-            userId: job.consumer?.id,
-          })
-        }
-        style={styles.userInfoTouchable}
-      >
-        <Image
-          source={{
-            uri: job.consumer?.image
-              ? `${config.userimageURL}${job.consumer?.image}`
-              : 'https://via.placeholder.com/150', // fallback if null
-          }}
-          style={styles.userImage}
-        />
-        <View style={styles.userInfo}>
-          <AppText style={styles.userName}>
-            {job.consumer?.name || 'Unknown User'}
-          </AppText>
-        </View>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.chatButton}>
-        <AppText style={styles.textButtonText}>Chat</AppText>
-      </TouchableOpacity>
-    </View>
-  </View>
-) : (
-  // If role = consumer
-  job.accepted_offer !== null && (
-    <View style={styles.mainDetailsCard}>
-      <View>
-        <AppText style={styles.sectionHeading}>Provider</AppText>
-      </View>
-      <View style={styles.userRow}>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate('AccountScreen', {
-              userId: job.accepted_offer?.provider?.id,
-            })
-          }
-          style={styles.userInfoTouchable}
-        >
-          <Image
-            source={{
-              uri: job.accepted_offer?.provider?.image
-                ? `${config.userimageURL}${job.accepted_offer?.provider?.image}`
-                : 'https://via.placeholder.com/150',
-            }}
-            style={styles.userImage}
-          />
-          <View style={styles.userInfo}>
-            <AppText style={styles.userName}>
-              {job.accepted_offer?.provider?.name || 'Unknown Provider'}
-            </AppText>
-
-            {/* === Offer Details === */}
-            <AppText style={styles.offerDetails}>
-              Rate: {job.accepted_offer?.rate} | Hours:{' '}
-              {job.accepted_offer?.no_of_hours}
-            </AppText>
-            {job.accepted_offer?.note && (
-              <AppText style={styles.offerNote}>
-                Note: {job.accepted_offer?.note}
-              </AppText>
+          {/* Estimated Time & Payment Type (Grouped) */}
+          <View style={styles.rowWrapper}>
+            <InfoItem
+              icon={'wallet-outline'}
+              label={'Price Time'}
+              value={job.price_type === 'perhour' ? 'Per hour' : job.price_type}
+            />
+            {job.price_type === 'fixed' ? (
+              <InfoItem
+                icon={'wallet-outline'}
+                label={'Amount'}
+                value={`$${parseFloat(job.rate)}`}
+              />
+            ) : (
+              <View style={styles.pricingContainer}>
+                <AppText style={styles.priceText}>
+                  ${job.rate}
+                  <AppText style={styles.perText}> / hr</AppText>
+                </AppText>
+                <AppText style={styles.estimatedTotal}>
+                  Estimated Total: $
+                  {(parseFloat(job.rate) * parseFloat(job.no_of_hours)).toFixed(
+                    2,
+                  )}
+                </AppText>
+              </View>
             )}
           </View>
-        </TouchableOpacity>
 
-        <TouchableOpacity style={styles.chatButton}>
-          <AppText style={styles.textButtonText}>Chat</AppText>
-        </TouchableOpacity>
-      </View>
-    </View>
-  )
-)}
+          <View style={styles.rowWrapper}>
+            
+             <InfoItem
+              icon={'wallet-outline'}
+              label={'Payment Type'}
+              value={ job?.payment_type}
+            />
+            {status === 'my_jobs' && userRole === 'provider' && (
+              <TouchableOpacity
+                style={[
+                  styles.progressButton,
+                  {
+                    backgroundColor: inProgress
+                      ? colors.inProgress
+                      : colors.pending,
+                  },
+                ]}
+                onPress={() => handlePopupOpen('in_progress')}
+                disabled={inProgress}
+              >
+                <AppText style={styles.progressButtonText}>
+                  {inProgress ? 'In Progress' : 'Mark as In Progress'}
+                </AppText>
+              </TouchableOpacity>
+            )}
+
+            {status === 'in_progress' && userRole === 'provider' && (
+              <TouchableOpacity
+                style={[
+                  styles.progressButton,
+                  {
+                    backgroundColor: completed
+                      ? colors.completed
+                      : colors.inProgress,
+                  },
+                ]}
+                onPress={() => handlePopupOpen('completed')}
+                disabled={completed}
+              >
+                <AppText style={styles.progressButtonText}>
+                  {completed ? 'Completed' : 'Mark as Complete'}
+                </AppText>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Location (Separate) */}
+          <View style={[styles.infoItem, styles.infoItemFullWidth]}>
+            <Ionicons name="location-outline" size={18} color="#666" />
+            <View style={styles.infoTextContainer}>
+              <AppText style={styles.infoLabel}>Location</AppText>
+              <AppText style={styles.infoText}>{job.location}</AppText>
+            </View>
+          </View>
+
+          {/* Action Buttons (Small, Text-Based) */}
+          {userRole === 'consumer' &&
+          Number(job?.offers?.length) > 0 &&
+          job.accepted_offer === null ? (
+            <TouchableOpacity
+              style={styles.textButton}
+              onPress={onInterestedPersonPress}
+            >
+              <AppText style={styles.textButtonText}>View Offers</AppText>
+            </TouchableOpacity>
+          ) : (
+            status === 'new' &&
+            job.my_offer === null && (
+              <View style={styles.textButtonRow}>
+                <TouchableOpacity
+                  style={[styles.textButton, { marginRight: 10 }]}
+                >
+                  <AppText style={styles.textButtonText}>Ignore</AppText>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => setShowOffer(true)}
+                  style={[styles.textButton, styles.filledButton]}
+                >
+                  <AppText
+                    style={[styles.textButtonText, styles.filledButtonText]}
+                  >
+                    Interested
+                  </AppText>
+                </TouchableOpacity>
+              </View>
+            )
+          )}
+        </View>
+        {userRole === 'provider' ? (
+          // Show Consumer Section
+          <View style={styles.mainDetailsCard}>
+            <View>
+              <AppText style={styles.sectionHeading}>Consumer</AppText>
+            </View>
+            <View style={styles.userRow}>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('AccountScreen', {
+                    userId: job.consumer?.id,
+                  })
+                }
+                style={styles.userInfoTouchable}
+              >
+                <Image
+                  source={{
+                    uri: job.consumer?.image
+                      ? `${config.userimageURL}${job.consumer?.image}`
+                      : 'https://via.placeholder.com/150', // fallback if null
+                  }}
+                  style={styles.userImage}
+                />
+                <View style={styles.userInfo}>
+                  <AppText style={styles.userName}>
+                    {job.consumer?.name || 'Unknown User'}
+                  </AppText>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.chatButton}>
+                <AppText style={styles.textButtonText}>Chat</AppText>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          // If role = consumer
+          job.accepted_offer !== null && (
+            <View style={styles.mainDetailsCard}>
+              <View>
+                <AppText style={styles.sectionHeading}>Provider</AppText>
+              </View>
+              <View style={styles.userRow}>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('AccountScreen', {
+                      userId: job.accepted_offer?.provider?.id,
+                    })
+                  }
+                  style={styles.userInfoTouchable}
+                >
+                  <Image
+                    source={{
+                      uri: job.accepted_offer?.provider?.image
+                        ? `${config.userimageURL}${job.accepted_offer?.provider?.image}`
+                        : 'https://via.placeholder.com/150',
+                    }}
+                    style={styles.userImage}
+                  />
+                  <View style={styles.userInfo}>
+                    <AppText style={styles.userName}>
+                      {job.accepted_offer?.provider?.name || 'Unknown Provider'}
+                    </AppText>
+
+                    {/* === Offer Details === */}
+                    <AppText style={styles.offerDetails}>
+                      Rate: {job.accepted_offer?.rate} | Hours:{' '}
+                      {job.accepted_offer?.no_of_hours}
+                    </AppText>
+                    {job.accepted_offer?.note && (
+                      <AppText style={styles.offerNote}>
+                        Note: {job.accepted_offer?.note}
+                      </AppText>
+                    )}
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.chatButton}>
+                  <AppText style={styles.textButtonText}>Chat</AppText>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )
+        )}
 
         <CustomToast
           visible={toastVisible}
