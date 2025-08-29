@@ -404,8 +404,8 @@ const JobDetailsScreen = ({ navigation, route }) => {
           <View style={styles.rowWrapper}>
             <InfoItem
               icon={'wallet-outline'}
-              label={'Price Time'}
-              value={job.price_type === 'perhour' ? 'Per hour' : job.price_type}
+              label={'Price Type'}
+              value={job.price_type === 'per_hour' ? 'Per hour' : job.price_type}
             />
             {job.price_type === 'fixed' ? (
               <InfoItem

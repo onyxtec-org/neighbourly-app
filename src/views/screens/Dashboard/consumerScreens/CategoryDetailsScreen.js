@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
-  Image,
 } from 'react-native';
 import Ionicons from '../../../components/ImageComponent/IconComponent';
 import colors from '../../../../config/colors';
@@ -16,6 +15,7 @@ import {
 } from '../../../../redux/slices/jobSlice/jobSlice';
 import AppText from '../../../components/AppText';
 import Header from '../../../components/HeaderComponent/Header';
+import Image from '../../../components/ImageComponent/ImageComponent';
 const CategoryDetailsScreen = ({ route, navigation }) => {
   const { category } = route.params;
   const dispatch = useDispatch();

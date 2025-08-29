@@ -6,12 +6,12 @@ import {
   ScrollView,
   Alert,
   TouchableOpacity,
-  Image,
 } from "react-native";
 import Video from "react-native-video";
 import ImageInput from "../../components/FormComponents/ImageInput";
 import AppText from "../AppText";
 import Icon from "../ImageComponent/IconComponent";
+import Image from "../ImageComponent/ImageComponent";
 function ImageInputList({ imageUris = [], onRemoveImage, onAddImage }) {
   const scrollView = useRef();
 

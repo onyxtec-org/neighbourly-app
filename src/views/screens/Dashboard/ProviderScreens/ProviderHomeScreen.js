@@ -21,7 +21,6 @@ const ProviderHomeScreen = ({ navigation }) => {
   const { myServices } = useSelector(state => state.services);
   const myJobs = useSelector(selectJobsByTab('my_jobs', 'provider'));
   const dispatch = useDispatch();
-  const { user: profileUser } = useSelector(state => state.profile);
   console.log('myjobs---', myJobs);
 
   useFocusEffect(
