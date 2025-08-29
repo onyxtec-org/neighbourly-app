@@ -14,7 +14,13 @@ function Header({ title, bookmark = true, icon, onIconPress, isIcon, onSharePres
       {/* Back button */}
       <BackButton
         style={styles.backButton}
-        onPress={() => navigation.goBack()}
+        onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            navigation.navigate('DashboardRouter');
+          }
+        }}
         iconColor={colors.black}
       />
 
