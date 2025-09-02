@@ -1028,7 +1028,7 @@
 
 // export default JobDetailsScreen;
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -1054,14 +1054,12 @@ import Video from 'react-native-video';
 import config from '../../../../config';
 import colors from '../../../../config/colors';
 import CreateOfferPopup from '../../../screens/Dashboard/jobScreens/offers/CreateOfferPopup';
-import Header from '../../../components/HeaderComponent/Header';
 import { useFocusEffect } from '@react-navigation/native';
 import { updateJobStatus } from '../../../../redux/slices/jobSlice/UpdateJobStatusSlice';
 import CustomToast from '../../../components/CustomToast';
 import AppActivityIndicator from '../../../components/AppActivityIndicator';
 import CustomPopup from '../../../components/CustomPopup';
 import AppText from '../../../components/AppText';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const { width } = Dimensions.get('window');
 const CARD_HEIGHT = 300;
@@ -1166,16 +1164,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
     navigation.navigate('OffersScreen', { offers });
   };
 
-  const InfoItem = ({ icon, label, value }) => (
-    <View style={styles.infoItem}>
-      <Ionicons name={icon} size={22} color={colors.primary} />
-      <View style={styles.infoTextContainer}>
-        <AppText style={styles.infoLabel}>{label}</AppText>
-        <AppText style={styles.infoText}>{value}</AppText>
-      </View>
-    </View>
-  );
-
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -1210,18 +1198,20 @@ const JobDetailsScreen = ({ navigation, route }) => {
   const hasMultipleMedia = mediaSource.length > 1;
 
   return (
-    <SafeAreaView >
-      <ScrollView >
+    <SafeAreaView>
+      <ScrollView>
         <View style={styles.mainCard}>
           <View style={styles.mediaCard}>
-            {job?.status && (
-              <View style={styles.statusOverlay}>
-                <StatusBox
-                  color={colors.statusColors(job?.status)}
-                  text={job?.status}
-                />
-              </View>
-            )}
+            {/* Back button */}
+            <View style={styles.backButtonContainer}>
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={styles.backButton}
+              >
+                <Ionicons name="chevron-back" size={24} color="#000" />
+              </TouchableOpacity>
+            </View>
+
             <FlatList
               data={mediaSource}
               ref={flatListRef}
@@ -1230,11 +1220,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
               showsHorizontalScrollIndicator={false}
               onMomentumScrollEnd={onScrollEnd}
               keyExtractor={(item, index) => index.toString()}
-              getItemLayout={(data, index) => ({
-                length: width,
-                offset: width * index,
-                index,
-              })}
               renderItem={({ item, index }) => {
                 if (!item || !item.attachment || !item.file_type) return null;
 
@@ -1274,6 +1259,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
                           />
                         </>
                       )}
+
                       {isPlaying && (
                         <Video
                           source={{ uri: url }}
@@ -1296,7 +1282,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
                   );
                 }
 
-                // For images:
+                // ✅ Image case with ZoomableImage
                 return (
                   <View style={styles.mediaContainer}>
                     <ZoomableImage
@@ -1321,6 +1307,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
               )}
             />
           </View>
+
           {hasMultipleMedia && (
             <View style={styles.paginationDotsInline}>
               {mediaSource.map((_, index) => (
@@ -1338,6 +1325,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
           <View style={styles.contentContainer}>
             {/* Title + Action Button Row */}
             <View style={styles.titleRow}>
+              {/* Left: Job Title */}
               <AppText
                 style={styles.jobTitle}
                 numberOfLines={1}
@@ -1346,133 +1334,23 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 {job.title}
               </AppText>
 
-              {/* Right-side Button: View Offers OR Mark as Progress */}
+              {/* Right Side Conditional Content */}
               {userRole === 'consumer' &&
               Number(job?.offers?.length) > 0 &&
               job.accepted_offer === null ? (
+                // ✅ Consumer → View Offers Button
                 <TouchableOpacity
                   style={[styles.smallButton, styles.primaryButton]}
                   onPress={onInterestedPersonPress}
                 >
                   <AppText style={styles.smallButtonText}>View Offers</AppText>
                 </TouchableOpacity>
-              ) : (
-                userRole === 'provider' &&
-                (status === 'my_jobs' || status === 'in_progress') && (
-                  <TouchableOpacity
-                    style={[
-                      styles.smallButton,
-                      {
-                        backgroundColor:
-                          status === 'in_progress'
-                            ? completed
-                              ? colors.completed
-                              : colors.inProgress
-                            : inProgress
-                            ? colors.inProgress
-                            : colors.pending,
-                      },
-                    ]}
-                    onPress={() =>
-                      handlePopupOpen(
-                        status === 'my_jobs' ? 'in_progress' : 'completed',
-                      )
-                    }
-                    disabled={status === 'in_progress' ? completed : inProgress}
-                  >
-                    <AppText style={styles.smallButtonText}>
-                      {status === 'my_jobs'
-                        ? inProgress
-                          ? 'In Progress'
-                          : 'Mark as In Progress'
-                        : completed
-                        ? 'Completed'
-                        : 'Mark as Complete'}
-                    </AppText>
-                  </TouchableOpacity>
-                )
-              )}
-            </View>
-
-            {/* Location Row */}
-            <View style={styles.locationRow}>
-              <Ionicons name="location-outline" size={16} color="#666" />
-              <AppText style={styles.locationText}>{job.location}</AppText>
-            </View>
-
-            {/* Circular KM container */}
-            <View style={styles.kmContainer}>
-              <AppText style={styles.kmText}>{job.distance || '0'} km</AppText>
-            </View>
-
-            {/* Divider */}
-            <View style={styles.divider} />
-
-            {/* Description */}
-            <AppText style={styles.sectionHeading}>Description</AppText>
-            <AppText style={styles.jobDescription}>{job.description}</AppText>
-
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>services:</AppText>
-              <AppText style={styles.locationText}>{job.location}</AppText>
-            </View>
-
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>Start Date:</AppText>
-              <AppText style={styles.locationText}>
-                {job.starts_at.substring(0, 10)}
-              </AppText>
-            </View>
-
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>End Date:</AppText>
-              <AppText style={styles.locationText}>
-                {job.ends_at.substring(0, 10)}
-              </AppText>
-            </View>
-
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>Estimated Time:</AppText>
-              <AppText
-                style={styles.locationText}
-              >{`${job.no_of_hours} hrs`}</AppText>
-            </View>
-
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>Price Type:</AppText>
-              <AppText style={styles.locationText}>
-                {job.price_type === 'per_hour' ? 'Per hour' : job.price_type}
-              </AppText>
-            </View>
-
-            {/* Job Details (same as before) */}
-            <View style={styles.infoGrid}>
-              {job.price_type === 'fixed' ? (
-                <InfoItem
-                  icon={'cash-outline'}
-                  label={'Amount'}
-                  value={`$${parseFloat(job.rate)}`}
-                />
-              ) : (
-                <InfoItem
-                  icon={'cash-outline'}
-                  label={'Rate'}
-                  value={`$${job.rate} / hr`}
-                />
-              )}
-              <InfoItem
-                icon={'card-outline'}
-                label={'Payment Type'}
-                value={job?.payment_type}
-              />
-            </View>
-
-            {/* Mark as Progress / Complete logic (unchanged) */}
-            {userRole === 'provider' &&
-              (status === 'my_jobs' || status === 'in_progress') && (
+              ) : userRole === 'provider' &&
+                (status === 'my_jobs' || status === 'in_progress') ? (
+                // ✅ Provider → Mark as Progress/Complete Button
                 <TouchableOpacity
                   style={[
-                    styles.actionButton,
+                    styles.smallButton,
                     {
                       backgroundColor:
                         status === 'in_progress'
@@ -1491,7 +1369,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
                   }
                   disabled={status === 'in_progress' ? completed : inProgress}
                 >
-                  <AppText style={styles.actionButtonText}>
+                  <AppText style={styles.smallButtonText}>
                     {status === 'my_jobs'
                       ? inProgress
                         ? 'In Progress'
@@ -1501,12 +1379,90 @@ const JobDetailsScreen = ({ navigation, route }) => {
                       : 'Mark as Complete'}
                   </AppText>
                 </TouchableOpacity>
+              ) : (
+                // ✅ NEW CASE: Provider with new / my_offer.pending_approval
+                userRole === 'provider' &&
+                (status === 'new' ||
+                  job?.my_offer?.status === 'pending_approval') && (
+                  <View style={styles.rateBox}>
+                    <AppText style={styles.rateText}>
+                      {job?.rate ? `$${job.rate}/` : '$0.00'}
+                    </AppText>
+                    <AppText style={styles.perHrText}>per hr</AppText>
+                  </View>
+                )
               )}
+            </View>
+
+            {/* Location Row */}
+            <View style={styles.locationRow}>
+              <Ionicons name="location-outline" size={16} color="#666" />
+              <AppText style={styles.locationText}>{job.location}</AppText>
+            </View>
+
+            {/* Circular KM container */}
+            <View style={styles.kmContainerRow}>
+              <View style={styles.kmContainer}>
+                <AppText style={styles.kmText}>
+                  {job.distance || '0'} km
+                </AppText>
+              </View>
+
+              {userRole === 'provider' &&
+                (status === 'new' ||
+                  job?.my_offer?.status === 'pending_approval') && (
+                  <View style={styles.paymentContainer}>
+                    <AppText style={styles.paymentText}>
+                      {job.payment_type || 'Cash'}
+                    </AppText>
+                  </View>
+                )}
+            </View>
+
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* Description */}
+            <AppText style={styles.sectionHeading}>Description</AppText>
+            <AppText style={styles.jobDescription}>{job.description}</AppText>
+
+            <View style={styles.locationRow}>
+              <AppText style={styles.boldtext}>services: </AppText>
+              <AppText style={styles.locationText}>{job.location}</AppText>
+            </View>
+
+            <View style={styles.locationRow}>
+              <AppText style={styles.boldtext}>Start Date: </AppText>
+              <AppText style={styles.locationText}>
+                {job.starts_at.substring(0, 10)}
+              </AppText>
+            </View>
+
+            <View style={styles.locationRow}>
+              <AppText style={styles.boldtext}>End Date: </AppText>
+              <AppText style={styles.locationText}>
+                {job.ends_at.substring(0, 10)}
+              </AppText>
+            </View>
+
+            <View style={styles.locationRow}>
+              <AppText style={styles.boldtext}>Estimated Time: </AppText>
+              <AppText
+                style={styles.locationText}
+              >{`${job.no_of_hours} hrs`}</AppText>
+            </View>
+
+            <View style={styles.locationRow}>
+              <AppText style={styles.boldtext}>Price Type: </AppText>
+              <AppText style={styles.locationText}>
+                {job.price_type === 'per_hour' ? 'Per hour' : job.price_type}
+              </AppText>
+            </View>
 
             {/* User Details Card */}
             {userRole === 'provider' ? (
+              // === Show Consumer Card ===
               <View style={styles.userCard}>
-                <AppText style={styles.sectionHeading}>Consumer</AppText>
                 <View style={styles.userRow}>
                   <TouchableOpacity
                     onPress={() =>
@@ -1525,20 +1481,35 @@ const JobDetailsScreen = ({ navigation, route }) => {
                       style={styles.userImage}
                     />
                     <View style={styles.userInfo}>
-                      <AppText style={styles.userName}>
-                        {job.consumer?.name || 'Unknown User'}
-                      </AppText>
+                      {/* Row for Username + Rating text */}
+                      <View style={styles.rowInline}>
+                        <AppText style={styles.userName}>
+                          {job.consumer?.name || 'Unknown User'}
+                        </AppText>
+                        <AppText style={styles.ratingLabel}> Rating</AppText>
+                      </View>
+
+                      {/* Row for ScreenName + Stars */}
+                      <View style={styles.rowInline}>
+                        <AppText style={styles.userScreenName}>
+                          {job.consumer?.screenName || '@unknown'}
+                        </AppText>
+                        <View style={styles.starsRow}>
+                          {[...Array(5)].map((_, index) => (
+                            <AppText key={index} style={styles.star}>
+                              ★
+                            </AppText>
+                          ))}
+                        </View>
+                      </View>
                     </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.chatButton}>
-                    <AppText style={styles.chatButtonText}>Chat</AppText>
                   </TouchableOpacity>
                 </View>
               </View>
             ) : (
-              job.accepted_offer !== null && (
+              // === Show Provider Card only if offer accepted ===
+              job.accepted_offer && (
                 <View style={styles.userCard}>
-                  <AppText style={styles.sectionHeading}>Provider</AppText>
                   <View style={styles.userRow}>
                     <TouchableOpacity
                       onPress={() =>
@@ -1557,48 +1528,130 @@ const JobDetailsScreen = ({ navigation, route }) => {
                         style={styles.userImage}
                       />
                       <View style={styles.userInfo}>
-                        <AppText style={styles.userName}>
-                          {job.accepted_offer?.provider?.name ||
-                            'Unknown Provider'}
-                        </AppText>
+                        {/* Row for Username + Rating text */}
+                        <View style={styles.rowInline}>
+                          <AppText style={styles.userName}>
+                            {job.accepted_offer?.provider?.name ||
+                              'Unknown Provider'}
+                          </AppText>
+                          <AppText style={styles.ratingLabel}> Rating</AppText>
+                        </View>
+
+                        {/* Row for ScreenName + Stars */}
+                        <View style={styles.rowInline}>
+                          <AppText style={styles.userScreenName}>
+                            {job.accepted_offer?.provider?.screenName ||
+                              '@unknown'}
+                          </AppText>
+                          <View style={styles.starsRow}>
+                            {[...Array(5)].map((_, index) => (
+                              <AppText key={index} style={styles.star}>
+                                ★
+                              </AppText>
+                            ))}
+                          </View>
+                        </View>
+
+                        {/* === Offer Details (Consumer side only) === */}
                         <AppText style={styles.offerDetails}>
                           Rate: {job.accepted_offer?.rate} | Hours:{' '}
                           {job.accepted_offer?.no_of_hours}
                         </AppText>
-                        {job.accepted_offer?.note && (
-                          <AppText style={styles.offerNote}>
-                            Note: {job.accepted_offer?.note}
-                          </AppText>
-                        )}
                       </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.chatButton}>
-                      <AppText style={styles.chatButtonText}>Chat</AppText>
                     </TouchableOpacity>
                   </View>
                 </View>
               )
             )}
 
-{userRole === 'provider' &&
-  status === 'new' &&
-  job.my_offer === null && (
-    <View style={styles.actionButtonRow}>
-       <TouchableOpacity
-        onPress={() => setShowOffer(true)}
-        style={[styles.actionButton, styles.primaryButton]}
-      >
-        <AppText style={styles.actionButtonText}>Apply</AppText>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.actionButton, styles.outlineButton]}
-      >
-        <AppText style={styles.outlineButtonText}>Ignore</AppText>
-      </TouchableOpacity>
-    </View>
-)}
+            {userRole === 'provider' &&
+              status === 'new' &&
+              job.my_offer === null && (
+                <View style={styles.footerContainer}>
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                      onPress={() => setShowOffer(true)}
+                      style={[
+                        styles.button,
+                        { backgroundColor: colors.primary },
+                      ]}
+                    >
+                      <AppText style={styles.actionButtonText}>Apply</AppText>
+                    </TouchableOpacity>
 
+                    <TouchableOpacity
+                      style={[styles.button, { backgroundColor: '#f0f0f0' }]}
+                    >
+                      <AppText style={styles.outlineButtonText}>Ignore</AppText>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
           </View>
+          {/* Consumer Case */}
+          {userRole === 'consumer' && (
+            <View style={styles.bottomContainer}>
+              {/* Left Section */}
+              <View style={styles.bottomLeft}>
+                <AppText style={styles.rateText}>
+                  {job?.rate ? `$${job.rate}/per hr` : '$0.00/per hr'}
+                </AppText>
+
+                <View style={styles.paymentContainer}>
+                  <AppText style={styles.paymentText}>
+                    {job.payment_type || 'Cash'}
+                  </AppText>
+                </View>
+              </View>
+
+              {job?.accepted_offer && (
+                <TouchableOpacity
+                  style={[
+                    styles.chatButton,
+                    { backgroundColor: colors.primary },
+                  ]}
+                  onPress={() =>
+                    navigation.navigate('ChatScreen', { jobId: job.id })
+                  }
+                >
+                  <AppText style={styles.chatButtonText}>Chat</AppText>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+
+          {userRole === 'provider' &&
+            status !== 'new' &&
+            job?.my_offer?.status !== 'pending_approval' && (
+              <View style={styles.bottomContainer}>
+                <View style={styles.bottomLeft}>
+                  <AppText style={styles.rateText}>
+                    {job?.rate ? `$${job.rate}/per hr` : '$0.00/per hr'}
+                  </AppText>
+
+                  <View style={[styles.paymentContainer, { marginTop: 6 }]}>
+                    <AppText style={styles.paymentText}>
+                      {job.payment_type || 'Cash'}
+                    </AppText>
+                  </View>
+                </View>
+
+                {/* Chat Button */}
+                {job?.accepted_offer && (
+                  <TouchableOpacity
+                    style={[
+                      styles.chatButton,
+                      { backgroundColor: colors.primary },
+                    ]}
+                    onPress={() =>
+                      navigation.navigate('ChatScreen', { jobId: job.id })
+                    }
+                  >
+                    <AppText style={styles.chatButtonText}>Chat</AppText>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
         </View>
       </ScrollView>
 
@@ -1649,8 +1702,29 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    marginBottom: 16,
     overflow: 'hidden', // Ensures media does not spill out of the card
+  },
+  mediaWrapper: {
+    width, // full screen width
+    height: CARD_HEIGHT,
+    backgroundColor: '#e0e0e0', // grey border background
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullMedia: {
+    width: '100%',
+    height: '100%',
+  },
+  backButtonContainer: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    zIndex: 10,
+  },
+  backButton: {
+    backgroundColor: colors.gray,
+    padding: 8,
+    borderRadius: 10,
   },
   mediaCard: {
     width: '100%',
@@ -1665,7 +1739,7 @@ const styles = StyleSheet.create({
     zIndex: 5,
   },
   carouselImage: {
-    width: width - 32, // Adjusted for horizontal padding of the mainCard
+    width: width - 32,
     height: '100%',
   },
   mediaContainer: {
@@ -1675,6 +1749,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f2f2f2',
   },
+  userScreenName: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   playIcon: {
     position: 'absolute',
     top: '50%',
@@ -1682,6 +1765,52 @@ const styles = StyleSheet.create({
     transform: [{ translateX: -32 }, { translateY: -32 }],
     zIndex: 2,
   },
+  bottomContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 16,
+    marginTop: 16,
+
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -6 }, // 👈 shadow upar ki taraf
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+  },
+
+  bottomLeft: {
+    flexDirection: 'column',
+  },
+  paymentContainer: {
+    marginTop: 0,
+    paddingVertical: 6,
+    paddingHorizontal: 18,
+    backgroundColor: 'green',
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+
+  paymentText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.white,
+  },
+
+  chatButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+
   paginationDotsInline: {
     flexDirection: 'row',
     justifyContent: 'center', // horizontally center
@@ -1716,13 +1845,23 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     zIndex: 10,
   },
-  arrowLeft: {
-    left: 10,
-    transform: [{ translateY: -15 }],
+  rowBetween: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  arrowRight: {
-    right: 10,
-    transform: [{ translateY: -15 }],
+  ratingLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#333',
+  },
+  starsRow: {
+    flexDirection: 'row',
+  },
+  star: {
+    fontSize: 14,
+    color: '#FFD700', // golden
+    marginHorizontal: 1,
   },
   emptyMedia: {
     width: width - 32,
@@ -1739,71 +1878,67 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: '#e0e0e0',
-    marginVertical: 15,
+    marginVertical: 10,
   },
   sectionHeading: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#555',
-    marginBottom: 10,
+    fontWeight: 'bold',
+    color: colors.primary,
+    marginBottom: 5,
   },
   jobDescription: {
     fontSize: 15,
     color: '#666',
     lineHeight: 24,
-    marginBottom: 20,
+    marginBottom: 5,
     textAlign: 'justify',
   },
-  infoGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 20,
+  footerContainer: {
+    flex: 1, // parent ko full space
+    justifyContent: 'flex-end', // neeche chipka do
   },
-  infoItem: {
-    flexDirection: 'row',
+  buttonContainer: {
+    flexDirection: 'column', // ek ke neeche ek
+    padding: 16,
+  },
+  button: {
+    width: '100%',
+    paddingVertical: 14,
+    borderRadius: 30,
     alignItems: 'center',
-    width: '48%',
-    marginBottom: 15,
-  },
-  infoTextContainer: {
-    marginLeft: 10,
-  },
-  infoLabel: {
-    fontSize: 13,
-    color: '#888',
-  },
-  infoText: {
-    fontSize: 15,
-    color: '#333',
-    fontWeight: '600',
+    marginVertical: 6,
   },
   actionButtonRow: {
-    flexDirection: 'column',
+    flexDirection: 'column', // make them side by side
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 16,
+    marginBottom: 20, // little breathing space below
   },
   actionButton: {
-    flex: 1,
-    paddingVertical: 12,
-    width: '100%',
+    flex: 1, // equal width
+    paddingVertical: 14,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  rowInline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  primaryButton: {
+    backgroundColor: colors.primary,
+  },
+
   outlineButton: {
     backgroundColor: '#fff',
     borderColor: colors.primary,
     borderWidth: 1,
-    marginRight: 10,
   },
   outlineButtonText: {
     color: colors.primary,
     fontWeight: 'bold',
-  },
-  primaryButton: {
-    backgroundColor: colors.primary,
   },
   actionButtonText: {
     color: '#fff',
@@ -1819,12 +1954,16 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     padding: 20,
     marginBottom: 16,
+    marginTop: 16,
   },
   userRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 10,
+  },
+  userInfo: {
+    flex: 1, // 👈 ensures row takes full width
   },
   userInfoTouchable: {
     flexDirection: 'row',
@@ -1842,12 +1981,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
   },
-  chatButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 10,
-    backgroundColor: colors.primary,
-  },
+
   chatButtonText: {
     color: '#fff',
     fontWeight: 'bold',
@@ -1894,7 +2028,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   locationText: {
-    marginLeft: 4,
+    marginLeft: 0,
     fontSize: 14,
     color: '#666',
   },
@@ -1903,6 +2037,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.primary,
     fontWeight: 'bold',
+  },
+  kmContainerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 0,
   },
   kmContainer: {
     width: 60,
@@ -1919,7 +2059,22 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-  
+  rateBox: {
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+
+  rateText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+
+  perHrText: {
+    fontSize: 10,
+    color: '#666',
+  },
 });
 
 export default JobDetailsScreen;
