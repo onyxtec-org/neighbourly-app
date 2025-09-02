@@ -27,7 +27,7 @@ const colors = {
   inProgress: '#FF9800',
   completed: '#4CAF50',
   rejected: '#F44336',
-scheduled: '#9C27B0',
+  scheduled: '#378698',
   statusColors(type) {
     switch (type) {
       case 'open':

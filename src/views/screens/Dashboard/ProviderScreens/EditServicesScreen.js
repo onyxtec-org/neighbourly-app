@@ -51,6 +51,39 @@ const EditServicesScreen = ({ navigation }) => {
     dispatch(fetchServices());
   }, [dispatch]);
 
+
+  /** ✅ Initialize selected services and handle uncategorized */
+useEffect(() => {
+
+  console.log('my serrvices', myServices);
+  
+  if (myServices && myServices.length > 0) {
+    // ✅ Auto-select normal services by ID
+    const normalIds = myServices
+      .filter(s => s.category !== null)
+      .map(s => Number(s.id));
+
+    setSelectedServiceIds(normalIds);
+
+    // ✅ Find custom or uncategorized services (category === null or type === 'custom')
+    const customAndUncategorized = myServices.filter(
+      s => s.category === null || s.type === 'custom'
+    );
+
+    // ✅ Merge them into customServices
+    setCustomServices(prev => {
+      const existingNames = prev.map(item => item.name.toLowerCase());
+      const newOnes = customAndUncategorized.filter(
+        s => !existingNames.includes(s.name.toLowerCase())
+      );
+      return [...prev, ...newOnes];
+    });
+
+    // ✅ Auto-select them by name
+    setSelectedCustomServiceNames(customAndUncategorized.map(s => s.name));
+  }
+}, [myServices]);
+
   /** ✅ Pre-select existing user services when categories and myServices load */
   useEffect(() => {
     if (myServices && myServices.length > 0 && categories.length > 0) {
@@ -167,6 +200,7 @@ const EditServicesScreen = ({ navigation }) => {
       new_services: selectedCustomServiceNames,
     };
 
+    
     try {
       const result = await dispatch(addServices(body)).unwrap();
 

@@ -46,6 +46,7 @@ const consumerTabs = [
   { key: 'in_progress', label: 'In Progress' },
   { key: 'completed', label: 'Completed' },
 ];
+const { width: screenWidth } = Dimensions.get('window');
 
 const JobsScreen = () => {
   const route = useRoute();
@@ -192,7 +193,7 @@ const JobsScreen = () => {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerCenter}>
-          <AppText style={styles.headerTitle}>Jobs</AppText>
+          <AppText style={styles.headerTitle}>Job Listing</AppText>
         </View>
       </View>
 
@@ -206,22 +207,25 @@ const JobsScreen = () => {
             contentContainerStyle={styles.tabContainer}
           >
             {tabs.map(tab => {
-              const tabData = jobsByStatus[tab.key].count || 0 ;
+              const tabData = jobsByStatus[tab.key].count || 0;
 
-              
               return (
                 <TouchableOpacity
                   key={tab.key}
                   style={[
                     styles.tabButton,
-                    activeTab === tab.key && styles.activeTab,
+                    activeTab === tab.key
+                      ? styles.activeTab
+                      : styles.inactiveTab,
                   ]}
                   onPress={() => setActiveTab(tab.key)}
                 >
                   <AppText
                     style={[
                       styles.tabText,
-                      activeTab === tab.key && styles.activeTabText,
+                      activeTab === tab.key
+                        ? styles.activeTabText
+                        : styles.inactiveTabText,
                     ]}
                   >
                     {`${tab.label} (${tabData})`}
@@ -284,8 +288,6 @@ const styles = StyleSheet.create({
   header: {
     height: normalize(60),
     justifyContent: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
     position: 'relative',
   },
   headerCenter: {
@@ -301,31 +303,43 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
     height: normalize(50),
   },
 
   tabButton: {
-    paddingVertical: normalize(12),
-    paddingHorizontal: normalize(18),
+    minWidth: screenWidth * 0.2, // minimum 20% of screen width
+    height: screenWidth * 0.1, // 10% of screen width (responsive height)
+    borderRadius: (screenWidth * 0.1) / 2, // half of height for pill shape
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: screenWidth * 0.02, // responsive margin
+    borderWidth: 2,
+    paddingHorizontal: screenWidth * 0.04, // dynamic padding for text-based width
   },
   activeTab: {
-    borderBottomWidth: 3,
-    borderBottomColor: colors.primary,
+    backgroundColor: colors.primary, // primary color
+    borderColor: '#fff',
+  },
+  inactiveTab: {
+    backgroundColor: '#fff',
+    borderColor: colors.primary,
   },
   tabText: {
-    fontSize: normalize(15),
-    color: '#888',
-  },
-  activeTabText: {
-    color: colors.primary,
+    fontSize: screenWidth * 0.03, // responsive font size
+    textAlign: 'center',
     fontWeight: 'bold',
   },
+  activeTabText: {
+    color: '#fff',
+  },
+  inactiveTabText: {
+    color: colors.primary,
+  },
+
   contentContainer: {
     flex: 1,
     paddingHorizontal: normalize(16),
-    backgroundColor: '#f9f9f9',
+    
     marginTop: 0,
   },
 });

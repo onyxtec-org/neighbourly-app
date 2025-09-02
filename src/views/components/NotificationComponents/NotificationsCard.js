@@ -9,11 +9,12 @@ import Seperator from './../Seperator';
 import colors from '../../../config/colors';
 import { markNotificationAsRead } from '../../../redux/slices/notificationSlice/notificationSlice';
 import { formatStatusText } from '../../../utils/stringHelpers';
+import Icon from '../ImageComponent/IconComponent';
 function NotificationsCard({ item }) {
   const { user: profileUser } = useSelector(state => state.profile);
   const role = profileUser?.role;
 
-  console.log('notification------', item);
+console.log('notification item-', item);
 
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -73,6 +74,23 @@ function NotificationsCard({ item }) {
   // Split CamelCase into words
   const readable = withoutSuffix.replace(/([a-z])([A-Z])/g, '$1 $2'); // "Job Status Updated"
 
+  const getNotificationIcon = (text) => {
+
+  switch (text) {
+    case 'Job Status Updated':
+      return 'checkmark-done-outline';
+    case 'New Job':
+      return 'briefcase-outline';
+    case 'New Offer':
+      return 'pricetag-outline';
+    case 'Offer Accepted':
+      return 'checkmark-done-outline';
+    default:
+      return 'notifications-outline'; // fallback icon
+     
+  }
+
+};
   return (
     <View>
       <TouchableOpacity
@@ -84,31 +102,36 @@ function NotificationsCard({ item }) {
         activeOpacity={0.8}
       >
         <View style={styles.row}>
+           <Icon name={getNotificationIcon(readable)} style={styles.icon}/>
           <View style={styles.textWrapper}>
+         
+
+           
             <AppText style={styles.title}>
               {readable === 'Job Status Updated'
                 ? `${readable} to ${formatStatusText(item.data.job_status)}`
                 : readable === 'New Job'
                 ? `${readable} created for ${item.data.service}`
                 : readable === 'New Offer'
-                ? `${readable} recived for ${item.data.job_title.split(" - ")[1]}`
+                ? `${readable} recived for ${item.data.job_title.split(" - ")[1]}`:
+                readable === 'Offer Accepted'
+                ? `${readable} for ${item.data.title}`
                 : readable}
             </AppText>
 
-            {item.data.title && (
-              <AppText style={styles.subtitle}>{item.data.title}</AppText>
-            )}
+            <AppText style={styles.timestamp}>
+              {moment(item.created_at).format('MMM D, YYYY ')}
+            </AppText>
           </View>
 
-          <View style={styles.rightWrapper}>
+          {/* <View style={styles.rightWrapper}>
             <AppText style={styles.timestamp}>
               {moment(item.created_at).format('MMM D, YYYY • h:mm A')}
             </AppText>
             {!read && <View style={styles.unreadDot} />}
-          </View>
+          </View> */}
         </View>
       </TouchableOpacity>
-      <Seperator />
     </View>
   );
 }
@@ -129,8 +152,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 15,
-    fontWeight: 'bold',
-    color: colors.primary,
+    fontWeight: '500',
+    color: colors.grayDark,
     marginBottom: 2,
   },
   subtitle: {
@@ -153,6 +176,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.danger,
     marginTop: 2,
   },
+  icon:{
+    size:26,
+    marginRight:10,
+  }
 });
 
 export default NotificationsCard;

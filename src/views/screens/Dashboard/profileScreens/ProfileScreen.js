@@ -32,6 +32,50 @@ const ProfileScreen = ({ navigation }) => {
   const nav = useNavigation(); // for logout navigation
   const [deletePopupVisible, setDeletePopupVisible] = useState(false);
   const [logoutPopupVisible, setLogoutPopupVisible] = useState(false);
+  const userId = useSelector(state => state.login?.user?.id);
+  const loading = useSelector(state => state.login?.loading);
+
+  const {
+    user: profileUser,
+    status: profileStatus,
+    error: profileError,
+  } = useSelector(state => state.profile);
+
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success');
+  const [shouldNavigate, setShouldNavigate] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const menuItems = [
+    'Change Password',
+    'Notifications Settings',
+    'Delete Account',
+    'Support',
+    'Privacy Policy',
+    'Terms of Service',
+  ];
+
+  // If user is a provider, add Edit Services
+  if (profileUser?.role === 'provider') {
+    menuItems.splice(1, 0, 'Edit Services'); // Insert after Change Password
+  }
+
+  useEffect(() => {
+    if (userId) {
+      console.log('Dispatching fetchUserProfile with userId:', userId);
+      dispatch(fetchUserProfile({ userId: userId }));
+    } else {
+      console.log('Skipped fetching user profile – user ID not available');
+    }
+  }, [dispatch, userId]);
+
+  const showToast = (msg, type = 'success') => {
+    console.log(' Showing toast:', msg);
+    setToastMessage(msg);
+    setToastType(type);
+    setToastVisible(true);
+  };
 
   const handleDeleteAccount = async () => {
     console.log('🗑 Account deletion confirmed');
@@ -61,37 +105,6 @@ const ProfileScreen = ({ navigation }) => {
     } catch (err) {
       showToast(err.message || 'Failed to delete account', 'error');
     }
-  };
-
-  const userId = useSelector(state => state.login?.user?.id);
-  const loading = useSelector(state => state.login?.loading);
-
-  const {
-    user: profileUser,
-    status: profileStatus,
-    error: profileError,
-  } = useSelector(state => state.profile);
-
-  const [toastVisible, setToastVisible] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState('success');
-  const [shouldNavigate, setShouldNavigate] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (userId) {
-      console.log('Dispatching fetchUserProfile with userId:', userId);
-      dispatch(fetchUserProfile({ userId: userId }));
-    } else {
-      console.log('Skipped fetching user profile – user ID not available');
-    }
-  }, [dispatch, userId]);
-
-  const showToast = (msg, type = 'success') => {
-    console.log(' Showing toast:', msg);
-    setToastMessage(msg);
-    setToastType(type);
-    setToastVisible(true);
   };
 
   const handleLogout = () => {
@@ -229,15 +242,7 @@ const ProfileScreen = ({ navigation }) => {
             <AppText style={profileStyles.arrowIcon}>›</AppText>
           </TouchableOpacity>
 
-          {[
-            'Change Password',
-            'Notifications Settings',
-            'Delete Account',
-            'Payment',
-            'Support',
-            'Privacy Policy',
-            'Terms of Service',
-          ].map((item, index) => (
+          {menuItems.map((item, index) => (
             <TouchableOpacity
               key={index}
               style={profileStyles.menuItem}
@@ -252,6 +257,8 @@ const ProfileScreen = ({ navigation }) => {
                   navigation.navigate('PrivacyPolicy');
                 } else if (item === 'Terms of Service') {
                   navigation.navigate('TermsandconditionScreen');
+                } else if (item === 'Edit Services') {
+                  navigation.navigate('EditServices');
                 } else {
                   console.log(`${item} pressed`);
                 }
