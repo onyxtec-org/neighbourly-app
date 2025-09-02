@@ -19,6 +19,8 @@ import SearchBar from '../../../components/SearchBar';
 import AppBar from '../../../components/HeaderComponent/AppBar';
 import AppText from '../../../components/AppText';
 import Image from '../../../components/ImageComponent/ImageComponent';
+import Icon from '../../../components/ImageComponent/IconComponent';
+import ServicesListingCard from '../../../components/services/ServicesListingCard';
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 
@@ -45,8 +47,6 @@ const HomeScreen = ({ navigation }) => {
   const renderCard = (item, isService = false) => {
     const displayName = isService ? item.name : item.title || item.name; // ✅ Service ke liye name, category ke liye title fallback
 
-    console.log('itemmmmm', item.image);
-
     return (
       <TouchableOpacity
         style={styles.cardContainer}
@@ -62,15 +62,24 @@ const HomeScreen = ({ navigation }) => {
         }}
       >
         <View style={styles.cardImageWrapper}>
-          <Image
-            source={
-              item.image?.trim()
-                ? { uri: item.image }
-                : require('../../../../assets/images/tools_placeholder.png')
-            }
-            style={styles.cardImage}
-            resizeMode="cover"
-          />
+          {item.image ? (
+            <Image
+              source={{ uri: item.image }}
+              style={styles.cardImage}
+              resizeMode="cover"
+            />
+          ) : (
+            <Icon
+              name="construct-outline" // Better placeholder for image
+              size={80} // Large enough to look good
+              color={colors.primary}
+              style={{
+                alignSelf: 'center',
+                justifyContent: 'center',
+                marginTop: 10,
+              }}
+            />
+          )}
         </View>
         <View style={styles.cardLabel}>
           <AppText style={styles.categoryName}>{displayName}</AppText>
@@ -78,6 +87,7 @@ const HomeScreen = ({ navigation }) => {
       </TouchableOpacity>
     );
   };
+
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -160,15 +170,18 @@ const HomeScreen = ({ navigation }) => {
               {topServStatus === 'loading' ? (
                 <ActivityIndicator size="large" color={colors.primary} />
               ) : (
-                <FlatList
-                  data={featuredServices}
-                  horizontal
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={({ item }) => renderCard(item, true)}
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{ paddingHorizontal: 8 }}
-                  style={{ maxHeight: 180 }}
-                />
+                featuredServices.map(service => (
+                  <ServicesListingCard
+                    key={service.id}
+                    service={service}
+                    onPress={() =>
+                      navigation.navigate('JobCreateScreen', {
+                        serviceId: service.id,
+                        serviceName: service.name,
+                      })
+                    }
+                  />
+                ))
               )}
             </View>
           </>

@@ -5,7 +5,7 @@ import NoRecordFound from '../NoRecordFound';
 
 function JobListings({ data ,emptyMessage ,status, onJobPress, onInterestedPress, onRejectedPress}) {
   const renderItem = ({ item }) => <JobCard item={item} onPress={onJobPress} 
-  onInterestedPress={onInterestedPress} onRejectedPress={onRejectedPress} status={status} />;
+  onAcceptPress={onInterestedPress} onRejectPress={onRejectedPress} status={status} />;
   const ListEmptyComponent = () => {
     return (
       <View>

@@ -33,7 +33,8 @@ const styles = StyleSheet.create({
     borderRadius:30,
     alignItems:'center',
     justifyContent:'center',
-    padding:10
+    paddingVertical:8,
+    paddingHorizontal:20
   },
   statusText: {
     fontSize: 10,

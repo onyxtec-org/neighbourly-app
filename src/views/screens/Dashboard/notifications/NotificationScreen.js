@@ -1,8 +1,8 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   StyleSheet,
-  FlatList,
+  SectionList,
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
@@ -28,24 +28,46 @@ function NotificationsScreen({ navigation }) {
     dispatch(fetchNotifications());
   }, [dispatch]);
 
+  // ✅ Group notifications into sections: "New" (unread) and "Older" (read)
+  const sections = useMemo(() => {
+    const newNotifications = notifications.filter(n => !n.read_at);
+    const olderNotifications = notifications.filter(n => n.read_at);
+  console.log('older notificationss', notifications);
+
+    const result = [];
+    if (newNotifications.length > 0) {
+      result.push({ title: 'New', data: newNotifications });
+    }
+    if (olderNotifications.length > 0) {
+      result.push({ title: 'Older', data: olderNotifications });
+    }
+    return result;
+  }, [notifications]);
+
+  
   const ListEmptyComponent = () => (
     <View style={styles.emptyContainer}>
       <AppText style={styles.emptyText}>
-        {loading ? '' : 'No New Notifications'}
+        {loading ? '' : 'No Notifications'}
       </AppText>
     </View>
   );
 
   const renderItem = ({ item }) => <NotificationsCard item={item} />;
 
+  const renderSectionHeader = ({ section: { title } }) => (
+    <View style={styles.sectionHeader}>
+      <AppText style={styles.sectionHeaderText}>{title}</AppText>
+    </View>
+  );
+
   const onRefresh = () => {
     dispatch(fetchNotifications());
   };
 
-  const handleMarkAll = async() => {
-    const response=await dispatch(markAllNotificationsAsRead());
-    console.log('response of mark all',response);
-    
+  const handleMarkAll = async () => {
+    const response = await dispatch(markAllNotificationsAsRead());
+    console.log('response of mark all', response);
   };
 
   const keyExtractor = useCallback(item => item.id.toString(), []);
@@ -53,16 +75,15 @@ function NotificationsScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Notifications" bookmark={false} />
-      <FlatList
-        style={{ flex: 1 }}
-        contentContainerStyle={{ flexGrow: 1 }}
-        data={notifications}
-        refreshing={loading}
-        onRefresh={onRefresh}
+      <SectionList
+        sections={sections}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        maxToRenderPerBatch={10}
+        renderSectionHeader={renderSectionHeader}
         ListEmptyComponent={ListEmptyComponent}
+        refreshing={loading}
+        onRefresh={onRefresh}
+        contentContainerStyle={{ flexGrow: 1 }}
         ListHeaderComponent={
           notifications.length > 0 && (
             <View>
@@ -74,12 +95,10 @@ function NotificationsScreen({ navigation }) {
                   Mark all as read
                 </AppText>
               </TouchableOpacity>
-              <Seperator />
             </View>
           )
         }
       />
-      {/* {loading && <AppActivityIndicator />} */}
     </SafeAreaView>
   );
 }
@@ -97,6 +116,16 @@ const styles = StyleSheet.create({
   markAllReadButton: {
     color: colors.primary,
     fontWeight: '500',
+  },
+  sectionHeader: {
+    backgroundColor: colors.light,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  sectionHeaderText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.dark,
   },
   emptyContainer: {
     flex: 1,
