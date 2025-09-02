@@ -13,14 +13,19 @@ import Icon from '../ImageComponent/IconComponent';
 import { formatStatusText } from '../../../utils/stringHelpers';
 import { useSelector } from 'react-redux';
 import StatusBox from './StatusBox';
-function JobCard({ item, onPress, onAcceptPress, onRejectPress }) {
+function JobCard({  item,
+  onPress,
+  onAcceptPress,
+  onRejectPress,
+  onReinvitePress,
+  status,}) {
   const { width } = useWindowDimensions();
   const imageSize = width * 0.24; // responsive image size
-  console.log('item in job card--', item.rate);
   const { user: profileUser } = useSelector(state => state.profile);
 
   return (
-    <TouchableOpacity style={styles.container} onPress={() => onPress(item.id)}>
+    <TouchableOpacity style={styles.container} onPress={() => onPress(item.id, status, item)}
+>
       {/* Left: Image */}
       <Image
         source={
@@ -85,14 +90,14 @@ function JobCard({ item, onPress, onAcceptPress, onRejectPress }) {
           <View style={styles.buttonRow}>
             <TouchableOpacity
               style={styles.acceptButton}
-              onPress={() => onAcceptPress(item.id)}
+              onPress={() => onAcceptPress(item.id, item.price_type)}
             >
               <AppText style={styles.acceptButtonText}>Accept</AppText>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.rejectButton}
-              onPress={() => onRejectPress(item.id)}
+              onPress={() => onRejectPress(item.id, 'rejected')}
             >
               <AppText style={styles.rejectButtonText}>Reject</AppText>
             </TouchableOpacity>
