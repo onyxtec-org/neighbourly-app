@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Modal, StyleSheet, Dimensions } from 'react-native';
+import { View, TouchableOpacity, Modal, StyleSheet, Image, Dimensions } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import Ionicons from './IconComponent';
-import Image from './ImageComponent';
+
 const { width } = Dimensions.get('window');
 
 const ZoomableImage = ({ uri, style, placeholder }) => {
