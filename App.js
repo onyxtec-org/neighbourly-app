@@ -21,26 +21,6 @@ export default function App() {
     });
   };
 
-  const handleBranchNavigation = (params) => {
-    const id = params?.id;
-    const type = params?.type;
-  
-    if (!id || !type) {
-      console.warn("❌ Deep link missing id/type:", params);
-      return;
-    }
-  
-    if (type === "user") {
-      navigate("AccountScreen", { userId: parseInt(id, 10) });
-    } else if (type === "group") {
-      navigate("GroupScreen", { groupId: id });
-    } else {
-      console.warn("Unknown deep link type:", type);
-    }
-  };
-  
-  
-
   useEffect(() => {
     // Ignore AsyncStorage warning
     LogBox.ignoreLogs(['AsyncStorage has been extracted']);

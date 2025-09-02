@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, StyleSheet,Image } from 'react-native';
-//import FastImage from '@d11/react-native-fast-image';
+////import FastImage from '@d11/react-native-fast-image';
 
-function ImageComponent({ source, style, height, width, resizeMode = 'cover'}) {
+function ImageComponent({ source, style, height, width, resizeMode = 'cover' }) {
   return (
     <View style={styles.container}>
       <Image
