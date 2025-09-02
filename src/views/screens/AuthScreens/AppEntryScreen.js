@@ -30,7 +30,8 @@ const AppEntryScreen = ({ navigation }) => {
         dispatch(fetchNotifications());
 
         if (fetchUserProfile.fulfilled.match(result)) {
-          dispatch(setMyServices(user.services || []));
+
+          dispatch(setMyServices( result.payload.data.services || []));
 
           // ✅ Agar deep link params hain → wahan navigate karo
           if (deepLink) {
