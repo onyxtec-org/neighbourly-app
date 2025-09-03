@@ -2,6 +2,7 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
+import FirebaseCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -28,8 +29,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       in: window,
       launchOptions: launchOptions
     )
+    FirebaseApp.configure()
 
     return true
+  }
+
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+    // Handler for Push Notifications
+    //Branch.getInstance().handlePushNotification(userInfo)
+  }
+  func application(_ application: UIApplication,
+      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    Messaging.messaging().apnsToken = deviceToken;
+  }
+
+   // Called when APNs failed to register the device for push notifications
+  func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+           // You can log the error if needed
+           print("Failed to register for remote notifications: \(error)")
   }
 }
 
