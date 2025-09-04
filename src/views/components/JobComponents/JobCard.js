@@ -41,7 +41,7 @@ function JobCard({  item,
       {/* Right: Content */}
       <View style={styles.contentContainer}>
         {/* Title */}
-        <AppText style={styles.title}>{item.title}</AppText>
+        <AppText style={styles.title}numberOfLines={1} ellipsizeMode="tail">{item.title}</AppText>
 
         <View style={{ flexDirection: 'row' }}>
           <Icon
@@ -50,7 +50,7 @@ function JobCard({  item,
             color={colors.gray}
             style={{ marginRight: 2 }}
           />
-          <AppText style={styles.location}>{item.location}</AppText>
+          <AppText style={styles.location}numberOfLines={1} ellipsizeMode="tail">{item.location}</AppText>
         </View>
 
         <View style={{ flexDirection: 'row' }}>

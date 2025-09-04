@@ -20,6 +20,7 @@ import featuredServicesReducer from './slices/consumerSlice/featuredServicesSlic
 import postReducer from './slices/stageSlice/postSlice';
 import deepLinkReducer from './slices/deepLinkSlice';
 import reviewReducer from './slices/reviewSlice/reviewSlice';
+import reportReducer from './slices/reportSlice'; 
 
 const store = configureStore({
   reducer: {
@@ -43,6 +44,7 @@ const store = configureStore({
     post: postReducer,
     deepLink: deepLinkReducer,
     reviews: reviewReducer,
+    report: reportReducer,
   },
 });
 
