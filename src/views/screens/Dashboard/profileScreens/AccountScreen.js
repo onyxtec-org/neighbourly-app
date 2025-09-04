@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView,Modal,TouchableOpacity } from 'react-native';
 import Icon from '../../../components/ImageComponent/IconComponent';
 import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
 import LinearGradient from 'react-native-linear-gradient';
@@ -21,6 +21,8 @@ const AccountScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const [profile, setProfile] = useState(null);
   const [isShareSheetVisible, setIsShareSheetVisible] = useState(false);
+  const [isOptionsVisible, setIsOptionsVisible] = useState(false);
+
   const [branchLink, setBranchLink] = useState('');
   const { status, user } = useSelector(state => state.profile);
   const { myServices } = useSelector(state => state.services);
@@ -32,17 +34,20 @@ const AccountScreen = ({ navigation, route }) => {
   useFocusEffect(
     useCallback(() => {
       if (userId) {
-        dispatch(fetchUserProfile({ 
-          userId, 
-          authId: user?.id ?? null   
-        })).then(res => {
+        dispatch(
+          fetchUserProfile({
+            userId,
+            authId: user?.id ?? null,
+          }),
+        ).then(res => {
           setProfile(res.payload.data);
         });
       }
     }, [dispatch, user?.id, userId]),
   );
-  
-  const isAuthUser = aauthUser && userId && aauthUser.toString() === userId.toString();
+
+  const isAuthUser =
+    aauthUser && userId && aauthUser.toString() === userId.toString();
 
   const handleShareProfile = async () => {
     try {
@@ -60,19 +65,26 @@ const AccountScreen = ({ navigation, route }) => {
   };
   console.log('porfile user', profile);
 
-  return (
-    <>
+ return (
+  <>
     <ScrollView style={styles.container}>
-      {/* Header with Back Button and Edit Icon */}
+      {/* Header */}
       <Header
-          title="Profile Details"
-          bookmark={false}
-          onIconPress={() => navigation.navigate('UpdateProfileScreen')}
-          icon="create-outline"
-          isIcon={!!isAuthUser}
-          onSharePress={handleShareProfile}
-        />
+        title="Profile Details"
+        bookmark={false}
+        onIconPress={() => {
+          if (isAuthUser) {
+            navigation.navigate('UpdateProfileScreen');
+          } else {
+            setIsOptionsVisible(true);
+          }
+        }}
+        icon={isAuthUser ? 'create-outline' : 'ellipsis-vertical'}
+        isIcon={true}
+        onSharePress={handleShareProfile}
+      />
 
+      {/* Profile Image + Name */}
       <View style={styles.profileSummary}>
         <View style={{ alignItems: 'center' }}>
           {status === 'loading' ? (
@@ -83,7 +95,9 @@ const AccountScreen = ({ navigation, route }) => {
           ) : (
             <ZoomableImage
               uri={
-                profile?.image ? `${config.userimageURL}${profile.image}` : null
+                profile?.image
+                  ? `${config.userimageURL}${profile.image}`
+                  : null
               }
               placeholder={require('../../../../assets/images/profile_icon.jpeg')}
               style={styles.profileImage}
@@ -97,89 +111,74 @@ const AccountScreen = ({ navigation, route }) => {
             style={{ width: 120, height: 20, borderRadius: 8, marginTop: 10 }}
           />
         ) : (
-          profile?.name && (
-            <AppText style={styles.userName}>{profile.name}</AppText>
-          )
+          profile?.name && <AppText style={styles.userName}>{profile.name}</AppText>
         )}
       </View>
 
-      {/* Information Cards */}
+      {/* Content */}
       <View style={styles.content}>
+        {/* Personal Information Card */}
         <View style={styles.card}>
           <AppText style={styles.cardTitle}>Personal Information</AppText>
+
           {status === 'loading' ? (
             <>
-              <ShimmerPlaceholder
-                LinearGradient={LinearGradient}
-                style={{ height: 20, borderRadius: 6, marginVertical: 10 }}
-              />
-              <ShimmerPlaceholder
-                LinearGradient={LinearGradient}
-                style={{ height: 20, borderRadius: 6, marginVertical: 10 }}
-              />
+              {[1, 2, 3].map((i) => (
+                <ShimmerPlaceholder
+                  key={i}
+                  LinearGradient={LinearGradient}
+                  style={{ height: 20, borderRadius: 6, marginVertical: 10 }}
+                />
+              ))}
             </>
           ) : (
             <>
               {profile?.email && (
-                <InfoItems
-                  icon={'mail-outline'}
-                  text={profile.email}
-                  title={'Email'}
-                />
+                <InfoItems icon={'mail-outline'} text={profile.email} title={'Email'} />
               )}
               {profile?.slug && (
-                <InfoItems
-                  icon={'person'}
-                  text={profile.slug}
-                  title={'Screen Name'}
-                />
+                <InfoItems icon={'person'} text={profile.slug} title={'Screen Name'} />
               )}
               {profile?.phone && (
                 <>
                   <Seperator color="#f0f0f0" />
-
-                  <InfoItems
-                    icon={'call-outline'}
-                    text={+profile.phone}
-                    title={'Phone'}
-                  />
+                  <InfoItems icon={'call-outline'} text={+profile.phone} title={'Phone'} />
                 </>
               )}
             </>
           )}
         </View>
 
+        {/* Additional Details */}
         <View style={styles.card}>
           <AppText style={styles.cardTitle}>Additional Details</AppText>
 
-          <InfoItems
-            icon={'location-outline'}
-            text={profile?.location || '—'}
-            title={'Location'}
-          />
-
-          <Seperator color="#f0f0f0" />
-
-          <InfoItems
-            icon={'briefcase-outline'}
-            text={profile?.role || '—'}
-            title={'Role'}
-          />
+          {status === 'loading' ? (
+            <>
+              {[1, 2].map((i) => (
+                <ShimmerPlaceholder
+                  key={i}
+                  LinearGradient={LinearGradient}
+                  style={{ height: 20, borderRadius: 6, marginVertical: 10 }}
+                />
+              ))}
+            </>
+          ) : (
+            <>
+              <InfoItems icon={'location-outline'} text={profile?.location || '—'} title={'Location'} />
+              <Seperator color="#f0f0f0" />
+              <InfoItems icon={'briefcase-outline'} text={profile?.role || '—'} title={'Role'} />
+            </>
+          )}
         </View>
-        {/* My Services Card */}
+
+        {/* Services Section */}
         {profile?.role === 'provider' && (
           <View style={styles.card}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-              }}
-            >
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <AppText style={styles.cardTitle}>
                 {isAuthUser ? 'My Services' : 'Services'}
               </AppText>
-
               {isAuthUser && (
                 <Icon
                   name={'create-outline'}
@@ -189,18 +188,23 @@ const AccountScreen = ({ navigation, route }) => {
                 />
               )}
             </View>
-            {isAuthUser ? (
-              // ✅ Show myServices for authenticated user
+
+            {status === 'loading' ? (
+              <>
+                {[1, 2, 3].map((i) => (
+                  <ShimmerPlaceholder
+                    key={i}
+                    LinearGradient={LinearGradient}
+                    style={{ height: 20, borderRadius: 6, marginVertical: 10 }}
+                  />
+                ))}
+              </>
+            ) : isAuthUser ? (
               myServices && myServices.length > 0 ? (
                 myServices.map((service, index) => (
                   <View key={index}>
-                    <InfoItems
-                      icon={'construct-outline'}
-                      text={service.name || 'Unnamed Service'}
-                    />
-                    {index < myServices.length - 1 && (
-                      <Seperator color="#f0f0f0" />
-                    )}
+                    <InfoItems icon={'construct-outline'} text={service.name || 'Unnamed Service'} />
+                    {index < myServices.length - 1 && <Seperator color="#f0f0f0" />}
                   </View>
                 ))
               ) : (
@@ -211,26 +215,18 @@ const AccountScreen = ({ navigation, route }) => {
                   </View>
                 </View>
               )
-            ) : // ✅ Show profileServices for other users
-            profile.services && profile.services.length > 0 ? (
+            ) : profile.services && profile.services.length > 0 ? (
               profile.services.map((service, index) => (
                 <View key={index}>
-                  <InfoItems
-                    icon={'construct-outline'}
-                    text={service.name || 'Unnamed Service'}
-                  />
-                  {index < profile.services.length - 1 && (
-                    <Seperator color="#f0f0f0" />
-                  )}
+                  <InfoItems icon={'construct-outline'} text={service.name || 'Unnamed Service'} />
+                  {index < profile.services.length - 1 && <Seperator color="#f0f0f0" />}
                 </View>
               ))
             ) : (
               <View style={styles.infoRow}>
                 <Icon name="alert-circle-outline" size={20} color="#888" />
                 <View style={styles.textContainer}>
-                  <AppText style={styles.value}>
-                    This user does not offer any services yet
-                  </AppText>
+                  <AppText style={styles.value}>This user does not offer any services yet</AppText>
                 </View>
               </View>
             )}
@@ -238,13 +234,32 @@ const AccountScreen = ({ navigation, route }) => {
         )}
       </View>
     </ScrollView>
+
+    {/* Share Bottom Sheet */}
     <ShareBottomSheet
-        url={branchLink}
-        onClose={() => setIsShareSheetVisible(false)}
-        visible={isShareSheetVisible}
-      />
-    </>
-  );
+      url={branchLink}
+      onClose={() => setIsShareSheetVisible(false)}
+      visible={isShareSheetVisible}
+    />
+
+    {/* Options Dropdown */}
+    {isOptionsVisible && (
+      <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => setIsOptionsVisible(false)}>
+        <View style={styles.dropdownMenu}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => {
+              setIsOptionsVisible(false);
+            }}
+          >
+            <AppText style={styles.menuText}>Report User</AppText>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    )}
+  </>
+);
+
 };
 
 export default AccountScreen;
@@ -321,4 +336,35 @@ const styles = StyleSheet.create({
     color: '#333',
     marginTop: 2,
   },
+  overlay: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: 999,
+},
+dropdownMenu: {
+  position: 'absolute',
+  top: 60, // Adjust based on your header height
+  right: 16, // Align with header icon
+  backgroundColor: '#fff',
+  borderRadius: 8,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 4,
+  elevation: 4,
+  paddingVertical: 8,
+  width: 150,
+},
+menuItem: {
+  paddingVertical: 12,
+  paddingHorizontal: 16,
+},
+menuText: {
+  fontSize: 16,
+  color: '#333',
+},
+
 });
