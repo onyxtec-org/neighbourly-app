@@ -9,6 +9,8 @@ import {
   Dimensions,
   FlatList,
   ActivityIndicator,
+  Modal,
+  TextInput
 } from 'react-native';
 import Ionicons from '../../../components/ImageComponent/IconComponent';
 import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
@@ -29,7 +31,9 @@ import CustomToast from '../../../components/CustomToast';
 import AppActivityIndicator from '../../../components/AppActivityIndicator';
 import CustomPopup from '../../../components/CustomPopup';
 import AppText from '../../../components/AppText';
-
+import Seperator from '../../../components/Seperator';
+import moment from 'moment';
+import AppTextInput from '../../../components/AppTextInput';
 const { width } = Dimensions.get('window');
 const CARD_HEIGHT = 300;
 
@@ -57,6 +61,9 @@ const JobDetailsScreen = ({ navigation, route }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [popupTitle, setPopupTitle] = useState('');
   const [popupMessage, setPopupMessage] = useState('');
+  const [isRatingModalVisible, setIsRatingModalVisible] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
 
   useFocusEffect(
     useCallback(() => {
@@ -133,6 +140,15 @@ const JobDetailsScreen = ({ navigation, route }) => {
     navigation.navigate('OffersScreen', { offers });
   };
 
+  const InfoRow = ({ label, value, labelStyle, valueStyle }) => {
+    return (
+      <View style={styles.locationRow}>
+        <AppText style={styles.boldtext}>{label} </AppText>
+        <AppText style={styles.locationText}>{value}</AppText>
+      </View>
+    );
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -167,7 +183,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
   const hasMultipleMedia = mediaSource.length > 1;
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.safeArea}>
       <ScrollView>
         <View style={styles.mainCard}>
           <View style={styles.mediaCard}>
@@ -388,46 +404,34 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 )}
             </View>
 
-            {/* Divider */}
-            <View style={styles.divider} />
+            <Seperator color={colors.lightGray} />
 
-            {/* Description */}
             <AppText style={styles.sectionHeading}>Description</AppText>
             <AppText style={styles.jobDescription}>{job.description}</AppText>
 
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>services: </AppText>
-              <AppText style={styles.locationText}>{job.location}</AppText>
-            </View>
+            <InfoRow label={'Services:'} value={job.location} />
 
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>Start Date: </AppText>
-              <AppText style={styles.locationText}>
-                {job.starts_at.substring(0, 10)}
-              </AppText>
-            </View>
+            <InfoRow
+              label={'Start Date:'}
+              value={moment(job.starts_at).format('MMM D, YYYY ')}
+            />
 
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>End Date: </AppText>
-              <AppText style={styles.locationText}>
-                {job.ends_at.substring(0, 10)}
-              </AppText>
-            </View>
+            <InfoRow
+              label={'End Date:'}
+              value={moment(job.ends_at).format('MMM D, YYYY ')}
+            />
 
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>Estimated Time: </AppText>
-              <AppText
-                style={styles.locationText}
-              >{`${job.no_of_hours} hrs`}</AppText>
-            </View>
+            <InfoRow
+              label={'Estimated Time:'}
+              value={`${job.no_of_hours} hrs`}
+            />
 
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>Price Type: </AppText>
-              <AppText style={styles.locationText}>
-                {job.price_type === 'per_hour' ? 'Per hour' : job.price_type}
-              </AppText>
-            </View>
-
+            <InfoRow
+              label={'Price Type:'}
+              value={
+                job.price_type === 'per_hour' ? 'Per hour' : job.price_type
+              }
+            />
             {/* User Details Card */}
             {userRole === 'provider' ? (
               // === Show Consumer Card ===
@@ -455,13 +459,13 @@ const JobDetailsScreen = ({ navigation, route }) => {
                         <AppText style={styles.userName}>
                           {job.consumer?.name || 'Unknown User'}
                         </AppText>
-                        <AppText style={styles.ratingLabel}> Rating</AppText>
+                        {/* <AppText style={styles.ratingLabel}> Rating</AppText> */}
                       </View>
 
                       {/* Row for ScreenName + Stars */}
-                      <View style={styles.rowInline}>
+                      {/* <View style={styles.rowInline}>
                         <AppText style={styles.userScreenName}>
-                          {job.consumer?.screenName || '@unknown'}
+                          {job.consumer?.slug || '@unknown'}
                         </AppText>
                         <View style={styles.starsRow}>
                           {[...Array(5)].map((_, index) => (
@@ -470,6 +474,21 @@ const JobDetailsScreen = ({ navigation, route }) => {
                             </AppText>
                           ))}
                         </View>
+                      </View> */}
+
+                      <View style={styles.rowInline}>
+                        <AppText style={styles.userScreenName}>
+                          {job.consumer?.slug || '@unknown'}
+                        </AppText>
+
+                        <TouchableOpacity
+                          style={styles.giveRatingBtn}
+                          onPress={() => setIsRatingModalVisible(true)}
+                        >
+                          <AppText style={styles.giveRatingText}>
+                            Rate this user
+                          </AppText>
+                        </TouchableOpacity>
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -509,16 +528,16 @@ const JobDetailsScreen = ({ navigation, route }) => {
                         {/* Row for ScreenName + Stars */}
                         <View style={styles.rowInline}>
                           <AppText style={styles.userScreenName}>
-                            {job.accepted_offer?.provider?.screenName ||
+                            {job.accepted_offer?.provider?.slug ||
                               '@unknown'}
                           </AppText>
-                          <View style={styles.starsRow}>
-                            {[...Array(5)].map((_, index) => (
-                              <AppText key={index} style={styles.star}>
-                                ★
-                              </AppText>
-                            ))}
-                          </View>
+                       <View style={styles.starsRow}>
+                          {[...Array(5)].map((_, index) => (
+                            <AppText key={index} style={styles.star}>
+                              ★
+                            </AppText>
+                          ))}
+                        </View>
                         </View>
 
                         {/* === Offer Details (Consumer side only) === */}
@@ -557,37 +576,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 </View>
               )}
           </View>
-          {/* Consumer Case */}
-          {userRole === 'consumer' && (
-            <View style={styles.bottomContainer}>
-              {/* Left Section */}
-              <View style={styles.bottomLeft}>
-                <AppText style={styles.rateText}>
-                  {job?.rate ? `$${job.rate}/per hr` : '$0.00/per hr'}
-                </AppText>
-
-                <View style={styles.paymentContainer}>
-                  <AppText style={styles.paymentText}>
-                    {job.payment_type || 'Cash'}
-                  </AppText>
-                </View>
-              </View>
-
-              {job?.accepted_offer && (
-                <TouchableOpacity
-                  style={[
-                    styles.chatButton,
-                    { backgroundColor: colors.primary },
-                  ]}
-                  onPress={() =>
-                    navigation.navigate('ChatScreen', { jobId: job.id })
-                  }
-                >
-                  <AppText style={styles.chatButtonText}>Chat</AppText>
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
 
           {userRole === 'provider' &&
             status !== 'new' &&
@@ -623,7 +611,34 @@ const JobDetailsScreen = ({ navigation, route }) => {
             )}
         </View>
       </ScrollView>
+      {/* Consumer Case */}
+      {userRole === 'consumer' && (
+        <View style={styles.bottomContainer}>
+          {/* Left Section */}
+          <View style={styles.bottomLeft}>
+            <AppText style={styles.rateText}>
+              {job?.rate ? `$${job.rate}/per hr` : '$0.00/per hr'}
+            </AppText>
 
+            <View style={styles.paymentContainer}>
+              <AppText style={styles.paymentText}>
+                {job.payment_type || 'Cash'}
+              </AppText>
+            </View>
+          </View>
+
+          {job?.accepted_offer && (
+            <TouchableOpacity
+              style={[styles.chatButton, { backgroundColor: colors.primary }]}
+              onPress={() =>
+                navigation.navigate('ChatScreen', { jobId: job.id })
+              }
+            >
+              <AppText style={styles.chatButtonText}>Chat</AppText>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
       {/* Popups & Toasts */}
       <CustomToast
         visible={toastVisible}
@@ -658,31 +673,84 @@ const JobDetailsScreen = ({ navigation, route }) => {
           statusChange();
         }}
       />
+   <Modal
+  transparent
+  visible={isRatingModalVisible}
+  animationType="fade"
+  onRequestClose={() => setIsRatingModalVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContainer}>
+      {/* Header */}
+      <View style={styles.modalHeader}>
+        <AppText style={styles.modalTitle}>Rate User</AppText>
+        <TouchableOpacity onPress={() => setIsRatingModalVisible(false)}>
+          <AppText style={styles.closeIcon}>✕</AppText>
+        </TouchableOpacity>
+      </View>
+
+      {/* Rating Stars */}
+      <View style={styles.rateStarsRow}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <TouchableOpacity key={star} onPress={() => setSelectedRating(star)}>
+            <AppText
+              style={[
+                styles.rateStar,
+                { color: star <= selectedRating ? '#FFD700' : '#ccc' },
+              ]}
+            >
+              ★
+            </AppText>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Review Text Input */}
+      <TextInput
+        style={styles.reviewInput}
+        placeholder="Write your review..."
+        placeholderTextColor="#888"
+        value={reviewComment}
+        onChangeText={setReviewComment}
+        multiline
+      />
+
+      {/* Submit Button */}
+      <TouchableOpacity
+        style={[
+          styles.submitButton,
+          {
+            opacity: selectedRating === 0 || reviewComment.trim() === '' ? 0.5 : 1,
+          },
+        ]}
+        disabled={selectedRating === 0 || reviewComment.trim() === ''}
+        onPress={() => {
+          console.log('Selected Rating:', selectedRating);
+          console.log('Review Comment:', reviewComment);
+          setIsRatingModalVisible(false);
+        }}
+      >
+        <AppText style={styles.submitText}>Submit</AppText>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
+
       {isLoading && <AppActivityIndicator />}
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
+
   mainCard: {
-    backgroundColor: '#ffffff',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    backgroundColor: colors.white,
     overflow: 'hidden', // Ensures media does not spill out of the card
-  },
-  mediaWrapper: {
-    width, // full screen width
-    height: CARD_HEIGHT,
-    backgroundColor: '#e0e0e0', // grey border background
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  fullMedia: {
-    width: '100%',
-    height: '100%',
   },
   backButtonContainer: {
     position: 'absolute',
@@ -701,14 +769,9 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: '#e0e0e0', // Placeholder color
   },
-  statusOverlay: {
-    position: 'absolute',
-    top: 15,
-    right: 15,
-    zIndex: 5,
-  },
+
   carouselImage: {
-    width: width -0,
+    width: width - 0,
     height: '100%',
   },
   mediaContainer: {
@@ -723,10 +786,6 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 2,
   },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   playIcon: {
     position: 'absolute',
     top: '50%',
@@ -734,22 +793,26 @@ const styles = StyleSheet.create({
     transform: [{ translateX: -32 }, { translateY: -32 }],
     zIndex: 2,
   },
-  bottomContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 16,
-    marginTop: 16,
 
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -6 }, // 👈 shadow upar ki taraf
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
-  },
+bottomContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  backgroundColor: colors.white,
+  borderTopLeftRadius: 20,
+  borderTopRightRadius: 20,
+  padding: 14,
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  elevation: 30,                           
+  zIndex: 10,  shadowColor: '#000',
+  shadowOffset: { width: 0, height: -6 }, 
+  shadowOpacity: 0.3, 
+  shadowRadius: 10, 
+},
+
 
   bottomLeft: {
     flexDirection: 'column',
@@ -806,19 +869,6 @@ const styles = StyleSheet.create({
   paginationDotActive: {
     backgroundColor: colors.primary,
   },
-  arrowButton: {
-    position: 'absolute',
-    top: '50%',
-    padding: 8,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    borderRadius: 20,
-    zIndex: 10,
-  },
-  rowBetween: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   ratingLabel: {
     fontSize: 14,
     fontWeight: '500',
@@ -843,11 +893,6 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
     paddingTop: 10,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#e0e0e0',
-    marginVertical: 10,
   },
   sectionHeading: {
     fontSize: 16,
@@ -1038,12 +1083,82 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#000',
+    marginBottom:5
   },
 
   perHrText: {
     fontSize: 10,
     color: '#666',
   },
+  giveRatingBtn: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginLeft: 10,
+  },
+  giveRatingText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+modalContainer: {
+  width: '85%',
+  backgroundColor: '#fff',
+  borderRadius: 12,
+  padding: 20,
+},
+modalHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 15,
+},
+modalTitle: {
+  fontSize: 18,
+  fontWeight: 'bold',
+},
+closeIcon: {
+  fontSize: 20,
+  color: '#333',
+},
+rateStarsRow: {
+  flexDirection: 'row',
+  justifyContent: 'center',
+  marginBottom: 15,
+},
+rateStar: {
+  fontSize: 30,
+  marginHorizontal: 5,
+},
+reviewInput: {
+  borderWidth: 1,
+  borderColor: '#ccc',
+  borderRadius: 8,
+  padding: 10,
+  minHeight: 80,
+  textAlignVertical: 'top',
+  marginBottom: 15,
+  fontSize: 16,
+},
+submitButton: {
+  backgroundColor: colors.primary,
+  borderRadius: 8,
+  paddingVertical: 12,
+  alignItems: 'center',
+},
+submitText: {
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: 'bold',
+},
+
 });
 
 export default JobDetailsScreen;

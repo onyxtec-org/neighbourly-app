@@ -19,8 +19,7 @@ import featuredCategoriesReducer from './slices/consumerSlice/featuredCategories
 import featuredServicesReducer from './slices/consumerSlice/featuredServicesSlice';
 import postReducer from './slices/stageSlice/postSlice';
 import deepLinkReducer from './slices/deepLinkSlice';
-
-
+import reviewReducer from './slices/reviewSlice/reviewSlice';
 
 const store = configureStore({
   reducer: {
@@ -43,6 +42,7 @@ const store = configureStore({
     featuredServices: featuredServicesReducer,
     post: postReducer,
     deepLink: deepLinkReducer,
+    reviews: reviewReducer,
   },
 });
 
