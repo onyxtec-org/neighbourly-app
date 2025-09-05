@@ -28,6 +28,9 @@ const colors = {
   completed: '#4CAF50',
   rejected: '#F44336',
   scheduled: '#378698',
+  linearGradient1: '#d6d6f7ff',
+  linearGradient2: '#F5F5F5',
+  chatSentColor:'#CDCDFB',
   borderColor: '#DADADA',
   blackColor: '#000000',
   //Dashboard status colors

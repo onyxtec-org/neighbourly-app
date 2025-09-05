@@ -10,7 +10,7 @@ import {
   FlatList,
   ActivityIndicator,
   Modal,
-  TextInput
+  TextInput,
 } from 'react-native';
 import Ionicons from '../../../components/ImageComponent/IconComponent';
 import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
@@ -34,12 +34,18 @@ import AppText from '../../../components/AppText';
 import Seperator from '../../../components/Seperator';
 import moment from 'moment';
 import AppTextInput from '../../../components/AppTextInput';
+import UserCard from '../../../components/JobComponents/UserCard';
+import { postJobReview } from '../../../../redux/slices/reviewSlice/reviewSlice';
+import BackButtonWithColor from '../../../components/ButtonComponents/BackButtonWithColor';
+import HeaderWithContainer from '../../../components/HeaderComponent/HeaderWithContainer';
 const { width } = Dimensions.get('window');
 const CARD_HEIGHT = 300;
 
 const JobDetailsScreen = ({ navigation, route }) => {
   const { jobId, userRole, status } = route.params;
   console.log('role', userRole, status);
+  const { user } = useSelector(state => state.profile);
+  const aauthUser = user?.id ?? null;
 
   const flatListRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -64,7 +70,9 @@ const JobDetailsScreen = ({ navigation, route }) => {
   const [isRatingModalVisible, setIsRatingModalVisible] = useState(false);
   const [selectedRating, setSelectedRating] = useState(0);
   const [reviewComment, setReviewComment] = useState('');
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
   useFocusEffect(
     useCallback(() => {
       dispatch(fetchJobDetails(jobId));
@@ -140,6 +148,8 @@ const JobDetailsScreen = ({ navigation, route }) => {
     navigation.navigate('OffersScreen', { offers });
   };
 
+  console.log('status-', status);
+
   const InfoRow = ({ label, value, labelStyle, valueStyle }) => {
     return (
       <View style={styles.locationRow}>
@@ -148,34 +158,112 @@ const JobDetailsScreen = ({ navigation, route }) => {
       </View>
     );
   };
+  console.log('job data', job);
+  console.log('auth id', aauthUser);
+  const alreadyReviewed = job?.reviews?.some(
+    review =>
+      review.reviewer_id === aauthUser && review.reviewer_type === userRole, // 'consumer' or 'provider'
+  );
 
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
+  console.log('alreadyReviewed', alreadyReviewed);
+
+  console.log('review length', job?.reviews?.length >= 0);
+
+if (loading) {
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        {/* Media Section */}
+        <ShimmerPlaceholder
+          LinearGradient={LinearGradient}
+          style={{ height: 220, width: '100%', borderRadius: 12, marginBottom: 16 }}
+        />
+
+        {/* Title Row */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
           <ShimmerPlaceholder
             LinearGradient={LinearGradient}
-            style={styles.shimmerHeader}
+            style={{ height: 20, width: '50%', borderRadius: 6 }}
           />
           <ShimmerPlaceholder
             LinearGradient={LinearGradient}
-            style={styles.shimmerMedia}
+            style={{ height: 32, width: 100, borderRadius: 8 }}
+          />
+        </View>
+
+        {/* Location Row */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ height: 16, width: 16, borderRadius: 8, marginRight: 8 }}
           />
           <ShimmerPlaceholder
             LinearGradient={LinearGradient}
-            style={styles.shimmerTitle}
+            style={{ height: 16, width: '40%', borderRadius: 6 }}
           />
-          {[1, 2, 3].map(i => (
+        </View>
+
+        {/* KM & Payment Row */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ height: 24, width: 60, borderRadius: 12 }}
+          />
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ height: 24, width: 80, borderRadius: 12 }}
+          />
+        </View>
+
+        {/* Description */}
+        <ShimmerPlaceholder
+          LinearGradient={LinearGradient}
+          style={{ height: 20, width: '30%', borderRadius: 6, marginBottom: 8 }}
+        />
+        {[1, 2, 3].map(i => (
+          <ShimmerPlaceholder
+            key={i}
+            LinearGradient={LinearGradient}
+            style={{ height: 14, width: '100%', borderRadius: 6, marginBottom: 6 }}
+          />
+        ))}
+
+        {/* Info Rows */}
+        {[1, 2, 3, 4].map(i => (
+          <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
             <ShimmerPlaceholder
-              key={i}
               LinearGradient={LinearGradient}
-              style={styles.shimmerLine}
+              style={{ height: 16, width: '30%', borderRadius: 6 }}
             />
-          ))}
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 16, width: '50%', borderRadius: 6 }}
+            />
+          </View>
+        ))}
+
+        {/* User Card */}
+        <ShimmerPlaceholder
+          LinearGradient={LinearGradient}
+          style={{ height: 100, width: '100%', borderRadius: 12, marginBottom: 16 }}
+        />
+
+        {/* Bottom Buttons */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ height: 44, width: '45%', borderRadius: 12 }}
+          />
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ height: 44, width: '45%', borderRadius: 12 }}
+          />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
   if (error) return <AppText>Error: {error}</AppText>;
   if (!job) return <AppText>No job data found.</AppText>;
 
@@ -187,16 +275,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
       <ScrollView>
         <View style={styles.mainCard}>
           <View style={styles.mediaCard}>
-            {/* Back button */}
-            <View style={styles.backButtonContainer}>
-              <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                style={styles.backButton}
-              >
-                <Ionicons name="chevron-back" size={24} color="#000" />
-              </TouchableOpacity>
-            </View>
-
+            <HeaderWithContainer backButtonBoxColor={colors.white} borderColor={colors.white}/>
             <FlatList
               data={mediaSource}
               ref={flatListRef}
@@ -381,7 +460,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
 
             {/* Location Row */}
             <View style={styles.locationRow}>
-              <Ionicons name="location-outline" size={16} color="#666" />
+              <Ionicons name="location-outline" size={16} color={colors.black} />
               <AppText style={styles.locationText}>{job.location}</AppText>
             </View>
 
@@ -435,120 +514,41 @@ const JobDetailsScreen = ({ navigation, route }) => {
             {/* User Details Card */}
             {userRole === 'provider' ? (
               // === Show Consumer Card ===
-              <View style={styles.userCard}>
-                <View style={styles.userRow}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate('AccountScreen', {
-                        userId: job.consumer?.id,
-                      })
-                    }
-                    style={styles.userInfoTouchable}
-                  >
-                    <Image
-                      source={{
-                        uri: job.consumer?.image
-                          ? `${config.userimageURL}${job.consumer?.image}`
-                          : 'https://via.placeholder.com/150',
-                      }}
-                      style={styles.userImage}
-                    />
-                    <View style={styles.userInfo}>
-                      {/* Row for Username + Rating text */}
-                      <View style={styles.rowInline}>
-                        <AppText style={styles.userName}>
-                          {job.consumer?.name || 'Unknown User'}
-                        </AppText>
-                        {/* <AppText style={styles.ratingLabel}> Rating</AppText> */}
-                      </View>
+             
+              <UserCard
+                user={job.consumer}
+                onPress={() =>
+                  navigation.navigate('AccountScreen', {
+                    userId: job.consumer?.id,
+                  })
+                }
+                averageRating={job.consumer?.average_rating}
+                status={status}
+                userRole={userRole}
+                alreadyReviewed={alreadyReviewed}
+                onRatePress={() => setIsRatingModalVisible(true)}
 
-                      {/* Row for ScreenName + Stars */}
-                      {/* <View style={styles.rowInline}>
-                        <AppText style={styles.userScreenName}>
-                          {job.consumer?.slug || '@unknown'}
-                        </AppText>
-                        <View style={styles.starsRow}>
-                          {[...Array(5)].map((_, index) => (
-                            <AppText key={index} style={styles.star}>
-                              ★
-                            </AppText>
-                          ))}
-                        </View>
-                      </View> */}
-
-                      <View style={styles.rowInline}>
-                        <AppText style={styles.userScreenName}>
-                          {job.consumer?.slug || '@unknown'}
-                        </AppText>
-
-                        <TouchableOpacity
-                          style={styles.giveRatingBtn}
-                          onPress={() => setIsRatingModalVisible(true)}
-                        >
-                          <AppText style={styles.giveRatingText}>
-                            Rate this user
-                          </AppText>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              </View>
+                isSubmitted={reviewSubmitted}
+              />
             ) : (
               // === Show Provider Card only if offer accepted ===
               job.accepted_offer && (
-                <View style={styles.userCard}>
-                  <View style={styles.userRow}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate('AccountScreen', {
-                          userId: job.accepted_offer?.provider?.id,
-                        })
-                      }
-                      style={styles.userInfoTouchable}
-                    >
-                      <Image
-                        source={{
-                          uri: job.accepted_offer?.provider?.image
-                            ? `${config.userimageURL}${job.accepted_offer?.provider?.image}`
-                            : 'https://via.placeholder.com/150',
-                        }}
-                        style={styles.userImage}
-                      />
-                      <View style={styles.userInfo}>
-                        {/* Row for Username + Rating text */}
-                        <View style={styles.rowInline}>
-                          <AppText style={styles.userName}>
-                            {job.accepted_offer?.provider?.name ||
-                              'Unknown Provider'}
-                          </AppText>
-                          <AppText style={styles.ratingLabel}> Rating</AppText>
-                        </View>
-
-                        {/* Row for ScreenName + Stars */}
-                        <View style={styles.rowInline}>
-                          <AppText style={styles.userScreenName}>
-                            {job.accepted_offer?.provider?.slug ||
-                              '@unknown'}
-                          </AppText>
-                       <View style={styles.starsRow}>
-                          {[...Array(5)].map((_, index) => (
-                            <AppText key={index} style={styles.star}>
-                              ★
-                            </AppText>
-                          ))}
-                        </View>
-                        </View>
-
-                        {/* === Offer Details (Consumer side only) === */}
-                        <AppText style={styles.offerDetails}>
-                          Rate: {job.accepted_offer?.rate} | Hours:{' '}
-                          {job.accepted_offer?.no_of_hours}
-                        </AppText>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                </View>
+               
+                <UserCard
+                  user={job.accepted_offer?.provider}
+                  onPress={() =>
+                    navigation.navigate('AccountScreen', {
+                      userId: job.accepted_offer?.provider?.id,
+                    })
+                  }
+                  averageRating={job.accepted_offer?.provider?.average_rating}
+                  status={status}
+                  userRole={userRole}
+                  alreadyReviewed={alreadyReviewed}
+                  onRatePress={() => setIsRatingModalVisible(true)}
+                  isSubmitted={reviewSubmitted}
+                  
+                />
               )
             )}
 
@@ -673,69 +673,111 @@ const JobDetailsScreen = ({ navigation, route }) => {
           statusChange();
         }}
       />
-   <Modal
-  transparent
-  visible={isRatingModalVisible}
-  animationType="fade"
-  onRequestClose={() => setIsRatingModalVisible(false)}
->
-  <View style={styles.modalOverlay}>
-    <View style={styles.modalContainer}>
-      {/* Header */}
-      <View style={styles.modalHeader}>
-        <AppText style={styles.modalTitle}>Rate User</AppText>
-        <TouchableOpacity onPress={() => setIsRatingModalVisible(false)}>
-          <AppText style={styles.closeIcon}>✕</AppText>
-        </TouchableOpacity>
-      </View>
-
-      {/* Rating Stars */}
-      <View style={styles.rateStarsRow}>
-        {[1, 2, 3, 4, 5].map((star) => (
-          <TouchableOpacity key={star} onPress={() => setSelectedRating(star)}>
-            <AppText
-              style={[
-                styles.rateStar,
-                { color: star <= selectedRating ? '#FFD700' : '#ccc' },
-              ]}
-            >
-              ★
-            </AppText>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Review Text Input */}
-      <TextInput
-        style={styles.reviewInput}
-        placeholder="Write your review..."
-        placeholderTextColor="#888"
-        value={reviewComment}
-        onChangeText={setReviewComment}
-        multiline
+      <CustomPopup
+        visible={showSuccessPopup}
+        onClose={() => setShowSuccessPopup(false)}
+        title="Success"
+        message="Your review has been submitted successfully!"
+        icon="checkmark-circle-outline"
+        iconColor={colors.green}
+        confirmText="OK"
+        onConfirm={() => setShowSuccessPopup(false)}
+        showCancel={false}
       />
-
-      {/* Submit Button */}
-      <TouchableOpacity
-        style={[
-          styles.submitButton,
-          {
-            opacity: selectedRating === 0 || reviewComment.trim() === '' ? 0.5 : 1,
-          },
-        ]}
-        disabled={selectedRating === 0 || reviewComment.trim() === ''}
-        onPress={() => {
-          console.log('Selected Rating:', selectedRating);
-          console.log('Review Comment:', reviewComment);
-          setIsRatingModalVisible(false);
-        }}
+      <Modal
+        transparent
+        visible={isRatingModalVisible}
+        animationType="fade"
+        onRequestClose={() => setIsRatingModalVisible(false)}
       >
-        <AppText style={styles.submitText}>Submit</AppText>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            {/* Header */}
+            <View style={styles.modalHeader}>
+              <AppText style={styles.modalTitle}>Rate User</AppText>
+              <TouchableOpacity onPress={() => setIsRatingModalVisible(false)}>
+                <AppText style={styles.closeIcon}>✕</AppText>
+              </TouchableOpacity>
+            </View>
 
+            {/* Rating Stars */}
+            <View style={styles.rateStarsRow}>
+              {[1, 2, 3, 4, 5].map(star => (
+                <TouchableOpacity
+                  key={star}
+                  onPress={() => setSelectedRating(star)}
+                >
+                  <AppText
+                    style={[
+                      styles.rateStar,
+                      { color: star <= selectedRating ? '#FFD700' : '#ccc' },
+                    ]}
+                  >
+                    ★
+                  </AppText>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Review Text Input */}
+            <TextInput
+              style={styles.reviewInput}
+              placeholder="Write your review..."
+              placeholderTextColor="#888"
+              value={reviewComment}
+              onChangeText={setReviewComment}
+              multiline
+            />
+
+            {/* Submit Button */}
+            <TouchableOpacity
+              style={[
+                styles.submitButton,
+                {
+                  opacity: selectedRating === 0 ? 0.5 : 1,
+                },
+              ]}
+              //|| reviewComment.trim() === ''// add this if we want to make review mandatory
+              disabled={selectedRating === 0}
+              onPress={async () => {
+                if (selectedRating === 0) return;
+
+                setIsSubmitting(true);
+
+                try {
+                 const response= await dispatch(
+                    postJobReview({
+                      jobId: job.id,
+                      body: { rating: selectedRating, comment: reviewComment },
+                    }),
+                  ).unwrap();
+
+                  
+                  
+                  setIsSubmitting(false);
+                  setIsRatingModalVisible(false);
+                  setShowSuccessPopup(true); 
+                  setReviewSubmitted(true);
+                 
+                  // job.reviews.push({
+                  //   rating: selectedRating,
+                  //   comment: reviewComment,
+                  // });
+                } catch (error) {
+                  setIsSubmitting(false);
+                  console.error('Review submission error:', error);
+                }
+              }}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <AppText style={styles.submitText}>Submit</AppText>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {isLoading && <AppActivityIndicator />}
     </SafeAreaView>
@@ -751,17 +793,6 @@ const styles = StyleSheet.create({
   mainCard: {
     backgroundColor: colors.white,
     overflow: 'hidden', // Ensures media does not spill out of the card
-  },
-  backButtonContainer: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    zIndex: 10,
-  },
-  backButton: {
-    backgroundColor: colors.gray,
-    padding: 8,
-    borderRadius: 10,
   },
   mediaCard: {
     width: '100%',
@@ -784,7 +815,7 @@ const styles = StyleSheet.create({
   userScreenName: {
     fontSize: 14,
     color: '#666',
-    marginTop: 2,
+    marginTop: 4,
   },
   playIcon: {
     position: 'absolute',
@@ -794,25 +825,24 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
 
-bottomContainer: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  backgroundColor: colors.white,
-  borderTopLeftRadius: 20,
-  borderTopRightRadius: 20,
-  padding: 14,
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  right: 0,
-  elevation: 30,                           
-  zIndex: 10,  shadowColor: '#000',
-  shadowOffset: { width: 0, height: -6 }, 
-  shadowOpacity: 0.3, 
-  shadowRadius: 10, 
-},
-
+  bottomContainer: {
+    //position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 16,
+    elevation: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+  },
 
   bottomLeft: {
     flexDirection: 'column',
@@ -869,17 +899,24 @@ bottomContainer: {
   paginationDotActive: {
     backgroundColor: colors.primary,
   },
+  ratingColumn: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+
   ratingLabel: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#333',
+    color: '#555',
+    marginBottom: 4,
   },
+
   starsRow: {
     flexDirection: 'row',
+    marginBottom: 6,
   },
   star: {
-    fontSize: 14,
-    color: '#FFD700', // golden
+    fontSize: 16,
+    color: '#FFD700', // Gold for selected
     marginHorizontal: 1,
   },
   emptyMedia: {
@@ -897,12 +934,12 @@ bottomContainer: {
   sectionHeading: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.primary,
+    color: colors.black,
     marginBottom: 5,
   },
   jobDescription: {
     fontSize: 15,
-    color: '#666',
+    color:colors.black,
     lineHeight: 24,
     marginBottom: 5,
     textAlign: 'justify',
@@ -958,44 +995,6 @@ bottomContainer: {
     color: '#fff',
     fontWeight: 'bold',
   },
-  userCard: {
-    backgroundColor: colors.lightGray,
-    borderRadius: 15,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    padding: 20,
-    marginBottom: 16,
-    marginTop: 16,
-  },
-  userRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  userInfo: {
-    flex: 1, // 👈 ensures row takes full width
-  },
-  userInfoTouchable: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  userImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 15,
-  },
-  userName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
-
   chatButtonText: {
     color: '#fff',
     fontWeight: 'bold',
@@ -1044,12 +1043,12 @@ bottomContainer: {
   locationText: {
     marginLeft: 0,
     fontSize: 14,
-    color: '#666',
+    color: colors.black,
   },
   boldtext: {
     marginLeft: 4,
     fontSize: 14,
-    color: colors.primary,
+    color: colors.black,
     fontWeight: 'bold',
   },
   kmContainerRow: {
@@ -1083,7 +1082,7 @@ bottomContainer: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#000',
-    marginBottom:5
+    marginBottom: 5,
   },
 
   perHrText: {
@@ -1092,73 +1091,70 @@ bottomContainer: {
   },
   giveRatingBtn: {
     backgroundColor: colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    marginLeft: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 6,
   },
   giveRatingText: {
     color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 12,
   },
-modalOverlay: {
-  flex: 1,
-  backgroundColor: 'rgba(0,0,0,0.5)',
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-modalContainer: {
-  width: '85%',
-  backgroundColor: '#fff',
-  borderRadius: 12,
-  padding: 20,
-},
-modalHeader: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 15,
-},
-modalTitle: {
-  fontSize: 18,
-  fontWeight: 'bold',
-},
-closeIcon: {
-  fontSize: 20,
-  color: '#333',
-},
-rateStarsRow: {
-  flexDirection: 'row',
-  justifyContent: 'center',
-  marginBottom: 15,
-},
-rateStar: {
-  fontSize: 30,
-  marginHorizontal: 5,
-},
-reviewInput: {
-  borderWidth: 1,
-  borderColor: '#ccc',
-  borderRadius: 8,
-  padding: 10,
-  minHeight: 80,
-  textAlignVertical: 'top',
-  marginBottom: 15,
-  fontSize: 16,
-},
-submitButton: {
-  backgroundColor: colors.primary,
-  borderRadius: 8,
-  paddingVertical: 12,
-  alignItems: 'center',
-},
-submitText: {
-  color: '#fff',
-  fontSize: 16,
-  fontWeight: 'bold',
-},
-
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '85%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  closeIcon: {
+    fontSize: 20,
+    color: '#333',
+  },
+  rateStarsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 8,
+  },
+  rateStar: {
+    fontSize: 30,
+    marginHorizontal: 5,
+  },
+  reviewInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 10,
+    minHeight: 80,
+    textAlignVertical: 'top',
+    marginBottom: 15,
+    fontSize: 16,
+  },
+  submitButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  submitText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default JobDetailsScreen;
