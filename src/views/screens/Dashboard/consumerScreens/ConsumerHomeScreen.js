@@ -58,7 +58,7 @@ const userRole = profileUser?.role;
       <CategoryContainer
         title={item.name}
         image={ `${config.categoriesImageURL}${item.image}` }
-        onPress={() => navigation.navigate('CategoryDetail', { category: item })}
+        onPress={() => navigation.navigate('CategoryDetailsScreen', { category: item })}
       />
     );
   };

@@ -11,10 +11,10 @@ export const selectJobsByTab = (tabKey, role) =>
         case 'pending':
           filteredJobs = jobs.filter(
             job => job.status === 'open' && job.accepted_offer === null
-          );
+          ).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
           break;
         case 'my_jobs': // "To Start"
-          filteredJobs = jobs.filter(job => job.status === 'scheduled');
+          filteredJobs = jobs.filter(job => job.status === 'scheduled').sort((a, b) => new Date(b.starts_at) - new Date(a.starts_at));
           break;
         case 'in_progress':
           filteredJobs = jobs.filter(job => job.status === 'in_progress');
@@ -30,7 +30,7 @@ export const selectJobsByTab = (tabKey, role) =>
         case 'new':
           filteredJobs = jobs.filter(
             job => job.status === 'open' && job.my_offer === null
-          );
+          ).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
           break;
         case 'pending':
           filteredJobs = jobs.filter(
@@ -39,10 +39,10 @@ export const selectJobsByTab = (tabKey, role) =>
               job.my_offer !== null &&
               (job.accepted_offer == null ||
                 job.my_offer?.id !== job.accepted_offer?.id)
-          );
+          ).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
           break;
         case 'my_jobs':
-          filteredJobs = jobs.filter(job => job.status === 'scheduled');
+          filteredJobs = jobs.filter(job => job.status === 'scheduled').sort((a, b) => new Date(b.starts_at) - new Date(a.starts_at));
           break;
         case 'in_progress':
           filteredJobs = jobs.filter(job => job.status === 'in_progress');
