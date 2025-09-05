@@ -5,24 +5,34 @@ import {
   StyleSheet,
   Keyboard,
   TouchableWithoutFeedback,
-  FlatList,
 } from 'react-native';
 import AppText from '../../../components/AppText';
 import { useDispatch, useSelector } from 'react-redux';
 import colors from '../../../../config/colors';
 import { useFocusEffect } from '@react-navigation/native';
+import JobListings from '../../../components/JobComponents/JobListings';
+import Icon from '../../../components/ImageComponent/IconComponent';
 import { useCallback } from 'react';
 import { selectJobsByTab } from '../../../../redux/selectors/jobSelector';
+import DashboardGrid from '../../../components/DashboardGridComponent';
 import { getJobs } from '../../../../redux/slices/jobSlice/jobSlice';
 import AppBar from '../../../components/HeaderComponent/AppBar';
 import { fetchNotifications } from '../../../../redux/slices/notificationSlice/notificationSlice';
 import { fetchCategories } from '../../../../redux/slices/categorySlice/categoriesSlice';
 const ProviderHomeScreen = ({ navigation }) => {
   const { myServices } = useSelector(state => state.services);
+  const { user: profileUser } = useSelector(state => state.profile);
+  const userRole = profileUser?.role;
   const myJobs = useSelector(selectJobsByTab('my_jobs', 'provider'));
   const dispatch = useDispatch();
   console.log('myjobs---', myJobs);
-
+  const jobsByStatus = {
+    new: useSelector(selectJobsByTab('new', userRole)),
+    pending: useSelector(selectJobsByTab('pending', userRole)),
+    my_jobs: useSelector(selectJobsByTab('my_jobs', userRole)),
+    in_progress: useSelector(selectJobsByTab('in_progress', userRole)),
+    completed: useSelector(selectJobsByTab('completed', userRole)),
+  };
   useFocusEffect(
     useCallback(() => {
       if (myServices?.length === 0) {
@@ -39,48 +49,102 @@ const ProviderHomeScreen = ({ navigation }) => {
   useEffect(() => {
     dispatch(fetchNotifications());
     dispatch(fetchCategories());
+    dispatch(getJobs());
   }, [dispatch]);
-  const renderJob = ({ item }) => (
-    <TouchableOpacity
-      style={styles.jobCard}
-      onPress={() =>
-        navigation.navigate('JobDetailsScreen', {
-          jobId: item.id,
-          userRole: 'provider',
-          status: 'my_jobs',
-          item,
-        })
-      }
-    >
-      <AppText style={styles.jobTitle}>{item.title}</AppText>
-      <AppText style={styles.jobService}>
-        Service: {item.service?.name || 'N/A'}
-      </AppText>
-      <AppText style={styles.jobLocation}>📍 {item.location}</AppText>
-      <AppText>Status: {item.status}</AppText>
-      <AppText>Budget: ${item.budget}</AppText>
-      <AppText>Consumer: {item.consumer?.name || 'Unknown'}</AppText>
-    </TouchableOpacity>
-  );
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         {/* AppBar */}
         <AppBar />
+        <DashboardGrid
+          items={[
+            [
+              {
+                title: `Open → ${jobsByStatus.new?.count || 0}`,
+                backgroundColor: colors.purpleColor,
+                onPress: () => {
+                  navigation.navigate('ProviderDashboard', {
+                    screen: 'Jobs',
+                    params: { defaultTab: 'new' },
+                  });
+                }
+              },
+              {
+                title: `To Start → ${jobsByStatus.pending?.count || 0}`,
+                backgroundColor: colors.pinkColor,
+                onPress: () => {
+                  navigation.navigate('ProviderDashboard', {
+                    screen: 'Jobs',
+                    params: { defaultTab: 'pending' },
+                  });
+                }
+              },
+            ],
+            [
+              {
+                title: `In Progress → ${jobsByStatus.in_progress?.count || 0}`,
+                backgroundColor: colors.LightBlueColor,
+                onPress: () => {
+                  navigation.navigate('ProviderDashboard', {
+                    screen: 'Jobs',
+                    params: { defaultTab: 'in_progress' },
+                  });
+                }
+              },
+              {
+                title: `Completed → ${jobsByStatus.completed?.count || 0}`,
+                backgroundColor: colors.lightgreenishColor,
+                onPress: () => {
+                  navigation.navigate('ProviderDashboard', {
+                    screen: 'Jobs',
+                    params: { defaultTab: 'completed' },
+                  });
+                },
+              },
+            ],
+          ]}
+        />
         {/* My Jobs Section */}
-        <View style={{ flex: 1, paddingHorizontal: 16, marginTop: 16 }}>
-          <AppText style={styles.helpText}>My Jobs</AppText>
-          {myJobs?.length > 0 ? (
-            <FlatList
-              data={myJobs}
-              keyExtractor={item => item.id.toString()}
-              renderItem={renderJob}
-              contentContainerStyle={{ paddingBottom: 20 }}
-            />
-          ) : (
-            <AppText>No jobs found.</AppText>
-          )}
+        <View style={{ flex: 1, paddingHorizontal: 10 }}>
+          <View style={styles.categoryHeader}>
+            {/* Left: Title */}
+            <AppText style={styles.helpText}>Upcoming Jobs</AppText>
+
+            {/* Right: See All + Arrow */}
+            <TouchableOpacity
+              style={styles.seeAllContainer}
+              onPress={() =>
+                navigation.navigate('ProviderDashboard', {
+                  screen: 'Jobs',
+                  params: { defaultTab: 'my_jobs' },
+                })
+              }
+              activeOpacity={0.7}
+            >
+              <AppText style={styles.seeAllText}>See All</AppText>
+              <Icon
+                name="chevron-forward"
+                size={16}
+                color={colors.primary}
+                style={{ marginLeft: 3 }}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <JobListings
+            data={myJobs?.jobs || []} // 👈 jobs array from Redux
+            emptyMessage="No jobs found."
+            status="my_jobs"
+            onJobPress={(jobId, status, item) =>
+              navigation.navigate('JobDetailsScreen', {
+                jobId,
+                userRole: 'provider',
+                status,
+                item,
+              })
+            }
+          />
         </View>
       </View>
     </TouchableWithoutFeedback>
@@ -144,16 +208,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  seeAllText: {
-    fontSize: 14,
-    color: colors.primary,
-  },
   categoryHeader: {
     paddingHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 12,
+  },
+
+  seeAllContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  seeAllText: {
+    color: colors.primary,
+    fontWeight: '500',
+    fontSize: 14,
   },
   jobCard: {
     backgroundColor: '#fff',

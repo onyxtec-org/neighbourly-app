@@ -12,13 +12,22 @@ function AppBar() {
   const unreadCount = useSelector(selectUnreadCount);
   const { user } = useSelector(state => state.profile);
   const navigation = useNavigation();
-
+  const handleUserPress = () => {
+    if (user?.role === 'consumer') {
+      navigation.navigate('ConsumerDashboard', { screen: 'Profile' });
+    } else if (user?.role === 'provider') {
+      navigation.navigate('ProviderDashboard', { screen: 'Profile' });
+    } else {
+      navigation.navigate('ProfileScreen'); // fallback
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.appBar}>
         {/* Left side: User Image + Info */}
-        <View style={styles.userContainer}>
           {/* 👇 Gradient circular border wrapper */}
+          <TouchableOpacity style={styles.userContainer} onPress={handleUserPress} activeOpacity={0.7}>
+
           <LinearGradient
             colors={['#8e2de2', '#4a00e0']} // purple gradient
             style={styles.gradientBorder}
@@ -49,7 +58,7 @@ function AppBar() {
             </View>
             <AppText style={styles.subText}>Assign the task!</AppText>
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* Right side: Notifications */}
         <TouchableOpacity onPress={() => navigation.navigate('NotificationsScreen')}>

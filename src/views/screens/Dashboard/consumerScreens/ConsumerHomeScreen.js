@@ -1,4 +1,4 @@
-// export default HomeScreen;
+
 import React, { useEffect } from 'react';
 import {
   View,
@@ -9,10 +9,11 @@ import {
   TouchableWithoutFeedback,
   ActivityIndicator,
   ScrollView,
-  SafeAreaView,   // 👈 import SafeAreaView
+  SafeAreaView, 
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../../../../redux/slices/categorySlice/categoriesSlice';
+import { getJobs } from '../../../../redux/slices/jobSlice/jobSlice';
 import DashboardGrid from '../../../../views/components/DashboardGridComponent';
 import { fetchFeaturedCategories } from '../../../../redux/slices/consumerSlice/featuredCategoriesSlice';
 import { fetchFeaturedServices } from '../../../../redux/slices/consumerSlice/featuredServicesSlice';
@@ -29,8 +30,6 @@ import ServicesListingCard from '../../../components/services/ServicesListingCar
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-
-  const { categories, status } = useSelector(state => state.categories);
   const { categories: featuredCategories, status: topCatStatus } = useSelector(
     state => state.featuredCategories,
   );
@@ -38,12 +37,13 @@ const HomeScreen = ({ navigation }) => {
     state => state.featuredServices,
   );
   const { user: profileUser } = useSelector(state => state.profile);
-const userRole = profileUser?.role;
+  const userRole = profileUser?.role;
 
   useEffect(() => {
     dispatch(fetchCategories());
     dispatch(fetchFeaturedCategories());
     dispatch(fetchFeaturedServices());
+    dispatch(getJobs());
   }, [dispatch]);
 
   const jobsByStatus = {
@@ -52,58 +52,20 @@ const userRole = profileUser?.role;
     in_progress: useSelector(selectJobsByTab('in_progress', userRole)),
     completed: useSelector(selectJobsByTab('completed', userRole)),
   };
-  const renderCategoryCard = (item) => {
+  const renderCategoryCard = item => {
     console.log(`image ${config.categoriesImageURL}${item.image}`);
     return (
       <CategoryContainer
         title={item.name}
-        image={ `${config.categoriesImageURL}${item.image}` }
-        onPress={() => navigation.navigate('CategoryDetail', { category: item })}
+        image={`${config.categoriesImageURL}${item.image}`}
+        onPress={() =>
+          navigation.navigate('CategoryDetailsScreen', { category: item })
+        }
       />
     );
   };
-  // const renderCard = (item, isService = false) => {
-  //   const displayName = isService ? item.name : item.title || item.name;
-
-  //   return (
-  //     <TouchableOpacity
-  //       style={styles.cardContainer}
-  //       onPress={() => {
-  //         if (isService) {
-  //           navigation.navigate('JobCreateScreen', {
-  //             serviceId: item.id,
-  //             serviceName: item.name,
-  //           });
-  //         } else {
-  //           navigation.navigate('CategoryDetailsScreen', { category: item });
-  //         }
-  //       }}
-  //     >
-  //       <View style={styles.cardImageWrapper}>
-  //         {item.image ? (
-  //           <Image
-  //             source={{ uri: item.image }}
-  //             style={styles.cardImage}
-  //             resizeMode="cover"
-  //           />
-  //         ) : (
-  //           <Icon
-  //             name="construct-outline"
-  //             size={80}
-  //             color={colors.primary}
-  //             style={{ alignSelf: 'center', marginTop: 10 }}
-  //           />
-  //         )}
-  //       </View>
-  //       <View style={styles.cardLabel}>
-  //         <AppText style={styles.categoryName}>{displayName}</AppText>
-  //       </View>
-  //     </TouchableOpacity>
-  //   );
-  // };
-
   return (
-    <SafeAreaView style={styles.safeArea}>  
+    <SafeAreaView style={styles.safeArea}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
           style={styles.container}
@@ -120,72 +82,74 @@ const userRole = profileUser?.role;
             />
           </View>
 
-          <DashboardGrid
-            items={[
-              [
-                { title: `Open → ${jobsByStatus.pending?.count || 0}`, backgroundColor: colors.purpleColor },
-                { title: `To Start → ${jobsByStatus.my_jobs?.count || 0}`, backgroundColor: colors.pinkColor },
-              ],
-              [
-                { title: `In Progress → ${jobsByStatus.in_progress?.count || 0}`, backgroundColor: colors.LightBlueColor },
-                { title: `Completed → ${jobsByStatus.completed?.count || 0}`, backgroundColor: colors.lightgreenishColor },
-              ],
-            ]}
-          />
-
-          {/* All Categories */}
-          {/* <View style={styles.categoryHeader}>
-            <AppText style={styles.helpText}>Choose a category</AppText>
-            {categories.length > 4 && (
-              <TouchableOpacity
-                onPress={() => navigation.navigate('AllCategoriesScreen')}
-              >
-                <AppText style={styles.seeAllText}>See All</AppText>
-              </TouchableOpacity>
-            )}
-          </View> */}
-
-          {/* <View style={styles.content}>
-            {status === 'loading' ? (
-              <ActivityIndicator size="large" color={colors.primary} />
-            ) : (
-              <FlatList
-                data={categories.length > 4 ? categories.slice(0, 4) : categories}
-                horizontal
-                keyExtractor={item => item.id.toString()}
-                renderItem={({ item }) => renderCard(item)}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 8 }}
-                style={{ maxHeight: 180 }}
-              />
-            )}
-          </View> */}
-
+            <DashboardGrid
+              items={[
+                [
+                  {
+                    title: `Open → ${jobsByStatus.pending?.count || 0}`,
+                    backgroundColor: colors.purpleColor,
+                  },
+                  {
+                    title: `To Start → ${jobsByStatus.my_jobs?.count || 0}`,
+                    backgroundColor: colors.pinkColor,
+                  },
+                ],
+                [
+                  {
+                    title: `In Progress → ${
+                      jobsByStatus.in_progress?.count || 0
+                    }`,
+                    backgroundColor: colors.LightBlueColor,
+                  },
+                  {
+                    title: `Completed → ${jobsByStatus.completed?.count || 0}`,
+                    backgroundColor: colors.lightgreenishColor,
+                  },
+                ],
+              ]}
+            />
+          
           {/* Top Categories */}
           {featuredCategories?.length > 0 && (
-            <>
-              <View style={styles.categoryHeader}>
-                <AppText style={styles.helpText}>Categories</AppText>
-              </View>
-              <View style={styles.content}>
-                {topCatStatus === 'loading' ? (
-                  <ActivityIndicator size="large" color={colors.primary} />
-                ) : (
-                  <FlatList
-                    data={featuredCategories}
-                    horizontal
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item }) => renderCategoryCard(item)}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingHorizontal: 8 }}
-                    style={{ maxHeight: 180 }}
-                  />
-                )}
-              </View>
-            </>
+           <>
+           <View style={styles.categoryHeader}>
+             {/* Left: Categories text */}
+             <AppText style={styles.helpText}>Categories</AppText>
+         
+             {/* Right: See All + Arrow */}
+             <TouchableOpacity 
+               style={styles.seeAllContainer} 
+               onPress={() => navigation.navigate('AllCategoriesScreen')}
+               activeOpacity={0.7}
+             >
+               <AppText style={styles.seeAllText}>See All</AppText>
+               <Icon 
+                 name="chevron-forward" 
+                 size={16} 
+                 color={colors.primary} 
+                 style={{ marginLeft: 3 }} 
+               />
+             </TouchableOpacity>
+           </View>
+         
+           <View style={styles.content}>
+             {topCatStatus === 'loading' ? (
+               <ActivityIndicator size="large" color={colors.primary} />
+             ) : (
+               <FlatList
+                 data={featuredCategories}
+                 horizontal
+                 keyExtractor={(item, index) => index.toString()}
+                 renderItem={({ item }) => renderCategoryCard(item)}
+                 showsHorizontalScrollIndicator={false}
+                 contentContainerStyle={{ paddingHorizontal: 10 }}
+                 style={{ maxHeight: 180 }}
+               />
+             )}
+           </View>
+         </>
+         
           )}
-
-          {/* Top Services */}
           {featuredServices?.length > 0 && (
             <>
               <View style={styles.categoryHeader}>
@@ -199,6 +163,7 @@ const userRole = profileUser?.role;
                     <ServicesListingCard
                       key={service.id}
                       service={service}
+                      image={`${config.serviceImageURL}${service.image}`}
                       onPress={() =>
                         navigation.navigate('JobCreateScreen', {
                           serviceId: service.id,
@@ -218,10 +183,15 @@ const userRole = profileUser?.role;
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#fff' }, // 👈 ensures safe area
+  safeArea: { flex: 1, backgroundColor: '#fff' },
   container: { flex: 1, backgroundColor: '#fff' },
-  content: { paddingLeft: 8 },
-  helpText: { fontSize: 17, fontWeight: '700',fontStyle: 'bold', marginBottom: 15 },
+  content: { paddingLeft: 14, paddingRight: 14 },
+  helpText: {
+    fontSize: 17,
+    fontWeight: '700',
+    fontStyle: 'bold',
+    marginBottom: 15,
+  },
   cardContainer: {
     width: 140,
     height: 160,
@@ -259,14 +229,22 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
   },
-  seeAllText: { fontSize: 14, color: colors.primary },
   categoryHeader: {
     paddingHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'center', 
     marginTop: 12,
   },
+  seeAllContainer: {
+    flexDirection: 'row',
+    alignItems: 'center', 
+  },
+  seeAllText: {
+    fontSize: 13,
+    color: colors.primary,
+    fontWeight: '500',
+  }, 
   searchContainer: { paddingHorizontal: 16, marginTop: 10 },
 });
 

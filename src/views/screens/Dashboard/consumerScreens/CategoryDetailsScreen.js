@@ -56,7 +56,7 @@ const CategoryDetailsScreen = ({ route, navigation }) => {
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {category.services?.length > 0 && (
           <>
-            <AppText style={styles.sectionTitle}>Popular Services</AppText>
+            <AppText style={styles.sectionTitle}>Services</AppText>
             <View style={styles.serviceList}>
               {category.services.map(service => (
                 <ServicesListingCard
@@ -100,14 +100,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
 
-  serviceList: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    marginBottom: 25,
-    paddingVertical: 5,
-    paddingHorizontal: 5,
-    elevation: 1,
-  },
+  // serviceList: {
+  //   // backgroundColor: colors.white,
+  //   // borderRadius: 12,
+  //   marginBottom: 25,
+  //   paddingVertical: 5,
+  //   paddingHorizontal: 5,
+  //   elevation: 1,
+  // },
   serviceListItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -143,11 +143,12 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
+    fontStyle: 'bold',
     color: colors.dark,
     marginBottom: 15,
-    marginTop: 25,
+    marginTop: 15,
     paddingBottom: 5,
   },
   serviceGrid: {

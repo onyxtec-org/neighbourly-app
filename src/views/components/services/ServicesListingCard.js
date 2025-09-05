@@ -5,7 +5,8 @@ import Icon from '../ImageComponent/IconComponent';
 import AppText from '../AppText';
 import colors from '../../../config/colors';
 
-const ServicesListingCard = ({ service, onPress }) => {
+const ServicesListingCard = ({ service, image, onPress }) => {
+
   return (
     <TouchableOpacity
       style={styles.serviceCard}
@@ -14,7 +15,12 @@ const ServicesListingCard = ({ service, onPress }) => {
     >
       {service.image ? (
         <View style={styles.serviceImageWrapper}>
-          <Image source={{ uri: service.image }} style={styles.serviceImage} />
+          <Image
+            source={{ uri: image }}
+            style={styles.serviceImage}
+            onError={e => console.log('Image load error:', e.nativeEvent)}
+            onLoad={() => console.log('Image loaded:', image)}
+          />
         </View>
       ) : (
         <View style={styles.serviceImageWrapper}>
@@ -29,12 +35,6 @@ const ServicesListingCard = ({ service, onPress }) => {
 
       <View style={styles.textAndChevronContainer}>
         <AppText style={styles.serviceName}>{service.name}</AppText>
-        <Icon
-          name="chevron-forward"
-          size={20}
-          color={colors.lightGrey}
-          style={styles.chevronIcon}
-        />
       </View>
     </TouchableOpacity>
   );
@@ -44,17 +44,17 @@ const styles = StyleSheet.create({
   serviceCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
+    paddingVertical: 12,
     paddingHorizontal: 15,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: colors.borderColor,
     borderRadius: 14,
     backgroundColor: colors.white,
-  
+
     // Make bottom border stronger
     borderBottomWidth: 1.2,
-    borderBottomColor: colors.borderColor ,
+    borderBottomColor: colors.borderColor,
   },
   textAndChevronContainer: {
     flexDirection: 'row',
@@ -85,8 +85,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   serviceImage: {
-    width: '100%',
-    height: '100%',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     resizeMode: 'cover',
   },
   iconInside: {
@@ -98,9 +99,6 @@ const styles = StyleSheet.create({
     color: colors.dark,
     fontWeight: '500',
     flex: 1,
-  },
-  chevronIcon: {
-    marginLeft: 10,
   },
 });
 
