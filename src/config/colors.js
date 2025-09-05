@@ -28,6 +28,13 @@ const colors = {
   completed: '#4CAF50',
   rejected: '#F44336',
   scheduled: '#378698',
+  borderColor: '#DADADA',
+  blackColor: '#000000',
+  //Dashboard status colors
+  purpleColor: '#E4D5FD',
+  pinkColor: '#FFBFBF',
+  LightBlueColor: '#C4E8FF',
+  lightgreenishColor: '#C4E8FF',
   statusColors(type) {
     switch (type) {
       case 'open':

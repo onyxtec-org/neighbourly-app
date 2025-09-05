@@ -5,6 +5,8 @@ export default {
   userimageURL: "https://nbl.onyxtec.io/storage/user/",
   attachmentimageURL: "https://nbl.onyxtec.io/storage/job_attachments/",
   postAttachmentImageURL: "https://nbl.onyxtec.io/storage/post_attachments/",
+  categoriesImageURL: "https://nbl.onyxtec.io/storage/categories/",
+
 //ngrok
   // baseURL: "https://23f1883e1980.ngrok-free.app/api",
   // userimageURL: "https://23f1883e1980.ngrok-free.app/storage/user/",

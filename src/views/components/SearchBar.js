@@ -4,15 +4,13 @@ import Ionicons from './ImageComponent/IconComponent';
 import colors from '../../config/colors';
 import AppText from './AppText';
 
-function SearchBar({ placeholder, onPress, title }) {
+function SearchBar({ placeholder, onPress }) {
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.8}
       style={styles.searchContainer}
     >
-      <AppText style={styles.helpText}>{title}</AppText>
-
       <View style={styles.searchBar}>
         <Ionicons
           name="search"
@@ -25,29 +23,29 @@ function SearchBar({ placeholder, onPress, title }) {
     </TouchableOpacity>
   );
 }
-
 const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f1f1',
-    borderRadius: 10,
+    backgroundColor: '#fff',       // white background
+    borderRadius: 16,              // rounded corners
+    borderWidth: 1,                // thin border
+    borderColor: colors.borderColor,           // light grey border
+    height: 56,                    
+    width: '100%',                 
     paddingHorizontal: 12,
-    paddingVertical: 10,
   },
-  searchIcon: { marginRight: 8, color: colors.primary },
-  searchInput: { flex: 1, fontSize: 16, color: 'gray' },
+  searchIcon: { marginRight: 12, color: 'gray' ,size:25 }, // grey icon
+  searchInput: { flex: 1, fontSize: 18, color: 'gray' }, // grey text
   categoryHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginTop: 8,
+    // marginTop: 8,
   },
   searchContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 1,
   },
-  helpText: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
 });
-
 export default SearchBar;
