@@ -1,7 +1,7 @@
 import React from "react";
 import { SvgXml } from "react-native-svg";
 import { View } from "react-native";
-import AppText from "./AppText";
+import AppText from "../AppText";
 
 export default function SvgComponent({ svgMarkup, setWidth, setHeight }) {
   // Ensure svgMarkup is defined and non-empty

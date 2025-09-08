@@ -38,12 +38,14 @@ import UserCard from '../../../components/JobComponents/UserCard';
 import { postJobReview } from '../../../../redux/slices/reviewSlice/reviewSlice';
 import BackButtonWithColor from '../../../components/ButtonComponents/BackButtonWithColor';
 import HeaderWithContainer from '../../../components/HeaderComponent/HeaderWithContainer';
+import { createOffer ,} from '../../../../redux/slices/jobSlice/offerSlice/offerSlice';
+
 const { width } = Dimensions.get('window');
 const CARD_HEIGHT = 300;
 
 const JobDetailsScreen = ({ navigation, route }) => {
   const { jobId, userRole, status } = route.params;
-  console.log('role', userRole, status);
+  //console.log('role', userRole, status);
   const { user } = useSelector(state => state.profile);
   const aauthUser = user?.id ?? null;
 
@@ -73,6 +75,16 @@ const JobDetailsScreen = ({ navigation, route }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [isRejected, setIsRejected] = useState(false);
+  const [popupConfig, setPopupConfig] = useState({
+    title: '',
+    message: '',
+    confirmText: '',
+    action: null,
+    jobId: null,
+  });
+
   useFocusEffect(
     useCallback(() => {
       dispatch(fetchJobDetails(jobId));
@@ -118,7 +130,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
     }
   };
 
-  const handlePopupOpen = action => {
+  const handleStatusChangePopup = action => {
     if (action === 'in_progress') {
       setPopupTitle('Mark as In Progress');
       setPopupMessage('Are you sure you want to mark this job as In Progress?');
@@ -128,7 +140,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
     }
     setShowPopup(true);
   };
-
   const onScrollEnd = e => {
     const index = Math.round(e.nativeEvent.contentOffset.x / width);
     setActiveIndex(index);
@@ -148,8 +159,50 @@ const JobDetailsScreen = ({ navigation, route }) => {
     navigation.navigate('OffersScreen', { offers });
   };
 
-  console.log('status-', status);
+  const onRejectedPress = jobId => {
+    // Show confirmation popup before rejecting
+    setPopupConfig({
+      title: 'Reject Job',
+      message:
+        'Are you sure you want to reject this job? This action cannot be undone.',
+      confirmText: 'Reject',
+      action: 'reject',
+      jobId,
+    });
+    setPopupVisible(true);
+  };
 
+  const handleConfirmAction = async () => {
+    const { action, jobId } = popupConfig;
+    setPopupVisible(false);
+    setIsLoading(true);
+
+          
+    if (action === 'reject') {
+      console.log('action',action,jobId);
+      const payload = {
+        job_id: jobId,
+        status: 'rejected',
+      };
+
+      try {
+        const res = await dispatch(createOffer(payload)).unwrap();
+       
+        
+        if (res?.success) {
+          setIsLoading(false);
+          setIsRejected(true);
+          showToast('This job has been rejected.', 'error');
+        } else {
+          showToast(res?.message || 'Failed to reject job', 'error');
+        }
+      } catch (error) {
+        console.log('error',error);
+        
+        showToast('Something went wrong. Please try again.', 'error');
+      }
+    }
+  };
   const InfoRow = ({ label, value, labelStyle, valueStyle }) => {
     return (
       <View style={styles.locationRow}>
@@ -158,111 +211,158 @@ const JobDetailsScreen = ({ navigation, route }) => {
       </View>
     );
   };
-  console.log('job data', job);
-  console.log('auth id', aauthUser);
+  //console.log('job data', job);
   const alreadyReviewed = job?.reviews?.some(
     review =>
       review.reviewer_id === aauthUser && review.reviewer_type === userRole, // 'consumer' or 'provider'
   );
 
-  console.log('alreadyReviewed', alreadyReviewed);
 
-  console.log('review length', job?.reviews?.length >= 0);
-
-if (loading) {
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        {/* Media Section */}
-        <ShimmerPlaceholder
-          LinearGradient={LinearGradient}
-          style={{ height: 220, width: '100%', borderRadius: 12, marginBottom: 16 }}
-        />
-
-        {/* Title Row */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView contentContainerStyle={{ padding: 16 }}>
+          {/* Media Section */}
           <ShimmerPlaceholder
             LinearGradient={LinearGradient}
-            style={{ height: 20, width: '50%', borderRadius: 6 }}
+            style={{
+              height: 220,
+              width: '100%',
+              borderRadius: 12,
+              marginBottom: 16,
+            }}
           />
-          <ShimmerPlaceholder
-            LinearGradient={LinearGradient}
-            style={{ height: 32, width: 100, borderRadius: 8 }}
-          />
-        </View>
 
-        {/* Location Row */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-          <ShimmerPlaceholder
-            LinearGradient={LinearGradient}
-            style={{ height: 16, width: 16, borderRadius: 8, marginRight: 8 }}
-          />
-          <ShimmerPlaceholder
-            LinearGradient={LinearGradient}
-            style={{ height: 16, width: '40%', borderRadius: 6 }}
-          />
-        </View>
-
-        {/* KM & Payment Row */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
-          <ShimmerPlaceholder
-            LinearGradient={LinearGradient}
-            style={{ height: 24, width: 60, borderRadius: 12 }}
-          />
-          <ShimmerPlaceholder
-            LinearGradient={LinearGradient}
-            style={{ height: 24, width: 80, borderRadius: 12 }}
-          />
-        </View>
-
-        {/* Description */}
-        <ShimmerPlaceholder
-          LinearGradient={LinearGradient}
-          style={{ height: 20, width: '30%', borderRadius: 6, marginBottom: 8 }}
-        />
-        {[1, 2, 3].map(i => (
-          <ShimmerPlaceholder
-            key={i}
-            LinearGradient={LinearGradient}
-            style={{ height: 14, width: '100%', borderRadius: 6, marginBottom: 6 }}
-          />
-        ))}
-
-        {/* Info Rows */}
-        {[1, 2, 3, 4].map(i => (
-          <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+          {/* Title Row */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginBottom: 16,
+            }}
+          >
             <ShimmerPlaceholder
               LinearGradient={LinearGradient}
-              style={{ height: 16, width: '30%', borderRadius: 6 }}
+              style={{ height: 20, width: '50%', borderRadius: 6 }}
             />
             <ShimmerPlaceholder
               LinearGradient={LinearGradient}
-              style={{ height: 16, width: '50%', borderRadius: 6 }}
+              style={{ height: 32, width: 100, borderRadius: 8 }}
             />
           </View>
-        ))}
 
-        {/* User Card */}
-        <ShimmerPlaceholder
-          LinearGradient={LinearGradient}
-          style={{ height: 100, width: '100%', borderRadius: 12, marginBottom: 16 }}
-        />
+          {/* Location Row */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: 16,
+            }}
+          >
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 16, width: 16, borderRadius: 8, marginRight: 8 }}
+            />
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 16, width: '40%', borderRadius: 6 }}
+            />
+          </View>
 
-        {/* Bottom Buttons */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
+          {/* KM & Payment Row */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginBottom: 16,
+            }}
+          >
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 24, width: 60, borderRadius: 12 }}
+            />
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 24, width: 80, borderRadius: 12 }}
+            />
+          </View>
+
+          {/* Description */}
           <ShimmerPlaceholder
             LinearGradient={LinearGradient}
-            style={{ height: 44, width: '45%', borderRadius: 12 }}
+            style={{
+              height: 20,
+              width: '30%',
+              borderRadius: 6,
+              marginBottom: 8,
+            }}
           />
+          {[1, 2, 3].map(i => (
+            <ShimmerPlaceholder
+              key={i}
+              LinearGradient={LinearGradient}
+              style={{
+                height: 14,
+                width: '100%',
+                borderRadius: 6,
+                marginBottom: 6,
+              }}
+            />
+          ))}
+
+          {/* Info Rows */}
+          {[1, 2, 3, 4].map(i => (
+            <View
+              key={i}
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginBottom: 12,
+              }}
+            >
+              <ShimmerPlaceholder
+                LinearGradient={LinearGradient}
+                style={{ height: 16, width: '30%', borderRadius: 6 }}
+              />
+              <ShimmerPlaceholder
+                LinearGradient={LinearGradient}
+                style={{ height: 16, width: '50%', borderRadius: 6 }}
+              />
+            </View>
+          ))}
+
+          {/* User Card */}
           <ShimmerPlaceholder
             LinearGradient={LinearGradient}
-            style={{ height: 44, width: '45%', borderRadius: 12 }}
+            style={{
+              height: 100,
+              width: '100%',
+              borderRadius: 12,
+              marginBottom: 16,
+            }}
           />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
+
+          {/* Bottom Buttons */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginTop: 16,
+            }}
+          >
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 44, width: '45%', borderRadius: 12 }}
+            />
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 44, width: '45%', borderRadius: 12 }}
+            />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   if (error) return <AppText>Error: {error}</AppText>;
   if (!job) return <AppText>No job data found.</AppText>;
@@ -275,7 +375,9 @@ if (loading) {
       <ScrollView>
         <View style={styles.mainCard}>
           <View style={styles.mediaCard}>
-            <HeaderWithContainer backButtonBoxColor={colors.white} borderColor={colors.white}/>
+           
+                <HeaderWithContainer backButtonBoxColor={colors.white} borderColor={colors.white}/>
+
             <FlatList
               data={mediaSource}
               ref={flatListRef}
@@ -427,7 +529,7 @@ if (loading) {
                     },
                   ]}
                   onPress={() =>
-                    handlePopupOpen(
+                    handleStatusChangePopup(
                       status === 'my_jobs' ? 'in_progress' : 'completed',
                     )
                   }
@@ -460,7 +562,11 @@ if (loading) {
 
             {/* Location Row */}
             <View style={styles.locationRow}>
-              <Ionicons name="location-outline" size={16} color={colors.black} />
+              <Ionicons
+                name="location-outline"
+                size={16}
+                color={colors.black}
+              />
               <AppText style={styles.locationText}>{job.location}</AppText>
             </View>
 
@@ -514,7 +620,7 @@ if (loading) {
             {/* User Details Card */}
             {userRole === 'provider' ? (
               // === Show Consumer Card ===
-             
+
               <UserCard
                 user={job.consumer}
                 onPress={() =>
@@ -527,13 +633,11 @@ if (loading) {
                 userRole={userRole}
                 alreadyReviewed={alreadyReviewed}
                 onRatePress={() => setIsRatingModalVisible(true)}
-
                 isSubmitted={reviewSubmitted}
               />
             ) : (
               // === Show Provider Card only if offer accepted ===
               job.accepted_offer && (
-               
                 <UserCard
                   user={job.accepted_offer?.provider}
                   onPress={() =>
@@ -547,14 +651,13 @@ if (loading) {
                   alreadyReviewed={alreadyReviewed}
                   onRatePress={() => setIsRatingModalVisible(true)}
                   isSubmitted={reviewSubmitted}
-                  
                 />
               )
             )}
 
             {userRole === 'provider' &&
               status === 'new' &&
-              job.my_offer === null && (
+              job.my_offer === null && !isRejected && (
                 <View style={styles.footerContainer}>
                   <View style={styles.buttonContainer}>
                     <TouchableOpacity
@@ -569,6 +672,7 @@ if (loading) {
 
                     <TouchableOpacity
                       style={[styles.button, { backgroundColor: '#f0f0f0' }]}
+                      onPress={() => onRejectedPress(job.id)}
                     >
                       <AppText style={styles.outlineButtonText}>Ignore</AppText>
                     </TouchableOpacity>
@@ -684,6 +788,23 @@ if (loading) {
         onConfirm={() => setShowSuccessPopup(false)}
         showCancel={false}
       />
+      <CustomPopup
+        visible={popupVisible}
+        onClose={() => setPopupVisible(false)}
+        title={popupConfig.title}
+        message={popupConfig.message}
+        icon={
+          popupConfig.action === 'reject'
+            ? 'close-circle-outline'
+            : 'checkmark-circle-outline'
+        }
+        iconColor={popupConfig.action === 'reject' ? colors.red : colors.green}
+        cancelText="Cancel"
+        confirmText={popupConfig.confirmText}
+        onCancel={() => setPopupVisible(false)}
+        onConfirm={handleConfirmAction}
+      />
+
       <Modal
         transparent
         visible={isRatingModalVisible}
@@ -745,20 +866,18 @@ if (loading) {
                 setIsSubmitting(true);
 
                 try {
-                 const response= await dispatch(
+                  const response = await dispatch(
                     postJobReview({
                       jobId: job.id,
                       body: { rating: selectedRating, comment: reviewComment },
                     }),
                   ).unwrap();
 
-                  
-                  
                   setIsSubmitting(false);
                   setIsRatingModalVisible(false);
-                  setShowSuccessPopup(true); 
+                  setShowSuccessPopup(true);
                   setReviewSubmitted(true);
-                 
+
                   // job.reviews.push({
                   //   rating: selectedRating,
                   //   comment: reviewComment,
@@ -939,7 +1058,7 @@ const styles = StyleSheet.create({
   },
   jobDescription: {
     fontSize: 15,
-    color:colors.black,
+    color: colors.black,
     lineHeight: 24,
     marginBottom: 5,
     textAlign: 'justify',

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import colors from '../../../config/colors'; // Ensure this has primary/white/etc.
 import StartupSVG from '../../../assets/icons/startup.svg';
-import { useDispatch , useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserProfile } from '../../../redux/slices/authSlice/profileSlice';
 import storage from '../../../app/storage';
 import { setMyServices } from '../../../redux/slices/servicesSlice/servicesSlice';
@@ -18,11 +18,19 @@ const AppEntryScreen = ({ navigation }) => {
     const checkLogin = async () => {
       try {
         await new Promise(resolve => setTimeout(resolve, 2000));
+        const firstTimeUser = await storage.checkFirstTimeUser();
         const user = await storage.getUser();
         const token = await storage.getToken();
 
+        console.log('First Time User:', firstTimeUser);
+
+        if (firstTimeUser === undefined || firstTimeUser === null) {
+          navigation.replace('Onboarding',);
+          return;
+        }
+
         if (!token || !user) {
-          navigation.replace('Login');
+          navigation.replace('Login', );
           return;
         }
 
@@ -30,15 +38,16 @@ const AppEntryScreen = ({ navigation }) => {
         dispatch(fetchNotifications());
 
         if (fetchUserProfile.fulfilled.match(result)) {
-
-          dispatch(setMyServices( result.payload.data.services || []));
+          dispatch(setMyServices(result.payload.data.services || []));
 
           // ✅ Agar deep link params hain → wahan navigate karo
           if (deepLink) {
-            if (deepLink.type === "user") {
-              navigation.replace("AccountScreen", { userId: parseInt(deepLink.id, 10) });
-            } else if (deepLink.type === "group") {
-              navigation.replace("GroupScreen", { groupId: deepLink.id });
+            if (deepLink.type === 'user') {
+              navigation.replace('AccountScreen', {
+                userId: parseInt(deepLink.id, 10),
+              });
+            } else if (deepLink.type === 'group') {
+              navigation.replace('GroupScreen', { groupId: deepLink.id });
             }
             dispatch(clearDeepLinkParams()); // reset after navigation
           } else {
@@ -48,13 +57,14 @@ const AppEntryScreen = ({ navigation }) => {
           navigation.replace('Login');
         }
       } catch (err) {
+        console.log('Error in AppEntryScreen:', err);
+
         navigation.replace('Login');
       }
     };
 
     checkLogin();
   }, [dispatch, navigation, deepLink]);
-
 
   return (
     <View style={styles.container}>
