@@ -42,7 +42,8 @@ const AppEntryScreen = ({ navigation }) => {
             }
             dispatch(clearDeepLinkParams()); // reset after navigation
           } else {
-            navigation.replace('DashboardRouter'); // normal flow
+            navigation.replace('DashboardRouter' ,{screen: 'Stage',
+            }); // normal flow
           }
         } else {
           navigation.replace('Login');
