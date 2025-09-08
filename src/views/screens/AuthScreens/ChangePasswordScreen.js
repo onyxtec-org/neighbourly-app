@@ -24,7 +24,7 @@ import {
 } from '../../../redux/slices/authSlice/passwordSlice';
 import CustomToast from '../../components/CustomToast'; // 🔔 Import your custom toast
 import PasswordChecklist from '../../components/PasswordChecklist';
-import Header from '../../components/HeaderComponent/Header';
+import HeaderWithContainer from '../../components/HeaderComponent/HeaderWithContainer';
 const ChangePasswordScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const login = useSelector(state => state.login);
@@ -102,7 +102,12 @@ const ChangePasswordScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title={'Change Password'} bookmark={false} />
+      <HeaderWithContainer borderColor={colors.black} />
+      <AppText style={styles.headerText}>Change Password</AppText>
+
+      <View style={styles.textContainer}>
+        <AppText style={styles.instructionText}></AppText>
+      </View>
 
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
@@ -128,41 +133,42 @@ const ChangePasswordScreen = ({ navigation }) => {
                 touched,
               }) => (
                 <View style={styles.formWrapper}>
-                  <CustomTextInput
-                    label="Current Password"
-                    required
-                    placeholder="Enter current password"
-                    value={values.currentPassword}
-                    onChangeText={handleChange('currentPassword')}
-                    onBlur={handleBlur('currentPassword')}
-                    error={touched.currentPassword && errors.currentPassword}
-                    secureTextEntry
-                  />
+                  <View>
+                    <CustomTextInput
+                      label="Current Password"
+                      required
+                      placeholder="Enter current password"
+                      value={values.currentPassword}
+                      onChangeText={handleChange('currentPassword')}
+                      onBlur={handleBlur('currentPassword')}
+                      error={touched.currentPassword && errors.currentPassword}
+                      secureTextEntry
+                    />
 
-                  <CustomTextInput
-                    label="New Password"
-                    required
-                    showError={false}
-                    placeholder="Enter new password"
-                    value={values.newPassword}
-                    onChangeText={handleChange('newPassword')}
-                    onBlur={handleBlur('newPassword')}
-                    error={touched.newPassword && errors.newPassword}
-                    secureTextEntry
-                  />
-                  <PasswordChecklist password={values.newPassword} />
+                    <CustomTextInput
+                      label="New Password"
+                      required
+                      showError={false}
+                      placeholder="Enter new password"
+                      value={values.newPassword}
+                      onChangeText={handleChange('newPassword')}
+                      onBlur={handleBlur('newPassword')}
+                      error={touched.newPassword && errors.newPassword}
+                      secureTextEntry
+                    />
+                    <PasswordChecklist password={values.newPassword} />
 
-                  <CustomTextInput
-                    label="Confirm Password"
-                    required
-                    placeholder="Confirm new password"
-                    value={values.confirmPassword}
-                    onChangeText={handleChange('confirmPassword')}
-                    onBlur={handleBlur('confirmPassword')}
-                    error={touched.confirmPassword && errors.confirmPassword}
-                    secureTextEntry
-                  />
-
+                    <CustomTextInput
+                      label="Confirm Password"
+                      required
+                      placeholder="Confirm new password"
+                      value={values.confirmPassword}
+                      onChangeText={handleChange('confirmPassword')}
+                      onBlur={handleBlur('confirmPassword')}
+                      error={touched.confirmPassword && errors.confirmPassword}
+                      secureTextEntry
+                    />
+                  </View>
                   <AppButton
                     title={loading ? 'Changing...' : 'Change Password'}
                     onPress={handleSubmit}
@@ -190,38 +196,47 @@ const ChangePasswordScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
-  },
-  header: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    backgroundColor: colors.white,
     paddingHorizontal: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.dark,
+  headerText: {
+    fontSize: 32,
+     fontWeight: 'bold',
+    color: colors.black,
+    textAlign: 'center',
+     marginTop: 60,
+  },
+
+  textContainer: {
+    alignItems: 'center',
+
+   
+  }, 
+  instructionText: {
+    marginTop: 5,
+    fontSize: 14,
+    textAlign: 'center',
+    color: colors.black,
+    paddingHorizontal: 12,
   },
   iconButton: {
     width: 32,
     alignItems: 'center',
   },
-  scrollViewContent: {
-    paddingVertical: 24,
-  },
+scrollViewContent: {
+  paddingVertical: 24,
+  flexGrow: 1, // ✅ This makes content take full available height
+},
   formWrapper: {
-    paddingHorizontal: 20,
+    //paddingHorizontal: 20,
+     flex: 1,
+     justifyContent: 'space-between',
   },
   button: {
     marginTop: 24,
     backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
+    borderRadius: 30,
+    paddingVertical: 16,
   },
   buttonText: {
     fontSize: 16,
