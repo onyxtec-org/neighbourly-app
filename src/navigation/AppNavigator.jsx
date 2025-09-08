@@ -32,6 +32,7 @@ import StageScreen from '../views/screens/Dashboard/StageScreens/StageScreen'; /
 import CreateStage from '../views/screens/Dashboard/StageScreens/CreateStage';
 import EditServicesScreen from '../views/screens/Dashboard/ProviderScreens/EditServicesScreen';
 import ChatScreen from '../views/screens/Dashboard/ChatScreens/ChatScreen';
+import OnboardingScreen from '../views/screens/AuthScreens/OnboardingScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -71,6 +72,7 @@ const AppNavigator = () => {
         <Stack.Screen name="CreateStage" component={CreateStage} />
         <Stack.Screen name="EditServices" component={EditServicesScreen} />
         <Stack.Screen name="ChatScreen" component={ChatScreen} />
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
