@@ -1,85 +1,104 @@
+// export default ServicesListingCard;
 import React from 'react';
 import { TouchableOpacity, View, Image, StyleSheet } from 'react-native';
 import Icon from '../ImageComponent/IconComponent';
 import AppText from '../AppText';
 import colors from '../../../config/colors';
-const ServicesListingCard = ({ service, onPress }) => {
+
+const ServicesListingCard = ({ service, image, onPress }) => {
+
   return (
-  <TouchableOpacity
-  style={[styles.serviceListItem, { width: '100%' }]} // ✅ Full width
-  onPress={() => onPress(service)}
->
-  {service.image ? (
-    <View style={styles.serviceImageContainer}>
-      <Image source={{ uri: service.image }} style={styles.serviceImage} />
-    </View>
-  ) : (
-    <Icon
-      name="construct-outline"
-      size={28}
-      color={colors.primary}
-      style={styles.serviceIconPlaceholder}
-    />
-  )}
+    <TouchableOpacity
+      style={styles.serviceCard}
+      onPress={() => onPress(service)}
+      activeOpacity={0.8}
+    >
+      {service.image ? (
+        <View style={styles.serviceImageWrapper}>
+          <Image
+            source={{ uri: image }}
+            style={styles.serviceImage}
+            onError={e => console.log('Image load error:', e.nativeEvent)}
+            onLoad={() => console.log('Image loaded:', image)}
+          />
+        </View>
+      ) : (
+        <View style={styles.serviceImageWrapper}>
+          <Icon
+            name="construct-outline"
+            size={22}
+            color={colors.primary}
+            style={styles.iconInside}
+          />
+        </View>
+      )}
 
-  <View style={styles.textAndChevronContainer}>
-    <AppText style={styles.serviceName}>{service.name}</AppText>
-    <Icon
-      name="chevron-forward"
-      size={20}
-      color={colors.lightGrey}
-      style={styles.chevronIcon}
-    />
-  </View>
-</TouchableOpacity>
-
+      <View style={styles.textAndChevronContainer}>
+        <AppText style={styles.serviceName}>{service.name}</AppText>
+      </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  serviceListItem: {
+  serviceCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between', // ✅ Ensures text and chevron spread out
-    paddingVertical: 14,
+    paddingVertical: 12,
     paddingHorizontal: 15,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.white, // ✅ Changed from red to white (if needed)
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.borderColor,
+    borderRadius: 14,
+    backgroundColor: colors.white,
+
+    // Make bottom border stronger
+    borderBottomWidth: 1.2,
+    borderBottomColor: colors.borderColor,
   },
   textAndChevronContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1, // ✅ Allows this container to stretch
+    flex: 1,
     justifyContent: 'space-between',
   },
-  serviceImageContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  serviceImageWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     overflow: 'hidden',
     marginRight: 15,
+    borderWidth: 1,
+    borderColor: colors.borderColor || '#ddd',
+    backgroundColor: colors.white,
+
+    // iOS shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+
+    // Android elevation
+    elevation: 4,
+
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   serviceImage: {
-    width: '100%',
-    height: '100%',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     resizeMode: 'cover',
   },
-  serviceIconPlaceholder: {
-    width: 40,
-    height: 40,
+  iconInside: {
     textAlign: 'center',
     textAlignVertical: 'center',
-    marginRight: 15,
   },
   serviceName: {
     fontSize: 15,
     color: colors.dark,
     fontWeight: '500',
-    flex: 1, // ✅ Makes the text take remaining space
-  },
-  chevronIcon: {
-    marginLeft: 10,
+    flex: 1,
   },
 });
 

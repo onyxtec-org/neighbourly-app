@@ -1,32 +1,69 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import colors from '../../../config/colors';
+import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import { selectUnreadCount } from '../../../redux/slices/notificationSlice/notificationSlice';
 import AppText from './../AppText';
 import Icon from './../ImageComponent/IconComponent';
-function AppBar(props) {
-  const unreadCount = useSelector(selectUnreadCount);
-  console.log('unread count',unreadCount);
-  
-  const navigation = useNavigation();
+import config from '../../../config';
+import LinearGradient from 'react-native-linear-gradient'; // 👈 added
 
+function AppBar() {
+  const unreadCount = useSelector(selectUnreadCount);
+  const { user } = useSelector(state => state.profile);
+  const navigation = useNavigation();
+  const handleUserPress = () => {
+    if (user?.role === 'consumer') {
+      navigation.navigate('ConsumerDashboard', { screen: 'Profile' });
+    } else if (user?.role === 'provider') {
+      navigation.navigate('ProviderDashboard', { screen: 'Profile' });
+    } else {
+      navigation.navigate('ProfileScreen'); // fallback
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.appBar}>
-        <TouchableOpacity style={styles.locationContainer}>
-          <Icon name={"location-outline"}/>
-          <AppText style={styles.locationText}>Your Location</AppText>
+        {/* Left side: User Image + Info */}
+          {/* 👇 Gradient circular border wrapper */}
+          <TouchableOpacity style={styles.userContainer} onPress={handleUserPress} activeOpacity={0.7}>
+
+          <LinearGradient
+            colors={['#8e2de2', '#4a00e0']} // purple gradient
+            style={styles.gradientBorder}
+          >
+            <View style={styles.innerCircle}>
+              <Image
+                source={
+                  user?.image
+                    ? { uri: `${config.userimageURL}${user.image}` }
+                    : require('../../../assets/images/profile_icon.jpeg')
+                }
+                style={styles.userImage}
+              />
+            </View>
+          </LinearGradient>
+
+          <View style={styles.userInfo}>
+            <View style={styles.usernameRow}>
+              <AppText style={styles.username}>
+                {user?.name ? `Hello ${user.name}` : 'Hello User'}
+              </AppText>
+              <Icon
+                name="hand-left-outline"
+                size={18}
+                color="#f4b400"
+                style={{ marginLeft: 5 }}
+              />
+            </View>
+            <AppText style={styles.subText}>Assign the task!</AppText>
+          </View>
         </TouchableOpacity>
 
+        {/* Right side: Notifications */}
         <TouchableOpacity onPress={() => navigation.navigate('NotificationsScreen')}>
           <View style={{ position: 'relative' }}>
-            <Icon
-              name="notifications-outline"
-              size={28}
-            />
+            <Icon name="notifications-outline" size={28} />
             {unreadCount > 0 && (
               <View style={styles.badge}>
                 <AppText style={styles.badgeText}>
@@ -42,19 +79,61 @@ function AppBar(props) {
 }
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    marginTop: 4,
+  },
   appBar: {
-    height: 60,
+    height: 70,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    paddingHorizontal: 16,
   },
-  locationContainer: { flexDirection: 'row', alignItems: 'center' },
-  locationText: { marginLeft: 8, fontSize: 16 },
+  userContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 
+  // 👇 NEW styles for gradient + spacing
+  gradientBorder: {
+    width: 52,
+    height: 52,
+    borderRadius: 27,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  innerCircle: {
+    width: 48, // slightly smaller to create spacing
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'white', // space color
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  userImage: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+  },
+
+  userInfo: {
+    marginLeft: 12,
+    justifyContent: 'center',
+  },
+  usernameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  username: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2c2c2c',
+  },
+  subText: {
+    fontSize: 13,
+    color: '#777',
+    marginTop: 2,
+  },
   badge: {
     position: 'absolute',
     right: -6,

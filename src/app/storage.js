@@ -56,6 +56,22 @@ const getUser = async () => {
     return null;
   }
 };
+
+const setFirstTimeUser = async () => {
+  try {
+    await AsyncStorage.setItem('firstTimeUser','false');
+  } catch (error) {
+    console.error('Error storing the first time user', error);
+  }
+};
+const checkFirstTimeUser = async () => {
+  try {
+   const value = await AsyncStorage.getItem('firstTimeUser');
+    return value;
+  } catch (error) {
+    console.error('Error getting the first time user', error);
+  }
+};
 const removeToken = async () => {
   try {
     await AsyncStorage.removeItem(tokenKey);
@@ -84,5 +100,7 @@ export default {
   getUser,
   removeUser,
   storeFcmToken,
-  geFcmToken
+  geFcmToken,
+  checkFirstTimeUser,
+  setFirstTimeUser
 };

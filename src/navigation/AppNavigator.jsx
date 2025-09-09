@@ -31,6 +31,9 @@ import JobsScreen from '../views/screens/Dashboard/jobScreens/JobsScreen'; // Im
 import StageScreen from '../views/screens/Dashboard/StageScreens/StageScreen'; // Import StageScreen
 import CreateStage from '../views/screens/Dashboard/StageScreens/CreateStage';
 import EditServicesScreen from '../views/screens/Dashboard/ProviderScreens/EditServicesScreen';
+import ChatScreen from '../views/screens/Dashboard/ChatScreens/ChatScreen';
+import OnboardingScreen from '../views/screens/AuthScreens/OnboardingScreen';
+import PostDetailsScreen from '../views/screens/Dashboard/StageScreens/PostDetailsScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -69,7 +72,9 @@ const AppNavigator = () => {
         <Stack.Screen name="StageScreen" component={StageScreen} />
         <Stack.Screen name="CreateStage" component={CreateStage} />
         <Stack.Screen name="EditServices" component={EditServicesScreen} />
-
+        <Stack.Screen name="ChatScreen" component={ChatScreen} />
+        <Stack.Screen name="OnboardingScreen" component={OnboardingScreen} />
+        <Stack.Screen name="PostDetails" component={PostDetailsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

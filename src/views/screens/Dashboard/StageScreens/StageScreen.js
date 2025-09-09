@@ -1,33 +1,57 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
-  StyleSheet,
+  ScrollView,
   Image,
   TouchableOpacity,
+  StyleSheet,
+  Modal,
   FlatList,
 } from 'react-native';
-import Icon from '../../../components/ImageComponent/IconComponent';
-import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
-import LinearGradient from 'react-native-linear-gradient';
-import colors from '../../../../config/colors';
 import { useSelector, useDispatch } from 'react-redux';
-import { likePost, unlikePost , getPosts } from '../../../../redux/slices/stageSlice/postSlice';
-import timeAgo from './../../../../utils/timeago'; // utility to format time
-import config from '../../../../config'; // ✅ baseURL here
-import AppText from '../../../components/AppText';
+import AppBar from '../../../components/HeaderComponent/AppBar';
+import Icon from '../../../components/ImageComponent/IconComponent';
+import colors from '../../../../config/colors';
+import config from '../../../../config';
+import {
+  getPosts,
+  likePost,
+  unlikePost,
+} from '../../../../redux/slices/stageSlice/postSlice';
 import PostCard from '../../../components/StageComponents/PostCard';
+
 const StageScreen = ({ navigation }) => {
   const { user: profileUser } = useSelector(state => state.profile);
   const userRole = profileUser?.role;
-  const [expandedPostId, setExpandedPostId] = useState(null); // expand/collapse per post
-  const { posts, loading, error } = useSelector(state => state.post);
+  const { posts } = useSelector(state => state.post);
   const dispatch = useDispatch();
+
+  const [leftColumn, setLeftColumn] = useState([]);
+  const [rightColumn, setRightColumn] = useState([]);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [liking, setLiking] = useState({});
+
   useEffect(() => {
     dispatch(getPosts());
   }, [dispatch]);
+
+  // Split posts into 2 columns
+  useEffect(() => {
+    let left = [],
+      right = [];
+    posts.forEach((item, index) => {
+      if (index % 2 === 0) left.push(item);
+      else right.push(item);
+    });
+    setLeftColumn(left);
+    setRightColumn(right);
+  }, [posts]);
+
+  // ✅ Toggle Like
   const handleLikeToggle = async post => {
-    if (liking[post.id]) return; // already processing
+    if (liking[post.id]) return;
     setLiking(prev => ({ ...prev, [post.id]: true }));
 
     const alreadyLiked = post.likes?.some(l => l.user_id === profileUser?.id);
@@ -41,159 +65,124 @@ const StageScreen = ({ navigation }) => {
       setLiking(prev => ({ ...prev, [post.id]: false }));
     }
   };
-const renderPost = ({ item }) => {
-  const expanded = expandedPostId === item.id;
-  const isLiked = item.likes?.some(l => l.user_id === profileUser?.id);
-  const userAvatar = item.user?.image
-    ? `${config.userimageURL}${item.user.image}`
-    : 'https://ui-avatars.com/api/?name=' + item.user?.name;
 
-  return (
-    <PostCard
-      item={item}
-      expanded={expanded}
-      isLiked={isLiked}
-      userAvatar={userAvatar}
-      colors={colors}
-      navigation={navigation}
-      timeAgo={timeAgo}
-      setExpandedPostId={setExpandedPostId}
-      liking={liking}
-      handleLikeToggle={handleLikeToggle}
-      config={config}
-    />
-  );
-};
+  const renderItem = (item, index, big = false) => {
+    const firstAttachment = item.attachments?.[0]?.attachment;
+    const postImage = firstAttachment
+      ? `${config.postAttachmentImageURL}${firstAttachment}`
+      : 'https://via.placeholder.com/300x200';
 
-  if (loading) {
     return (
-      <FlatList
-        data={[1, 2, 3, 4]} // fake placeholders
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={() => <ShimmerCard />}
-        contentContainerStyle={{ paddingBottom: 100 }}
-      />
+      <TouchableOpacity
+        key={item.id}
+        style={[styles.card, { height: big ? 220 : 180 }]}
+        onPress={() => {
+          setSelectedIndex(posts.findIndex(p => p.id === item.id));
+          setModalVisible(true);
+        }}
+      >
+        <Image source={{ uri: postImage }} style={styles.image} />
+      </TouchableOpacity>
     );
-  }
-
-  if (error) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <AppText style={{ color: 'red' }}>{error}</AppText>
-      </View>
-    );
-  }
+  };
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Header */}
-      <View style={styles.header}>
-        <AppText style={styles.headerTitle}>Stage Feed</AppText>
-      </View>
+      <AppBar />
 
-      {/* Post List */}
-      <FlatList
-        data={posts}
-        keyExtractor={item => item.id.toString()}
-        renderItem={renderPost}
-        contentContainerStyle={{ paddingBottom: 100 }}
-      />
+      {/* Feed */}
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Left column */}
+        <View style={styles.column}>
+          {leftColumn.map((item, idx) => renderItem(item, idx, idx % 2 === 0))}
+        </View>
+
+        {/* Right column */}
+        <View style={styles.column}>
+          {rightColumn.map((item, idx) => renderItem(item, idx, idx % 2 !== 0))}
+        </View>
+      </ScrollView>
 
       {/* Floating Action Button */}
       {userRole === 'provider' && (
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => navigation.navigate('CreateStage')}
-      >
-        <Icon name="create-outline" size={28} color="#fff" />
-      </TouchableOpacity>
-       )} 
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => navigation.navigate('CreateStage')}
+        >
+          <Icon name="create-outline" size={28} color="#fff" />
+        </TouchableOpacity>
+      )}
+
+      {/* ✅ Fullscreen Modal */}
+      <Modal visible={modalVisible} animationType="slide" transparent={true}>
+        <View style={styles.backdrop}>
+          
+          <FlatList
+            data={
+              selectedIndex !== null
+                ? [
+                    posts[selectedIndex],
+                    ...posts.filter((_, i) => i !== selectedIndex),
+                  ]
+                : posts
+            }
+            keyExtractor={item => item.id.toString()}
+            renderItem={({ item }) => (
+              
+              <PostCard
+                item={item}
+                expanded={false}
+                isLiked={item.likes?.some(l => l.user_id === profileUser?.id)}
+                userAvatar={
+                  item.user?.image
+                    ? `${config.userimageURL}${item.user.image}`
+                    : 'https://ui-avatars.com/api/?name=' + item.user?.name
+                }
+                colors={colors}
+                navigation={navigation}
+                setExpandedPostId={() => {}}
+                liking={liking}
+                handleLikeToggle={handleLikeToggle}
+                config={config}
+              />
+            )}
+          />
+
+          {/* Close Button */}
+          <TouchableOpacity
+            style={styles.closeBtn}
+            onPress={() => setModalVisible(false)}
+          >
+            <Icon name="close" size={28} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 12,
+    paddingBottom: 6,
+    paddingTop: 6,
+    alignItems: 'flex-center',
+  },
+  column: {
+    flex: 1,
+    marginHorizontal: 4,
+  },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 0,
-    padding: 18,
-    marginBottom: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 6,
+    backgroundColor: '#f5f5f5',
   },
-  header: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.dark,
-  },
-  postHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  time: {
-    fontSize: 12,
-    color: '#666',
-  },
-  descriptionContainer: {
-    marginVertical: 8,
-  },
-  description: {
-    fontSize: 14,
-    color: '#333',
-  },
-  seeMore: {
-    color: '#1877f2',
-    fontWeight: 'bold',
-    marginTop: 4,
-  },
-  postImage: {
+  image: {
     width: '100%',
-    height: 200,
-    borderRadius: 10,
-    marginTop: 8,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#eee',
-    marginVertical: 10,
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 6,
-  },
-  actionText: {
-    marginLeft: 5,
-    fontSize: 14,
-    color: '#666',
+    height: '100%',
+    resizeMode: 'cover',
   },
   fab: {
     position: 'absolute',
@@ -206,124 +195,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 6,
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
+  },
+  closeBtn: {
+    position: 'absolute',
+    top: 15,
+    right: 20,
+    borderWidth: 2,        
+    borderColor: '#fff',   
+    padding: 4,            
+    borderRadius: 100,      
+    backgroundColor: 'transparent', 
+  },
+  
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black background.
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 65, // To avoid notch on some devices.
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    overflow: 'hidden',
+    paddingBottom: 20,
   },
 });
 
 export default StageScreen;
-
-const ShimmerCard = () => {
-  return (
-    <View style={stylesshimmer.card}>
-      {/* User info shimmer */}
-      <View style={stylesshimmer.userInfoRow}>
-        <ShimmerPlaceholder
-          LinearGradient={LinearGradient}
-          style={stylesshimmer.avatar}
-        />
-        <View style={stylesshimmer.userInfoText}>
-          <ShimmerPlaceholder
-            LinearGradient={LinearGradient}
-            style={stylesshimmer.userName}
-          />
-          <ShimmerPlaceholder
-            LinearGradient={LinearGradient}
-            style={stylesshimmer.userSubText}
-          />
-        </View>
-      </View>
-
-      {/* Post content shimmer */}
-      <View style={styles.postContent}>
-        <ShimmerPlaceholder
-          LinearGradient={LinearGradient}
-          style={stylesshimmer.postLineFull}
-        />
-        <ShimmerPlaceholder
-          LinearGradient={LinearGradient}
-          style={stylesshimmer.postLineShort}
-        />
-      </View>
-
-      {/* Post image shimmer */}
-      <ShimmerPlaceholder
-        LinearGradient={LinearGradient}
-        style={stylesshimmer.postImage}
-      />
-
-      {/* Actions shimmer */}
-      <View style={stylesshimmer.actionsRow}>
-        {[1, 2, 3].map(i => (
-          <ShimmerPlaceholder
-            key={i}
-            LinearGradient={LinearGradient}
-            style={stylesshimmer.actionButton}
-          />
-        ))}
-      </View>
-    </View>
-  );
-};
-const stylesshimmer = StyleSheet.create({
-  card: {
-    padding: 12,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    marginBottom: 16,
-  },
-  userInfoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  userInfoText: {
-    marginLeft: 10,
-  },
-  userName: {
-    width: 120,
-    height: 12,
-    borderRadius: 6,
-    marginBottom: 6,
-  },
-  userSubText: {
-    width: 80,
-    height: 10,
-    borderRadius: 5,
-  },
-  postContent: {
-    marginVertical: 12,
-  },
-  postLineFull: {
-    width: '100%',
-    height: 14,
-    borderRadius: 7,
-    marginBottom: 6,
-  },
-  postLineShort: {
-    width: '80%',
-    height: 14,
-    borderRadius: 7,
-  },
-  postImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 10,
-  },
-  actionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 12,
-  },
-  actionButton: {
-    width: 60,
-    height: 20,
-    borderRadius: 6,
-  },
-});

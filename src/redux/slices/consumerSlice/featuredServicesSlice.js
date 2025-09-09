@@ -11,6 +11,7 @@ export const fetchFeaturedServices = createAsyncThunk(
 
       const { success, data } = response.data;
       if (success && data.services) {
+        console.log('featured services', data.services);
         return data.services;
       } else {
         return rejectWithValue('Failed to fetch featured services');

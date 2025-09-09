@@ -5,8 +5,11 @@ export default {
   userimageURL: "https://nbl.onyxtec.io/storage/user/",
   attachmentimageURL: "https://nbl.onyxtec.io/storage/job_attachments/",
   postAttachmentImageURL: "https://nbl.onyxtec.io/storage/post_attachments/",
+  categoriesImageURL: "https://nbl.onyxtec.io/storage/categories/",
+  serviceImageURL: "https://nbl.onyxtec.io/storage/services/",
+
 //ngrok
-  // baseURL: "https://23f1883e1980.ngrok-free.app/api",
+  // baseURL: "https://a169a4416042.ngrok-free.app/api",
   // userimageURL: "https://23f1883e1980.ngrok-free.app/storage/user/",
   // attachmentimageURL: "https://23f1883e1980.ngrok-free.app/storage/job_attachments/",
   // postAttachmentImageURL: "https://23f1883e1980.ngrok-free.app/storage/post_attachments/",

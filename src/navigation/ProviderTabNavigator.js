@@ -20,14 +20,14 @@ const ProviderTabNavigator = () => {
           let iconName;
 
           switch (route.name) {
+            case 'Stage':
+              iconName = 'albums-outline';
+              break;
             case 'Dashboard':
               iconName = 'home-outline';
               break;
             case 'Jobs':
               iconName = 'briefcase-outline';
-              break;
-            case 'Stage':
-              iconName = 'albums-outline';
               break;
             case 'Profile':
               iconName = 'person-outline';
@@ -47,10 +47,10 @@ const ProviderTabNavigator = () => {
         },
       })}
     >
+      <Tab.Screen name="Stage" component={StageScreen} />
       <Tab.Screen name="Dashboard" component={ProviderNavigator} />
       {/* <Tab.Screen name="MyServices" component={MyServicesScreen} /> */}
       <Tab.Screen name="Jobs" component={JobsScreen} />
-      <Tab.Screen name="Stage" component={StageScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

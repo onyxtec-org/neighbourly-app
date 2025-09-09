@@ -9,6 +9,8 @@ import {
   Dimensions,
   FlatList,
   ActivityIndicator,
+  Modal,
+  TextInput,
 } from 'react-native';
 import Ionicons from '../../../components/ImageComponent/IconComponent';
 import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
@@ -29,13 +31,23 @@ import CustomToast from '../../../components/CustomToast';
 import AppActivityIndicator from '../../../components/AppActivityIndicator';
 import CustomPopup from '../../../components/CustomPopup';
 import AppText from '../../../components/AppText';
+import Seperator from '../../../components/Seperator';
+import moment from 'moment';
+import AppTextInput from '../../../components/AppTextInput';
+import UserCard from '../../../components/JobComponents/UserCard';
+import { postJobReview } from '../../../../redux/slices/reviewSlice/reviewSlice';
+import BackButtonWithColor from '../../../components/ButtonComponents/BackButtonWithColor';
+import HeaderWithContainer from '../../../components/HeaderComponent/HeaderWithContainer';
+import { createOffer ,} from '../../../../redux/slices/jobSlice/offerSlice/offerSlice';
 
 const { width } = Dimensions.get('window');
 const CARD_HEIGHT = 300;
 
 const JobDetailsScreen = ({ navigation, route }) => {
   const { jobId, userRole, status } = route.params;
-  console.log('role', userRole, status);
+  //console.log('role', userRole, status);
+  const { user } = useSelector(state => state.profile);
+  const aauthUser = user?.id ?? null;
 
   const flatListRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -57,6 +69,21 @@ const JobDetailsScreen = ({ navigation, route }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [popupTitle, setPopupTitle] = useState('');
   const [popupMessage, setPopupMessage] = useState('');
+  const [isRatingModalVisible, setIsRatingModalVisible] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [isRejected, setIsRejected] = useState(false);
+  const [popupConfig, setPopupConfig] = useState({
+    title: '',
+    message: '',
+    confirmText: '',
+    action: null,
+    jobId: null,
+  });
 
   useFocusEffect(
     useCallback(() => {
@@ -103,7 +130,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
     }
   };
 
-  const handlePopupOpen = action => {
+  const handleStatusChangePopup = action => {
     if (action === 'in_progress') {
       setPopupTitle('Mark as In Progress');
       setPopupMessage('Are you sure you want to mark this job as In Progress?');
@@ -113,7 +140,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
     }
     setShowPopup(true);
   };
-
   const onScrollEnd = e => {
     const index = Math.round(e.nativeEvent.contentOffset.x / width);
     setActiveIndex(index);
@@ -133,33 +159,211 @@ const JobDetailsScreen = ({ navigation, route }) => {
     navigation.navigate('OffersScreen', { offers });
   };
 
+  const onRejectedPress = jobId => {
+    // Show confirmation popup before rejecting
+    setPopupConfig({
+      title: 'Reject Job',
+      message:
+        'Are you sure you want to reject this job? This action cannot be undone.',
+      confirmText: 'Reject',
+      action: 'reject',
+      jobId,
+    });
+    setPopupVisible(true);
+  };
+
+  const handleConfirmAction = async () => {
+    const { action, jobId } = popupConfig;
+    setPopupVisible(false);
+    setIsLoading(true);
+
+          
+    if (action === 'reject') {
+      console.log('action',action,jobId);
+      const payload = {
+        job_id: jobId,
+        status: 'rejected',
+      };
+
+      try {
+        const res = await dispatch(createOffer(payload)).unwrap();
+       
+        
+        if (res?.success) {
+          setIsLoading(false);
+          setIsRejected(true);
+          showToast('This job has been rejected.', 'error');
+        } else {
+          showToast(res?.message || 'Failed to reject job', 'error');
+        }
+      } catch (error) {
+        console.log('error',error);
+        
+        showToast('Something went wrong. Please try again.', 'error');
+      }
+    }
+  };
+  const InfoRow = ({ label, value, labelStyle, valueStyle }) => {
+    return (
+      <View style={styles.locationRow}>
+        <AppText style={styles.boldtext}>{label} </AppText>
+        <AppText style={styles.locationText}>{value}</AppText>
+      </View>
+    );
+  };
+  //console.log('job data', job);
+  const alreadyReviewed = job?.reviews?.some(
+    review =>
+      review.reviewer_id === aauthUser && review.reviewer_type === userRole, // 'consumer' or 'provider'
+  );
+
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={{ padding: 16 }}>
+          {/* Media Section */}
           <ShimmerPlaceholder
             LinearGradient={LinearGradient}
-            style={styles.shimmerHeader}
+            style={{
+              height: 220,
+              width: '100%',
+              borderRadius: 12,
+              marginBottom: 16,
+            }}
           />
+
+          {/* Title Row */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginBottom: 16,
+            }}
+          >
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 20, width: '50%', borderRadius: 6 }}
+            />
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 32, width: 100, borderRadius: 8 }}
+            />
+          </View>
+
+          {/* Location Row */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: 16,
+            }}
+          >
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 16, width: 16, borderRadius: 8, marginRight: 8 }}
+            />
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 16, width: '40%', borderRadius: 6 }}
+            />
+          </View>
+
+          {/* KM & Payment Row */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginBottom: 16,
+            }}
+          >
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 24, width: 60, borderRadius: 12 }}
+            />
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 24, width: 80, borderRadius: 12 }}
+            />
+          </View>
+
+          {/* Description */}
           <ShimmerPlaceholder
             LinearGradient={LinearGradient}
-            style={styles.shimmerMedia}
-          />
-          <ShimmerPlaceholder
-            LinearGradient={LinearGradient}
-            style={styles.shimmerTitle}
+            style={{
+              height: 20,
+              width: '30%',
+              borderRadius: 6,
+              marginBottom: 8,
+            }}
           />
           {[1, 2, 3].map(i => (
             <ShimmerPlaceholder
               key={i}
               LinearGradient={LinearGradient}
-              style={styles.shimmerLine}
+              style={{
+                height: 14,
+                width: '100%',
+                borderRadius: 6,
+                marginBottom: 6,
+              }}
             />
           ))}
+
+          {/* Info Rows */}
+          {[1, 2, 3, 4].map(i => (
+            <View
+              key={i}
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginBottom: 12,
+              }}
+            >
+              <ShimmerPlaceholder
+                LinearGradient={LinearGradient}
+                style={{ height: 16, width: '30%', borderRadius: 6 }}
+              />
+              <ShimmerPlaceholder
+                LinearGradient={LinearGradient}
+                style={{ height: 16, width: '50%', borderRadius: 6 }}
+              />
+            </View>
+          ))}
+
+          {/* User Card */}
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{
+              height: 100,
+              width: '100%',
+              borderRadius: 12,
+              marginBottom: 16,
+            }}
+          />
+
+          {/* Bottom Buttons */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginTop: 16,
+            }}
+          >
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 44, width: '45%', borderRadius: 12 }}
+            />
+            <ShimmerPlaceholder
+              LinearGradient={LinearGradient}
+              style={{ height: 44, width: '45%', borderRadius: 12 }}
+            />
+          </View>
         </ScrollView>
       </SafeAreaView>
     );
   }
+
   if (error) return <AppText>Error: {error}</AppText>;
   if (!job) return <AppText>No job data found.</AppText>;
 
@@ -167,19 +371,12 @@ const JobDetailsScreen = ({ navigation, route }) => {
   const hasMultipleMedia = mediaSource.length > 1;
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.safeArea}>
       <ScrollView>
         <View style={styles.mainCard}>
           <View style={styles.mediaCard}>
-            {/* Back button */}
-            <View style={styles.backButtonContainer}>
-              <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                style={styles.backButton}
-              >
-                <Ionicons name="chevron-back" size={24} color="#000" />
-              </TouchableOpacity>
-            </View>
+           
+                <HeaderWithContainer backButtonBoxColor={colors.white} borderColor={colors.white}/>
 
             <FlatList
               data={mediaSource}
@@ -332,7 +529,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
                     },
                   ]}
                   onPress={() =>
-                    handlePopupOpen(
+                    handleStatusChangePopup(
                       status === 'my_jobs' ? 'in_progress' : 'completed',
                     )
                   }
@@ -365,7 +562,11 @@ const JobDetailsScreen = ({ navigation, route }) => {
 
             {/* Location Row */}
             <View style={styles.locationRow}>
-              <Ionicons name="location-outline" size={16} color="#666" />
+              <Ionicons
+                name="location-outline"
+                size={16}
+                color={colors.black}
+              />
               <AppText style={styles.locationText}>{job.location}</AppText>
             </View>
 
@@ -388,154 +589,75 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 )}
             </View>
 
-            {/* Divider */}
-            <View style={styles.divider} />
+            <Seperator color={colors.lightGray} />
 
-            {/* Description */}
             <AppText style={styles.sectionHeading}>Description</AppText>
             <AppText style={styles.jobDescription}>{job.description}</AppText>
 
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>services: </AppText>
-              <AppText style={styles.locationText}>{job.location}</AppText>
-            </View>
+            <InfoRow label={'Services:'} value={job.location} />
 
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>Start Date: </AppText>
-              <AppText style={styles.locationText}>
-                {job.starts_at.substring(0, 10)}
-              </AppText>
-            </View>
+            <InfoRow
+              label={'Start Date:'}
+              value={moment(job.starts_at).format('MMM D, YYYY ')}
+            />
 
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>End Date: </AppText>
-              <AppText style={styles.locationText}>
-                {job.ends_at.substring(0, 10)}
-              </AppText>
-            </View>
+            <InfoRow
+              label={'End Date:'}
+              value={moment(job.ends_at).format('MMM D, YYYY ')}
+            />
 
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>Estimated Time: </AppText>
-              <AppText
-                style={styles.locationText}
-              >{`${job.no_of_hours} hrs`}</AppText>
-            </View>
+            <InfoRow
+              label={'Estimated Time:'}
+              value={`${job.no_of_hours} hrs`}
+            />
 
-            <View style={styles.locationRow}>
-              <AppText style={styles.boldtext}>Price Type: </AppText>
-              <AppText style={styles.locationText}>
-                {job.price_type === 'per_hour' ? 'Per hour' : job.price_type}
-              </AppText>
-            </View>
-
+            <InfoRow
+              label={'Price Type:'}
+              value={
+                job.price_type === 'per_hour' ? 'Per hour' : job.price_type
+              }
+            />
             {/* User Details Card */}
             {userRole === 'provider' ? (
               // === Show Consumer Card ===
-              <View style={styles.userCard}>
-                <View style={styles.userRow}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate('AccountScreen', {
-                        userId: job.consumer?.id,
-                      })
-                    }
-                    style={styles.userInfoTouchable}
-                  >
-                    <Image
-                      source={{
-                        uri: job.consumer?.image
-                          ? `${config.userimageURL}${job.consumer?.image}`
-                          : 'https://via.placeholder.com/150',
-                      }}
-                      style={styles.userImage}
-                    />
-                    <View style={styles.userInfo}>
-                      {/* Row for Username + Rating text */}
-                      <View style={styles.rowInline}>
-                        <AppText style={styles.userName}>
-                          {job.consumer?.name || 'Unknown User'}
-                        </AppText>
-                        <AppText style={styles.ratingLabel}> Rating</AppText>
-                      </View>
 
-                      {/* Row for ScreenName + Stars */}
-                      <View style={styles.rowInline}>
-                        <AppText style={styles.userScreenName}>
-                          {job.consumer?.screenName || '@unknown'}
-                        </AppText>
-                        <View style={styles.starsRow}>
-                          {[...Array(5)].map((_, index) => (
-                            <AppText key={index} style={styles.star}>
-                              ★
-                            </AppText>
-                          ))}
-                        </View>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              </View>
+              <UserCard
+                user={job.consumer}
+                onPress={() =>
+                  navigation.navigate('AccountScreen', {
+                    userId: job.consumer?.id,
+                  })
+                }
+                averageRating={job.consumer?.average_rating}
+                status={status}
+                userRole={userRole}
+                alreadyReviewed={alreadyReviewed}
+                onRatePress={() => setIsRatingModalVisible(true)}
+                isSubmitted={reviewSubmitted}
+              />
             ) : (
               // === Show Provider Card only if offer accepted ===
               job.accepted_offer && (
-                <View style={styles.userCard}>
-                  <View style={styles.userRow}>
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate('AccountScreen', {
-                          userId: job.accepted_offer?.provider?.id,
-                        })
-                      }
-                      style={styles.userInfoTouchable}
-                    >
-                      <Image
-                        source={{
-                          uri: job.accepted_offer?.provider?.image
-                            ? `${config.userimageURL}${job.accepted_offer?.provider?.image}`
-                            : 'https://via.placeholder.com/150',
-                        }}
-                        style={styles.userImage}
-                      />
-                      <View style={styles.userInfo}>
-                        {/* Row for Username + Rating text */}
-                        <View style={styles.rowInline}>
-                          <AppText style={styles.userName}>
-                            {job.accepted_offer?.provider?.name ||
-                              'Unknown Provider'}
-                          </AppText>
-                          <AppText style={styles.ratingLabel}> Rating</AppText>
-                        </View>
-
-                        {/* Row for ScreenName + Stars */}
-                        <View style={styles.rowInline}>
-                          <AppText style={styles.userScreenName}>
-                            {job.accepted_offer?.provider?.screenName ||
-                              '@unknown'}
-                          </AppText>
-                          <View style={styles.starsRow}>
-                            {[...Array(5)].map((_, index) => (
-                              <AppText key={index} style={styles.star}>
-                                ★
-                              </AppText>
-                            ))}
-                          </View>
-                        </View>
-
-                        {/* === Offer Details (Consumer side only) === */}
-                        <AppText style={styles.offerDetails}>
-                          Rate: {job.accepted_offer?.rate} | Hours:{' '}
-                          {job.accepted_offer?.no_of_hours}
-                        </AppText>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                </View>
+                <UserCard
+                  user={job.accepted_offer?.provider}
+                  onPress={() =>
+                    navigation.navigate('AccountScreen', {
+                      userId: job.accepted_offer?.provider?.id,
+                    })
+                  }
+                  averageRating={job.accepted_offer?.provider?.average_rating}
+                  status={status}
+                  userRole={userRole}
+                  alreadyReviewed={alreadyReviewed}
+                  onRatePress={() => setIsRatingModalVisible(true)}
+                  isSubmitted={reviewSubmitted}
+                />
               )
             )}
 
             {userRole === 'provider' &&
               status === 'new' &&
-              job.my_offer === null && (
+              job.my_offer === null && !isRejected && (
                 <View style={styles.footerContainer}>
                   <View style={styles.buttonContainer}>
                     <TouchableOpacity
@@ -550,6 +672,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
 
                     <TouchableOpacity
                       style={[styles.button, { backgroundColor: '#f0f0f0' }]}
+                      onPress={() => onRejectedPress(job.id)}
                     >
                       <AppText style={styles.outlineButtonText}>Ignore</AppText>
                     </TouchableOpacity>
@@ -557,37 +680,6 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 </View>
               )}
           </View>
-          {/* Consumer Case */}
-          {userRole === 'consumer' && (
-            <View style={styles.bottomContainer}>
-              {/* Left Section */}
-              <View style={styles.bottomLeft}>
-                <AppText style={styles.rateText}>
-                  {job?.rate ? `$${job.rate}/per hr` : '$0.00/per hr'}
-                </AppText>
-
-                <View style={styles.paymentContainer}>
-                  <AppText style={styles.paymentText}>
-                    {job.payment_type || 'Cash'}
-                  </AppText>
-                </View>
-              </View>
-
-              {job?.accepted_offer && (
-                <TouchableOpacity
-                  style={[
-                    styles.chatButton,
-                    { backgroundColor: colors.primary },
-                  ]}
-                  onPress={() =>
-                    navigation.navigate('ChatScreen', { jobId: job.id })
-                  }
-                >
-                  <AppText style={styles.chatButtonText}>Chat</AppText>
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
 
           {userRole === 'provider' &&
             status !== 'new' &&
@@ -623,7 +715,34 @@ const JobDetailsScreen = ({ navigation, route }) => {
             )}
         </View>
       </ScrollView>
+      {/* Consumer Case */}
+      {userRole === 'consumer' && (
+        <View style={styles.bottomContainer}>
+          {/* Left Section */}
+          <View style={styles.bottomLeft}>
+            <AppText style={styles.rateText}>
+              {job?.rate ? `$${job.rate}/per hr` : '$0.00/per hr'}
+            </AppText>
 
+            <View style={styles.paymentContainer}>
+              <AppText style={styles.paymentText}>
+                {job.payment_type || 'Cash'}
+              </AppText>
+            </View>
+          </View>
+
+          {job?.accepted_offer && (
+            <TouchableOpacity
+              style={[styles.chatButton, { backgroundColor: colors.primary }]}
+              onPress={() =>
+                navigation.navigate('ChatScreen', { jobId: job.id })
+              }
+            >
+              <AppText style={styles.chatButtonText}>Chat</AppText>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
       {/* Popups & Toasts */}
       <CustomToast
         visible={toastVisible}
@@ -658,42 +777,141 @@ const JobDetailsScreen = ({ navigation, route }) => {
           statusChange();
         }}
       />
+      <CustomPopup
+        visible={showSuccessPopup}
+        onClose={() => setShowSuccessPopup(false)}
+        title="Success"
+        message="Your review has been submitted successfully!"
+        icon="checkmark-circle-outline"
+        iconColor={colors.green}
+        confirmText="OK"
+        onConfirm={() => setShowSuccessPopup(false)}
+        showCancel={false}
+      />
+      <CustomPopup
+        visible={popupVisible}
+        onClose={() => setPopupVisible(false)}
+        title={popupConfig.title}
+        message={popupConfig.message}
+        icon={
+          popupConfig.action === 'reject'
+            ? 'close-circle-outline'
+            : 'checkmark-circle-outline'
+        }
+        iconColor={popupConfig.action === 'reject' ? colors.red : colors.green}
+        cancelText="Cancel"
+        confirmText={popupConfig.confirmText}
+        onCancel={() => setPopupVisible(false)}
+        onConfirm={handleConfirmAction}
+      />
+
+      <Modal
+        transparent
+        visible={isRatingModalVisible}
+        animationType="fade"
+        onRequestClose={() => setIsRatingModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            {/* Header */}
+            <View style={styles.modalHeader}>
+              <AppText style={styles.modalTitle}>Rate User</AppText>
+              <TouchableOpacity onPress={() => setIsRatingModalVisible(false)}>
+                <AppText style={styles.closeIcon}>✕</AppText>
+              </TouchableOpacity>
+            </View>
+
+            {/* Rating Stars */}
+            <View style={styles.rateStarsRow}>
+              {[1, 2, 3, 4, 5].map(star => (
+                <TouchableOpacity
+                  key={star}
+                  onPress={() => setSelectedRating(star)}
+                >
+                  <AppText
+                    style={[
+                      styles.rateStar,
+                      { color: star <= selectedRating ? '#FFD700' : '#ccc' },
+                    ]}
+                  >
+                    ★
+                  </AppText>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Review Text Input */}
+            <TextInput
+              style={styles.reviewInput}
+              placeholder="Write your review..."
+              placeholderTextColor="#888"
+              value={reviewComment}
+              onChangeText={setReviewComment}
+              multiline
+            />
+
+            {/* Submit Button */}
+            <TouchableOpacity
+              style={[
+                styles.submitButton,
+                {
+                  opacity: selectedRating === 0 ? 0.5 : 1,
+                },
+              ]}
+              //|| reviewComment.trim() === ''// add this if we want to make review mandatory
+              disabled={selectedRating === 0}
+              onPress={async () => {
+                if (selectedRating === 0) return;
+
+                setIsSubmitting(true);
+
+                try {
+                  const response = await dispatch(
+                    postJobReview({
+                      jobId: job.id,
+                      body: { rating: selectedRating, comment: reviewComment },
+                    }),
+                  ).unwrap();
+
+                  setIsSubmitting(false);
+                  setIsRatingModalVisible(false);
+                  setShowSuccessPopup(true);
+                  setReviewSubmitted(true);
+
+                  // job.reviews.push({
+                  //   rating: selectedRating,
+                  //   comment: reviewComment,
+                  // });
+                } catch (error) {
+                  setIsSubmitting(false);
+                  console.error('Review submission error:', error);
+                }
+              }}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <AppText style={styles.submitText}>Submit</AppText>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       {isLoading && <AppActivityIndicator />}
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
+
   mainCard: {
-    backgroundColor: '#ffffff',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    backgroundColor: colors.white,
     overflow: 'hidden', // Ensures media does not spill out of the card
-  },
-  mediaWrapper: {
-    width, // full screen width
-    height: CARD_HEIGHT,
-    backgroundColor: '#e0e0e0', // grey border background
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  fullMedia: {
-    width: '100%',
-    height: '100%',
-  },
-  backButtonContainer: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    zIndex: 10,
-  },
-  backButton: {
-    backgroundColor: colors.gray,
-    padding: 8,
-    borderRadius: 10,
   },
   mediaCard: {
     width: '100%',
@@ -701,14 +919,9 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: '#e0e0e0', // Placeholder color
   },
-  statusOverlay: {
-    position: 'absolute',
-    top: 15,
-    right: 15,
-    zIndex: 5,
-  },
+
   carouselImage: {
-    width: width -0,
+    width: width - 0,
     height: '100%',
   },
   mediaContainer: {
@@ -721,11 +934,7 @@ const styles = StyleSheet.create({
   userScreenName: {
     fontSize: 14,
     color: '#666',
-    marginTop: 2,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginTop: 4,
   },
   playIcon: {
     position: 'absolute',
@@ -734,7 +943,12 @@ const styles = StyleSheet.create({
     transform: [{ translateX: -32 }, { translateY: -32 }],
     zIndex: 2,
   },
+
   bottomContainer: {
+    //position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -742,13 +956,11 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 16,
-    marginTop: 16,
-
-    elevation: 10,
+    elevation: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -6 }, // 👈 shadow upar ki taraf
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
   },
 
   bottomLeft: {
@@ -806,30 +1018,24 @@ const styles = StyleSheet.create({
   paginationDotActive: {
     backgroundColor: colors.primary,
   },
-  arrowButton: {
-    position: 'absolute',
-    top: '50%',
-    padding: 8,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    borderRadius: 20,
-    zIndex: 10,
+  ratingColumn: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
-  rowBetween: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
+
   ratingLabel: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#333',
+    color: '#555',
+    marginBottom: 4,
   },
+
   starsRow: {
     flexDirection: 'row',
+    marginBottom: 6,
   },
   star: {
-    fontSize: 14,
-    color: '#FFD700', // golden
+    fontSize: 16,
+    color: '#FFD700', // Gold for selected
     marginHorizontal: 1,
   },
   emptyMedia: {
@@ -844,20 +1050,15 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     paddingTop: 10,
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#e0e0e0',
-    marginVertical: 10,
-  },
   sectionHeading: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.primary,
+    color: colors.black,
     marginBottom: 5,
   },
   jobDescription: {
     fontSize: 15,
-    color: '#666',
+    color: colors.black,
     lineHeight: 24,
     marginBottom: 5,
     textAlign: 'justify',
@@ -913,44 +1114,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-  userCard: {
-    backgroundColor: colors.lightGray,
-    borderRadius: 15,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    padding: 20,
-    marginBottom: 16,
-    marginTop: 16,
-  },
-  userRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  userInfo: {
-    flex: 1, // 👈 ensures row takes full width
-  },
-  userInfoTouchable: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  userImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 15,
-  },
-  userName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
-
   chatButtonText: {
     color: '#fff',
     fontWeight: 'bold',
@@ -999,12 +1162,12 @@ const styles = StyleSheet.create({
   locationText: {
     marginLeft: 0,
     fontSize: 14,
-    color: '#666',
+    color: colors.black,
   },
   boldtext: {
     marginLeft: 4,
     fontSize: 14,
-    color: colors.primary,
+    color: colors.black,
     fontWeight: 'bold',
   },
   kmContainerRow: {
@@ -1038,11 +1201,78 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#000',
+    marginBottom: 5,
   },
 
   perHrText: {
     fontSize: 10,
     color: '#666',
+  },
+  giveRatingBtn: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 6,
+  },
+  giveRatingText: {
+    color: '#fff',
+    fontSize: 12,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '85%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  closeIcon: {
+    fontSize: 20,
+    color: '#333',
+  },
+  rateStarsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 8,
+  },
+  rateStar: {
+    fontSize: 30,
+    marginHorizontal: 5,
+  },
+  reviewInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 10,
+    minHeight: 80,
+    textAlignVertical: 'top',
+    marginBottom: 15,
+    fontSize: 16,
+  },
+  submitButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  submitText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

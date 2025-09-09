@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -11,17 +11,33 @@ import AppText from '../../../components/AppText';
 import { useDispatch, useSelector } from 'react-redux';
 import colors from '../../../../config/colors';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
+import JobListings from '../../../components/JobComponents/JobListings';
+import Icon from '../../../components/ImageComponent/IconComponent';
 import { selectJobsByTab } from '../../../../redux/selectors/jobSelector';
+import DashboardGrid from '../../../components/DashboardGridComponent';
 import { getJobs } from '../../../../redux/slices/jobSlice/jobSlice';
 import AppBar from '../../../components/HeaderComponent/AppBar';
 import { fetchNotifications } from '../../../../redux/slices/notificationSlice/notificationSlice';
 import { fetchCategories } from '../../../../redux/slices/categorySlice/categoriesSlice';
+
+// shimmer + animation
+import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+
 const ProviderHomeScreen = ({ navigation }) => {
   const { myServices } = useSelector(state => state.services);
+  const { user: profileUser } = useSelector(state => state.profile);
+  const userRole = profileUser?.role;
   const myJobs = useSelector(selectJobsByTab('my_jobs', 'provider'));
   const dispatch = useDispatch();
-  console.log('myjobs---', myJobs);
+
+  const jobsByStatus = {
+    new: useSelector(selectJobsByTab('new', userRole)),
+    pending: useSelector(selectJobsByTab('pending', userRole)),
+    my_jobs: useSelector(selectJobsByTab('my_jobs', userRole)),
+    in_progress: useSelector(selectJobsByTab('in_progress', userRole)),
+    completed: useSelector(selectJobsByTab('completed', userRole)),
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -31,7 +47,6 @@ const ProviderHomeScreen = ({ navigation }) => {
           routes: [{ name: 'VerifyUser' }],
         });
       }
-
       dispatch(getJobs());
     }, [dispatch, myServices?.length, navigation]),
   );
@@ -39,47 +54,135 @@ const ProviderHomeScreen = ({ navigation }) => {
   useEffect(() => {
     dispatch(fetchNotifications());
     dispatch(fetchCategories());
+    dispatch(getJobs());
   }, [dispatch]);
-  const renderJob = ({ item }) => (
-    <TouchableOpacity
-      style={styles.jobCard}
-      onPress={() =>
-        navigation.navigate('JobDetailsScreen', {
-          jobId: item.id,
-          userRole: 'provider',
-          status: 'my_jobs',
-          item,
-        })
-      }
-    >
-      <AppText style={styles.jobTitle}>{item.title}</AppText>
-      <AppText style={styles.jobService}>
-        Service: {item.service?.name || 'N/A'}
-      </AppText>
-      <AppText style={styles.jobLocation}>📍 {item.location}</AppText>
-      <AppText>Status: {item.status}</AppText>
-      <AppText>Budget: ${item.budget}</AppText>
-      <AppText>Consumer: {item.consumer?.name || 'Unknown'}</AppText>
-    </TouchableOpacity>
-  );
+
+  const isJobsLoading = myJobs?.loading; // 👈 make sure your slice sets `loading`
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         {/* AppBar */}
         <AppBar />
+
+        {/* Dashboard Grid */}
+        <DashboardGrid
+          items={[
+            [
+              {
+                title: `Open → ${jobsByStatus.new?.count || 0}`,
+                backgroundColor: colors.purpleColor,
+                onPress: () => {
+                  navigation.navigate('ProviderDashboard', {
+                    screen: 'Jobs',
+                    params: { defaultTab: 'new' },
+                  });
+                },
+              },
+              {
+                title: `To Start → ${jobsByStatus.pending?.count || 0}`,
+                backgroundColor: colors.pinkColor,
+                onPress: () => {
+                  navigation.navigate('ProviderDashboard', {
+                    screen: 'Jobs',
+                    params: { defaultTab: 'pending' },
+                  });
+                },
+              },
+            ],
+            [
+              {
+                title: `In Progress → ${jobsByStatus.in_progress?.count || 0}`,
+                backgroundColor: colors.LightBlueColor,
+                onPress: () => {
+                  navigation.navigate('ProviderDashboard', {
+                    screen: 'Jobs',
+                    params: { defaultTab: 'in_progress' },
+                  });
+                },
+              },
+              {
+                title: `Completed → ${jobsByStatus.completed?.count || 0}`,
+                backgroundColor: colors.lightgreenishColor,
+                onPress: () => {
+                  navigation.navigate('ProviderDashboard', {
+                    screen: 'Jobs',
+                    params: { defaultTab: 'completed' },
+                  });
+                },
+              },
+            ],
+          ]}
+        />
+
         {/* My Jobs Section */}
-        <View style={{ flex: 1, paddingHorizontal: 16, marginTop: 16 }}>
-          <AppText style={styles.helpText}>My Jobs</AppText>
-          {myJobs?.length > 0 ? (
+        <View style={{ flex: 1, paddingHorizontal: 10 }}>
+          <View style={styles.categoryHeader}>
+            {/* Left: Title */}
+            <AppText style={styles.helpText}>Upcoming Jobs</AppText>
+
+            {/* Right: See All + Arrow */}
+            <TouchableOpacity
+              style={styles.seeAllContainer}
+              onPress={() =>
+                navigation.navigate('ProviderDashboard', {
+                  screen: 'Jobs',
+                  params: { defaultTab: 'my_jobs' },
+                })
+              }
+              activeOpacity={0.7}
+            >
+              <AppText style={styles.seeAllText}>See All</AppText>
+              <Icon
+                name="chevron-forward"
+                size={16}
+                color={colors.primary}
+                style={{ marginLeft: 3 }}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {isJobsLoading ? (
             <FlatList
-              data={myJobs}
-              keyExtractor={item => item.id.toString()}
-              renderItem={renderJob}
-              contentContainerStyle={{ paddingBottom: 20 }}
+              data={[1, 2, 3]} // dummy shimmer placeholders
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={() => (
+                <View style={styles.shimmerJobCard}>
+                  <ShimmerPlaceHolder style={styles.shimmerLineLarge} />
+                  <ShimmerPlaceHolder style={styles.shimmerLineMedium} />
+                  <ShimmerPlaceHolder style={styles.shimmerLineSmall} />
+                </View>
+              )}
             />
           ) : (
-            <AppText>No jobs found.</AppText>
+            <FlatList
+              data={myJobs?.jobs || []}
+              keyExtractor={item => item.id.toString()}
+              renderItem={({ item, index }) => (
+                <Animated.View
+                  entering={FadeInDown.delay(index * 120).springify()}
+                >
+                  <JobListings
+                    data={[item]} // 👈 single item at a time
+                    emptyMessage=""
+                    status="my_jobs"
+                    onJobPress={(jobId, status, item) =>
+                      navigation.navigate('JobDetailsScreen', {
+                        jobId,
+                        userRole: 'provider',
+                        status,
+                        item,
+                      })
+                    }
+                  />
+                </Animated.View>
+              )}
+              ListEmptyComponent={() => (
+                <AppText style={{ textAlign: 'center', marginTop: 20 }}>
+                  No jobs found.
+                </AppText>
+              )}
+            />
           )}
         </View>
       </View>
@@ -89,95 +192,46 @@ const ProviderHomeScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  appBar: {
-    height: 60,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-
-  locationContainer: { flexDirection: 'row', alignItems: 'center' },
-  locationText: { marginLeft: 8, fontSize: 16 },
-  content: { paddingLeft: 8 },
   helpText: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
-  cardContainer: {
-    width: 140,
-    height: 160,
-    marginRight: 12,
-    borderRadius: 12,
-    backgroundColor: '#fff',
-    overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-  },
-  cardImageWrapper: {
-    width: '100%',
-    height: 100,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 0.8,
-    borderColor: '#ccc',
-    backgroundColor: '#f9f9f9',
-  },
-  cardImage: {
-    width: '100%',
-    height: '100%',
-  },
-  cardLabel: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    backgroundColor: '#fff',
-  },
-  categoryName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    textAlign: 'center',
-  },
-
-  seeAllText: {
-    fontSize: 14,
-    color: colors.primary,
-  },
   categoryHeader: {
     paddingHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 12,
   },
-  jobCard: {
-    backgroundColor: '#fff',
+  seeAllContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  seeAllText: {
+    color: colors.primary,
+    fontWeight: '500',
+    fontSize: 14,
+  },
+
+  // shimmer styles
+  shimmerJobCard: {
+    backgroundColor: '#f2f2f2',
     padding: 12,
     borderRadius: 10,
     marginBottom: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
   },
-  jobTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  jobService: {
-    fontSize: 14,
-    color: '#555',
-  },
-  jobLocation: {
-    fontSize: 13,
-    color: '#666',
+  shimmerLineLarge: {
+    width: '70%',
+    height: 16,
+    borderRadius: 8,
     marginBottom: 6,
+  },
+  shimmerLineMedium: {
+    width: '50%',
+    height: 14,
+    borderRadius: 7,
+    marginBottom: 6,
+  },
+  shimmerLineSmall: {
+    width: '40%',
+    height: 12,
+    borderRadius: 6,
   },
 });
 

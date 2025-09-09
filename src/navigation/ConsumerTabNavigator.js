@@ -7,6 +7,10 @@ import ProfileScreen from '../views/screens/Dashboard/profileScreens/ProfileScre
 import colors from '../config/colors';
 import StageScreen from '../views/screens/Dashboard/StageScreens/StageScreen';
 import Icon from '../views/components/ImageComponent/IconComponent';
+import DashboardIcon from '../assets/icons/dashboard.svg';
+import StageIcon from '../assets/icons/stage.svg';
+import JobsIcon from '../assets/icons/jobss.svg';
+import ProfileIcon from '../assets/icons/profile.svg';
 const Tab = createBottomTabNavigator();
 
 const ConsumerTabNavigator = () => {
@@ -16,30 +20,38 @@ const ConsumerTabNavigator = () => {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+          let IconComponent;
 
           switch (route.name) {
+            case 'Stage':
+              IconComponent = StageIcon;
+              colors.white;
+              break;
             case 'Dashboard':
-              iconName = 'home-outline';
+              IconComponent = DashboardIcon;
               break;
             case 'Jobs':
-              iconName = 'briefcase-outline';
+              IconComponent = JobsIcon;
+              colors.white;
               break;
-            case 'Stage':
-              iconName = 'albums-outline';
-              break;
-
             case 'Profile':
-              iconName = 'person-outline';
+              IconComponent = ProfileIcon;
+              colors.white;
               break;
             default:
-              iconName = 'ellipse-outline';
+              IconComponent = DashboardIcon;
           }
 
-          return <Icon name={iconName} size={size} color={color} />;
+          return (
+            <IconComponent
+              width={size}
+              height={size}
+              fill={focused ? colors.primary : 'transparent'}
+            />
+          );
         },
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: 'gray',
+        tabBarInactiveTintColor: 'black',
         tabBarLabelStyle: { fontSize: 12 },
         tabBarStyle: {
           paddingBottom: 4,
@@ -47,9 +59,9 @@ const ConsumerTabNavigator = () => {
         },
       })}
     >
+      <Tab.Screen name="Stage" component={StageScreen} />
       <Tab.Screen name="Dashboard" component={HomeScreen} />
       <Tab.Screen name="Jobs" component={TaskScreen} />
-      <Tab.Screen name="Stage" component={StageScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
