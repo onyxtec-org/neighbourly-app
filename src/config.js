@@ -8,7 +8,7 @@ export default {
   categoriesImageURL: "https://nbl.onyxtec.io/storage/categories/",
 
 //ngrok
-  // baseURL: "https://23f1883e1980.ngrok-free.app/api",
+  // baseURL: "https://a169a4416042.ngrok-free.app/api",
   // userimageURL: "https://23f1883e1980.ngrok-free.app/storage/user/",
   // attachmentimageURL: "https://23f1883e1980.ngrok-free.app/storage/job_attachments/",
   // postAttachmentImageURL: "https://23f1883e1980.ngrok-free.app/storage/post_attachments/",

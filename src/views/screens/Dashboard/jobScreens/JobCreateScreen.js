@@ -52,7 +52,9 @@ import AppText from '../../../components/AppText';
 });
 
 const JobCreateScreen = ({ navigation, route }) => {
-  const { serviceId, serviceName } = route.params;
+  const { serviceId, serviceName , userId} = route.params;
+  console.log("Service:", serviceId);
+  console.log("User ID:", userId);
   const dispatch = useDispatch();
   const [jobTypeOpen, setJobTypeOpen] = useState(false);
   const [jobTypeValue, setJobTypeValue] = useState('per_hour');

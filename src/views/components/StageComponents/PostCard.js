@@ -1,11 +1,23 @@
-
-import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-// Update these import paths as needed for your project structure
+import React, { useRef, useState } from 'react';
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  Dimensions, 
+} from 'react-native';
 import AppText from '../AppText';
-import PostMediaGrid from '../Mediapicker/PostMediaGrid';
 import Icon from '../ImageComponent/IconComponent';
 import Image from '../ImageComponent/ImageComponent';
+import TruncatedText from '../TruncatedText';
+import Ionicons from '../ImageComponent/IconComponent';
+import Video from 'react-native-video';
+import ZoomableImage from './../ImageComponent/ZoomableImage';
+import { useSelector } from 'react-redux';
+import colors from '../../../config/colors';
+  const { height } = Dimensions.get('window');
+
 const PostCard = ({
   item,
   expanded,
@@ -13,114 +25,267 @@ const PostCard = ({
   userAvatar,
   colors,
   navigation,
-  timeAgo,
-  setExpandedPostId,
   liking,
+  mediaWidth = 300,   
+  mediaHeight = height * 0.5, 
   handleLikeToggle,
+  handelsharePost,
   config,
-}) => (
-  <View style={styles.card}>
-    {/* User Info */}
-    <TouchableOpacity
-      onPress={() =>
-        navigation.navigate('AccountScreen', { userId: item.user.id })
-      }
+  // 🔥 new optional props
+  cardBackgroundColor = '#fff',
+  cardWidth = '94%',
+  cardHeight, // optional height
+}) => {
+  const flatListRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [playingIndex, setPlayingIndex] = useState(null);
+  const [loadingStates, setLoadingStates] = useState({});
+  const { user: profileUser } = useSelector(state => state.profile);
+
+  const mediaSource = item.attachments || [];
+  const hasMultipleMedia = mediaSource.length > 1;
+
+  const onLoadStart = index => {
+    setLoadingStates(prev => ({ ...prev, [index]: true }));
+  };
+
+  const onLoadEnd = index => {
+    setLoadingStates(prev => ({ ...prev, [index]: false }));
+  };
+
+  const onScrollEnd = e => {
+    const index = Math.round(
+      e.nativeEvent.contentOffset.x /
+        e.nativeEvent.layoutMeasurement.width,
+    );
+    setActiveIndex(index);
+    setPlayingIndex(null);
+  };
+
+  return (
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: cardBackgroundColor,
+          width: cardWidth,
+          ...(cardHeight ? { height: cardHeight } : {}),
+        },
+      ]}
     >
-      <View style={styles.postHeader}>
-        {/* LEFT SIDE: Avatar + Name + Time */}
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Image source={{ uri: userAvatar }} style={styles.avatar} />
-          <View style={{ marginLeft: 10 }}>
-            <AppText style={styles.userName}>{item.user?.name}</AppText>
-            <AppText style={styles.time}>{timeAgo(item.created_at)}</AppText>
-          </View>
-        </View>
-        {/* RIGHT SIDE: Options Icon */}
-        <Icon name="ellipsis-horizontal" size={20} color="#666" />
-      </View>
-    </TouchableOpacity>
-
-    {/* Post Content */}
-    <View style={styles.descriptionContainer}>
-      <AppText style={styles.description}>
-        {expanded
-          ? item.content || ''
-          : (item.content || '').substring(0, 100) +
-            ((item.content?.length || 0) > 100 ? '...' : '')}
-      </AppText>
-      {item.content && item.content.length > 100 && (
-        <TouchableOpacity
-          onPress={() => setExpandedPostId(expanded ? null : item.id)}
-        >
-          <AppText style={styles.seeMore}>
-            {expanded ? 'See less' : 'See more'}
-          </AppText>
-        </TouchableOpacity>
-      )}
-    </View>
-
-    {/* Post Image */}
-    {item.attachments?.length > 0 && (
-      <PostMediaGrid
-        attachments={item.attachments.map(
-          a => `${config.postAttachmentImageURL}${a.attachment}`,
-        )}
-        onPressImage={index => {
-          // 🔥 later you can open full-screen viewer here
-          console.log('Open image at index:', index);
-        }}
-      />
-    )}
-
-    {/* Divider */}
-    <View style={styles.divider} />
-
-    {/* Actions */}
-    <View style={styles.actions}>
-      <TouchableOpacity
-        style={styles.actionButton}
-        disabled={liking[item.id]}
-        onPress={() => handleLikeToggle(item)}
+      {/* User Info */}
+      
+        <View style={styles.postHeader}>
+          {/* LEFT SIDE: Avatar + Name + Time */}
+          <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('AccountScreen', { userId: item.user.id })
+        }
       >
-        <Icon
-          name={isLiked ? 'thumbs-up' : 'thumbs-up-outline'}
-          size={20}
-          color={isLiked ? (colors?.primary ?? '#1877f2') : '#666'}
-        />
-        <AppText style={styles.actionText}>
-          {item.likes?.length || 0} Like
-        </AppText>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Image source={{ uri: userAvatar }} style={styles.avatar} />
+            <View style={{ marginLeft: 10 }}>
+              <AppText style={styles.userName}>{item.user?.name}</AppText>
+              <AppText style={styles.time}>@{item.user?.slug}</AppText>
+            </View>
+          </View>
+          </TouchableOpacity>
+          {/* RIGHT SIDE: Options Icon */}
+          <Icon name="ellipsis-horizontal" size={20} color="#666" />
+        </View>
+      {/* Post Content */}
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => navigation.navigate('PostDetails', { post: item })}
+      >
+        <View style={styles.descriptionContainer}>
+          {expanded ? (
+            <AppText style={styles.description}>{item.content || ''}</AppText>
+          ) : (
+            <TruncatedText text={item.content} post={item} navigation={navigation} />
+          )}
+        </View>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.actionButton}>
-        <Icon name="chatbubble-outline" size={20} color="#666" />
-        <AppText style={styles.actionText}>Comment</AppText>
-      </TouchableOpacity>
+      {/* 🔥 Media Carousel */}
+      {mediaSource.length > 0 && (
+        <View style={styles.mediaCard}>
+          <FlatList
+            data={mediaSource}
+            ref={flatListRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={onScrollEnd}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item, index }) => {
+              if (!item || !item.attachment || !item.file_type) return null;
 
-      <TouchableOpacity style={styles.actionButton}>
-        <Icon name="arrow-redo-outline" size={20} color="#666" />
-        <AppText style={styles.actionText}>Share</AppText>
-      </TouchableOpacity>
+              const url = `${config.postAttachmentImageURL}${item.attachment}`;
+              const isVideo = item.file_type.includes('video');
+              const isPlaying = playingIndex === index;
+              const isLoading = loadingStates[index];
+
+              if (isVideo) {
+                return (
+                  <TouchableOpacity
+                    style={styles.mediaContainer}
+                    onPress={() => setPlayingIndex(index)}
+                    activeOpacity={1}
+                  >
+                    {!isPlaying && (
+                      <>
+                        <Image
+                          source={{ uri: url + '?thumbnail' }}
+                          style={styles.carouselImage}
+                          resizeMode="contain"
+                          onLoadStart={() => onLoadStart(index)}
+                          onLoadEnd={() => onLoadEnd(index)}
+                        />
+                        {isLoading && (
+                          <ActivityIndicator
+                            size="large"
+                            color="#fff"
+                            style={styles.loadingIndicator}
+                          />
+                        )}
+                        <Ionicons
+                          name="play-circle"
+                          size={64}
+                          color="rgba(255,255,255,0.8)"
+                          style={styles.playIcon}
+                        />
+                      </>
+                    )}
+
+                    {isPlaying && (
+                      <Video
+                        source={{ uri: url }}
+                        style={styles.carouselImage}
+                        resizeMode="cover"
+                        controls
+                        paused={!isPlaying}
+                        onLoadStart={() => onLoadStart(index)}
+                        onLoad={() => onLoadEnd(index)}
+                      />
+                    )}
+                    {isPlaying && isLoading && (
+                      <ActivityIndicator
+                        size="large"
+                        color="#fff"
+                        style={styles.loadingIndicator}
+                      />
+                    )}
+                  </TouchableOpacity>
+                );
+              }
+
+              // ✅ Image case with ZoomableImage
+              return (
+                <View style={[
+                  styles.mediaContainer,
+                  { width: mediaWidth, height: mediaHeight }
+                ]}>
+                  <ZoomableImage
+                    uri={url}
+                    placeholderUri="https://placehold.co/600x400/e0e0e0/000000?text=Image"
+                    style={styles.carouselImage}
+                  />
+                  {isLoading && (
+                    <ActivityIndicator
+                      size="large"
+                      color="#fff"
+                      style={styles.loadingIndicator}
+                    />
+                  )}
+                </View>
+              );
+            }}
+          />
+
+          {hasMultipleMedia && (
+            <View style={styles.paginationDotsInline}>
+              {mediaSource.map((_, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.paginationDot,
+                    activeIndex === index && styles.paginationDotActive,
+                  ]}
+                />
+              ))}
+            </View>
+          )}
+        </View>
+      )}
+
+      {/* Actions */}
+      <View style={styles.actions}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          disabled={liking[item.id]}
+          onPress={() => handleLikeToggle(item)}
+        >
+          <Icon
+            name={isLiked ? 'thumbs-up' : 'thumbs-up-outline'}
+            size={20}
+            color={isLiked ? colors?.primary ?? '#1877f2' : '#666'}
+          />
+          <AppText style={styles.actionText}>{item.likes?.length || 0}</AppText>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => navigation.navigate('PostDetails', { post: item })}
+        >
+          <Icon name="chatbubble-outline" size={20} color="#666" />
+          <AppText style={styles.actionText}>{item.comments?.length || 0}</AppText>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => handelsharePost?.(item)}
+        >
+          <Icon name="arrow-redo-outline" size={20} color="#666" />
+        </TouchableOpacity>
+
+        {item.user?.id !== profileUser?.id && (
+  <TouchableOpacity
+    style={styles.actionButton}
+    onPress={() =>
+      navigation.navigate('JobCreateScreen', {
+        serviceId: item.service,
+        userId: item.user?.id,
+      })
+    }
+  >
+    <Icon name="briefcase-outline" size={20} color="#666" />
+  </TouchableOpacity>
+)}
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 0,
+    borderRadius: 16,
+    borderWidth: 1,
+    alignSelf: 'center',
+    borderColor: '#dcdcdc',
     padding: 18,
-    marginBottom: 5,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   postHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingBottom: 10,
   },
   avatar: {
     width: 40,
@@ -142,35 +307,62 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
-  seeMore: {
-    color: '#1877f2',
-    fontWeight: 'bold',
-    marginTop: 4,
-  },
-  postImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 10,
-    marginTop: 8,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#eee',
-    marginVertical: 10,
-  },
   actions: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'flex-start',
+    marginTop: 15,
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 6,
+    marginRight: 20,
   },
   actionText: {
     marginLeft: 5,
     fontSize: 14,
     color: '#666',
+  },
+  mediaCard: {
+    marginTop: 10,
+  },
+  mediaContainer: {
+    width: 300,
+    height: height * 0.5,
+    // marginRight: 10,
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: colors.lightGray,
+  },
+  carouselImage: {
+    width: '100%',
+    height: '100%',
+  },
+  loadingIndicator: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -12 }, { translateY: -12 }],
+  },
+  playIcon: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -32 }, { translateY: -32 }],
+  },
+  paginationDotsInline: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#ccc',
+    marginHorizontal: 4,
+  },
+  paginationDotActive: {
+    backgroundColor: '#333',
   },
 });
 

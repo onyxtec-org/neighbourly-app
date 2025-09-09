@@ -103,6 +103,58 @@ export const getPosts = createAsyncThunk(
       }
     }
   );
+  // 👉 Add Comment
+export const addComment = createAsyncThunk(
+  'post/addComment',
+  async ({ postId, comment }, { rejectWithValue }) => {
+    try {
+      const token = await storage.getToken();
+      const user = await storage.getUser(); // get logged-in user
+
+      const response = await apiClient.post(
+        `/posts/${postId}/comment`,
+        { comment },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return { postId, data: response.data, userId: user.id };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: 'Error adding comment' }
+      );
+    }
+  }
+);
+
+// 👉 Delete Comment
+export const deleteComment = createAsyncThunk(
+  'post/deleteComment',
+  async ({ postId, commentId }, { rejectWithValue }) => {
+    try {
+      const token = await storage.getToken();
+
+      const response = await apiClient.delete(
+        `/posts/${postId}/comment/${commentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return { postId, commentId, data: response.data };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: 'Error deleting comment' }
+      );
+    }
+  }
+);
+
 
 const postSlice = createSlice({
   name: 'post',
@@ -192,7 +244,33 @@ const postSlice = createSlice({
       })
       .addCase(unlikePost.rejected, (state, action) => {
         state.error = action.payload?.message || 'Error unliking post';
-      });
+      })
+
+    // 👉 Add Comment
+    .addCase(addComment.fulfilled, (state, action) => {
+      const { postId, data, userId } = action.payload;
+      const post = state.posts.find((p) => p.id === postId);
+      if (post) {
+        if (!post.comments) post.comments = [];
+        // assuming API returns the new comment object in data.comment
+        post.comments.push({ ...data.comment, user_id: userId });
+      }
+    })
+    .addCase(addComment.rejected, (state, action) => {
+      state.error = action.payload?.message || 'Error adding comment';
+    })
+
+    // 👉 Delete Comment
+    .addCase(deleteComment.fulfilled, (state, action) => {
+      const { postId, commentId } = action.payload;
+      const post = state.posts.find((p) => p.id === postId);
+      if (post && post.comments) {
+        post.comments = post.comments.filter((c) => c.id !== commentId);
+      }
+    })
+    .addCase(deleteComment.rejected, (state, action) => {
+      state.error = action.payload?.message || 'Error deleting comment';
+    });
   },
 });
 
