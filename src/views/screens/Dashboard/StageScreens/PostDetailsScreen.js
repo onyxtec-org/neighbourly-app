@@ -77,7 +77,7 @@ const PostDetailsScreen = ({ route, navigation }) => {
     setNewComment('');
   };
 
-  const handleDeleteComment = async (commentId) => {
+  const handleDeleteComment = async commentId => {
     try {
       await dispatch(deleteComment({ postId: post.id, commentId }));
       setComments(prev => prev.filter(c => c.id !== commentId));
@@ -145,7 +145,7 @@ const PostDetailsScreen = ({ route, navigation }) => {
           colors={colors}
           navigation={navigation}
           mediaWidth={323}
-          cardBackgroundColor= '#f0f2f5'
+          cardBackgroundColor="#f0f2f5"
           cardWidth="94%"
           setExpandedPostId={() => {}}
           liking={liking}
@@ -169,34 +169,33 @@ const PostDetailsScreen = ({ route, navigation }) => {
           )}
         </View>
       </ScrollView>
-
-      {/* Add Comment Input */}
-      <View style={styles.inputBar}>
-        <Image
-          source={{
-            uri: profileUser?.image
-              ? `${config.userimageURL}${profileUser.image}`
-              : 'https://ui-avatars.com/api/?name=' + profileUser?.name,
-          }}
-          style={styles.avatar}
-        />
-        <TextInput
-          style={styles.inputField}
-          placeholder="Write a comment..."
-          placeholderTextColor="#999"
-          value={newComment}
-          onChangeText={setNewComment}
-          multiline={false}
-        />
-        <TouchableOpacity
-          style={[styles.sendBtn, { opacity: newComment.trim() ? 1 : 0.5 }]}
-          onPress={handleAddComment}
-          disabled={!newComment.trim()}
-        >
-          <Ionicons name="send" size={20} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
+      {!isShareSheetVisible && (
+        <View style={styles.inputBar}>
+          <Image
+            source={{
+              uri: profileUser?.image
+                ? `${config.userimageURL}${profileUser.image}`
+                : 'https://ui-avatars.com/api/?name=' + profileUser?.name,
+            }}
+            style={styles.avatar}
+          />
+          <TextInput
+            style={styles.inputField}
+            placeholder="Write a comment..."
+            placeholderTextColor="#999"
+            value={newComment}
+            onChangeText={setNewComment}
+            multiline={false}
+          />
+          <TouchableOpacity
+            style={[styles.sendBtn, { opacity: newComment.trim() ? 1 : 0.5 }]}
+            onPress={handleAddComment}
+            disabled={!newComment.trim()}
+          >
+            <Ionicons name="send" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      )}
       {/* Share BottomSheet */}
       <ShareBottomSheet
         url={branchLink}
