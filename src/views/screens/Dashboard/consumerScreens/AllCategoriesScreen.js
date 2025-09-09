@@ -44,7 +44,7 @@ const AllCategoriesScreen = ({ navigation }) => {
 
   return (
     <>
-      <Header title={'Search Services'} bookmark={false} />
+      <Header title={'All Categories'} bookmark={false} />
 
       <View style={styles.container}>
         <AppText style={styles.heading}>All Categories</AppText>
