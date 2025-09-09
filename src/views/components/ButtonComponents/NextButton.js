@@ -21,7 +21,7 @@ const NextButton = ({ index, onPress, totalSteps = 4 }) => {
       duration: 400,
       useNativeDriver: true,
     }).start();
-  }, [index]);
+  }, [animatedValue, index, totalSteps]);
 
   const strokeDashoffset = animatedValue.interpolate({
     inputRange: [0, 1],
