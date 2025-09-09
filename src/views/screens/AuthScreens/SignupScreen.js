@@ -5,7 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,ActivityIndicator
+  Alert,ActivityIndicator,SafeAreaView
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -170,6 +170,8 @@ const SignupScreen = ({ navigation, route }) => {
   };
 
   return (
+    <SafeAreaView style={{flex:1}}>
+
     <KeyboardAvoidingView
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -191,8 +193,10 @@ const SignupScreen = ({ navigation, route }) => {
           style={styles.closeButton}
         />
 
-        <CircularImagePicker onImagePicked={asset => setProfileImage(asset)} />
+       
+        <AppText style={styles.headerText}>Register</AppText>
 
+        <CircularImagePicker onImagePicked={asset => setProfileImage(asset)} />
         <Formik
           initialValues={{
             fullName: '',
@@ -353,12 +357,21 @@ const SignupScreen = ({ navigation, route }) => {
         {loading && <AppActivityIndicator/>}
       </ScrollView>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 export default SignupScreen;
 
 const styles = StyleSheet.create({
+
+  headerText:{
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: colors.black,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
   container: {
     flex: 1,
     padding: 24,

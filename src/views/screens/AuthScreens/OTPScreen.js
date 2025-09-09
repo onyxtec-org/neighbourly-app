@@ -24,6 +24,7 @@ import AppButton from '../../components/ButtonComponents/AppButton';
 import BackButton from '../../components/ButtonComponents/BackButton';
 import colors from '../../../config/colors';
 import CustomToast from '../../components/CustomToast';
+import HeaderWithContainer from '../../components/HeaderComponent/HeaderWithContainer';
 
 const OTPScreen = ({ navigation, route }) => {
   const { email, context = 'auth' } = route.params; // ✅ include context here
@@ -135,7 +136,7 @@ const OTPScreen = ({ navigation, route }) => {
             await storage.storeUser(data.user);
             await storage.storeToken(data.token);
             console.log('✅ User and Token saved in AsyncStorage');
-            dispatch(fetchUserProfile({userId:data?.user.id}));
+            dispatch(fetchUserProfile({ userId: data?.user.id }));
 
             // ✅ UPDATE REDUX LOGIN STATE
             dispatch(setLoginUser({ user: data.user, token: data.token }));
@@ -193,20 +194,22 @@ const OTPScreen = ({ navigation, route }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.backWrapper}>
-            <BackButton onPress={() => navigation.goBack()} />
-          </View>
-          <AppText style={styles.headerTitle}>OTP Verification</AppText>
-        </View>
+        <View>
+          
+        <HeaderWithContainer borderColor={colors.black} />
+        <AppText style={styles.headerText}>Verify Account</AppText>
 
         <View style={styles.imageContainer}>
-          <StartupSVG width={150} height={150} />
+          {/* <StartupSVG width={150} height={150} /> */}
           <AppText style={styles.instructionText}>
-            Please enter the 6-digit OTP sent to your email.
+            {`Code has been send to ${email}.`}
+          </AppText>
+          <AppText style={styles.instructionText}>
+            Enter the code to verify your account.{' '}
           </AppText>
         </View>
 
+        <AppText>Enter Code</AppText>
         <View style={styles.otpContainer}>
           {otp.map((digit, index) => (
             <TextInput
@@ -233,19 +236,38 @@ const OTPScreen = ({ navigation, route }) => {
               </AppText>
             </AppText>
           ) : (
-            <AppText
-              style={{
-                color: colors.primary,
-                fontWeight: 'bold',
-                fontSize: 16,
-              }}
-              onPress={handleResendOtp}
-            >
-              {resendLoading ? 'Resending OTP...' : 'Resend OTP'}
+            <AppText onPress={handleResendOtp}>
+              {resendLoading ? (
+                <AppText
+                  style={{
+                    color: colors.primary,
+                    fontWeight: 'bold',
+                    fontSize: 16,
+                  }}
+                >
+                  Resending OTP...
+                </AppText>
+              ) : (
+                <>
+                  <AppText style={{ color: '#000', fontSize: 14 }}>
+                    Didn't receive code?{' '}
+                  </AppText>
+                  <AppText
+                    style={{
+                      color: colors.primary,
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      textDecorationLine: 'underline',
+                    }}
+                  >
+                    Resend OTP
+                  </AppText>
+                </>
+              )}
             </AppText>
           )}
         </View>
-
+</View>
         <AppButton
           title={loading || forgotLoading ? 'Verifying...' : 'Verify'}
           onPress={handleSubmit}
@@ -273,17 +295,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.white,
   },
+  headerText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: colors.black,
+    textAlign: 'center',
+    marginTop: 80,
+    
+  },
   container: {
     flex: 1,
     paddingHorizontal: 24,
     paddingTop: 12,
-  },
-  header: {
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-    marginBottom: 20,
+    justifyContent:'space-between'
   },
   backWrapper: {
     position: 'absolute',
@@ -302,13 +326,13 @@ const styles = StyleSheet.create({
   imageContainer: {
     alignItems: 'center',
     marginBottom: 30,
-    marginTop: 10,
+    
   },
   instructionText: {
-    marginTop: 16,
-    fontSize: 16,
+    marginTop: 5,
+    fontSize: 14,
     textAlign: 'center',
-    color: '#666',
+    color: colors.black,
     paddingHorizontal: 12,
   },
   otpContainer: {
@@ -328,9 +352,9 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     backgroundColor: colors.primary,
-    marginTop: 20,
-    paddingVertical: 14,
-    borderRadius: 10,
+    marginBottom: 20,
+    paddingVertical: 16,
+    borderRadius: 30,
     alignItems: 'center',
   },
   buttonText: {
