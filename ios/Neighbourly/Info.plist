@@ -26,6 +26,8 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -33,8 +35,18 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>The app accesses your photos to let you share them with your friends.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Allow $(PRODUCT_NAME) to access your contacts</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need access to your location to provide a better experience.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>We need access to your location to provide a better experience.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>The app accesses your photos to let you share them with your friends.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>The app accesses your photos to let you share them with your friends.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIAppFonts</key>
@@ -59,6 +71,10 @@
 		<string>Zocial.ttf</string>
 		<string>Fontisto.ttf</string>
 	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
@@ -73,5 +89,21 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+		<key>branch_key</key>
+	<dict>
+		<key>live</key>
+		<string>key_live_pqj5wxDsUmZx1eTs28He1afcADaxLJpl</string>
+		<key>test</key>
+		<string>key_test_oxpWxtyEJp0A8lHEY3RaUkimFFmxIFZY</string>
+	</dict>
+	<key>branch_test_mode</key>
+	<false/>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:8ra9a.app.link</string>
+		<string>applinks:8ra9a-alternate.app.link</string>
+		<string>applinks:8ra9a.test-app.link</string>
+		<string>applinks:8ra9a-alternate.test-app.link</string>
+	</array>
 </dict>
 </plist>

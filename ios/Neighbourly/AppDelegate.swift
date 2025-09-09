@@ -2,6 +2,8 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
+import FirebaseCore
+// FirebaseMessaging
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -28,11 +30,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       in: window,
       launchOptions: launchOptions
     )
+FirebaseApp.configure() // add this line
 
     return true
   }
 }
 
+// Handle incoming remote notifications
+func application(_ application: UIApplication, 
+                 didReceiveRemoteNotification userInfo: [AnyHashable: Any], 
+                 fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+    // Handle push notification with Branch SDK
+    Branch.getInstance().handlePushNotification(userInfo)
+        //print("BRANCH PARAMS:", params as? [String: AnyObject] ?? [:])
+
+    completionHandler(.newData)
+}
+
+// Called when APNs successfully registers the device for remote notifications
+func application(_ application: UIApplication, 
+                 didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    Messaging.messaging().apnsToken = deviceToken
+}
+
+// Called when APNs registration fails
+func application(_ application: UIApplication, 
+                 didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    print("Failed to register for remote notifications: \(error)")
+}
 class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
   override func sourceURL(for bridge: RCTBridge) -> URL? {
     self.bundleURL()
