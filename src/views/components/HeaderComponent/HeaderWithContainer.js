@@ -60,17 +60,17 @@ function HeaderWithContainer({ title, icon, onIconPress, isIcon,onSharePress,bac
 
 const styles = StyleSheet.create({
   header: {
-  position: 'absolute',
-  top:  0,
-  left: 0,
-  right: 0,
+  // position: 'absolute',
+  // top:  0,
+  // left: 0,
+  // right: 0,
   height: 60,
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'space-between',
   backgroundColor: 'transparent',
-  zIndex: 100,
-  elevation: 10,
+  // zIndex: 100,
+  // elevation: 10,
   paddingHorizontal: 10,
 },
   backButton: {
