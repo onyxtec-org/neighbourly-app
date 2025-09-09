@@ -46,8 +46,9 @@ const AppEntryScreen = ({ navigation }) => {
               navigation.replace('AccountScreen', {
                 userId: parseInt(deepLink.id, 10),
               });
-            } else if (deepLink.type === 'group') {
-              navigation.replace('GroupScreen', { groupId: deepLink.id });
+            } else if (deepLink.type === 'post') {
+              navigation.replace('PostDetails', 
+                { postId: parseInt(deepLink.id, 10) });
             }
             dispatch(clearDeepLinkParams()); // reset after navigation
           } else {
