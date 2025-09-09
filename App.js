@@ -22,7 +22,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    // Ignore AsyncStorage warning
+    // Ignore AsyncStorage warning in console
     LogBox.ignoreLogs(['AsyncStorage has been extracted']);
 
     const init = async () => {
