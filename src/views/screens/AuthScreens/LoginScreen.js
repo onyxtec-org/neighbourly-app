@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Animated, SafeAreaView } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -91,14 +91,16 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
   }, [success, error, user, dispatch, navigation, loginEmail, token]);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <SafeAreaView style={styles.container}>
+
+    <ScrollView>
       
 
       {/* Animated Logo */}
       <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
         <StartupSVG width={160} height={160} />
-        <AppText style={styles.welcomeText}>Welcome Back 👋</AppText>
-        <AppText style={styles.subText}>Log in to continue</AppText>
+        <AppText style={styles.welcomeText}>Welcome Back!</AppText>
+        {/* <AppText style={styles.subText}>Log in to continue</AppText> */}
       </Animated.View>
 
       {/* Login Form */}
@@ -155,10 +157,9 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
       {/* Divider */}
       <AppText style={styles.signupPrompt}>Don’t have an account?</AppText>
 
-      {/* Signup Buttons */}
-      <View style={styles.buttonContainer}>
+      
         <AppButton
-          title="Signup as a Consumer"
+          title="Signup"
           onPress={() => handleSelectType('consumer')}
           btnStyles={styles.consumerButton}
           textStyle={styles.signupButtonText}
@@ -166,16 +167,8 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
           IconSize={20}
         />
 
-        <AppButton
-          title="Signup as a  Provider"
-          onPress={() => handleSelectType('provider')}
-          btnStyles={styles.providerButton}
-          textStyle={styles.providerButtonText}
-          IconName="briefcase-outline"
-          IconSize={20}
-          iconColor={colors.primary}
-        />
-      </View>
+       
+
 
       <CustomToast
         visible={toastVisible}
@@ -183,8 +176,10 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
         type={toastType}
         onHide={() => setToastVisible(false)}
       />
-      {loading && <AppActivityIndicator/>}
     </ScrollView>
+      {loading && <AppActivityIndicator/>}
+        </SafeAreaView>
+
   );
 };
 
@@ -212,7 +207,7 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 24,
     fontWeight: '700',
-    color: colors.primary,
+    color: colors.black,
     marginTop: 10,
   },
   subText: {

@@ -6,6 +6,7 @@ export default {
   attachmentimageURL: "https://nbl.onyxtec.io/storage/job_attachments/",
   postAttachmentImageURL: "https://nbl.onyxtec.io/storage/post_attachments/",
   categoriesImageURL: "https://nbl.onyxtec.io/storage/categories/",
+  serviceImageURL: "https://nbl.onyxtec.io/storage/services/",
 
 //ngrok
   // baseURL: "https://a169a4416042.ngrok-free.app/api",

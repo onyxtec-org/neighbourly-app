@@ -6,7 +6,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-
+  SafeAreaView,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -19,6 +19,9 @@ import {
 } from '../../../redux/slices/authSlice/resetPasswordSlice';
 import PasswordChecklist from '../../components/PasswordChecklist';
 import AppText from '../../components/AppText';
+import colors from '../../../config/colors';
+import HeaderWithContainer from '../../components/HeaderComponent/HeaderWithContainer';
+
 const validationSchema = Yup.object().shape({
   password: Yup.string()
     .matches(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
@@ -61,14 +64,20 @@ const ResetPasswordScreen = ({ route, navigation }) => {
   };
 
   return (
+  <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.container}
       >
+        <HeaderWithContainer borderColor={colors.black} />
+        <AppText style={styles.headerText}>Create New Password</AppText>
+        <View style={styles.textContainer}>
+          <AppText style={styles.instructionText}>Please enter and confirm your new password.</AppText>
+          <AppText style={styles.instructionText}>You will need to login after you reset.</AppText>
+        </View>
         <View style={styles.inner}>
-          <AppText style={styles.title}>Reset Your Password</AppText>
-
           <Formik
             initialValues={{ password: '', confirmPassword: '' }}
             onSubmit={handleSubmitPassword}
@@ -82,7 +91,10 @@ const ResetPasswordScreen = ({ route, navigation }) => {
               touched,
               errors,
             }) => (
-              <>
+              <View style={{flex: 1, justifyContent: 'space-between',}}>
+                <View>
+
+               
                 <CustomTextInput
                   label="Password"
                   required
@@ -106,21 +118,22 @@ const ResetPasswordScreen = ({ route, navigation }) => {
                   secureTextEntry
                   error={touched.confirmPassword && errors.confirmPassword}
                 />
-
+                </View> 
                 <AppButton
                   title={loading ? 'Resetting...' : 'Reset Password'}
                   onPress={handleSubmit}
                   disabled={loading}
                   btnStyles={styles.button}
                   textStyle={styles.buttonText}
-                  IconName="lock-closed"
                 />
-              </>
+              </View>
             )}
           </Formik>
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
+        </SafeAreaView>
+
   );
 };
 
@@ -129,12 +142,11 @@ export default ResetPasswordScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
+    paddingHorizontal: 16,
   },
   inner: {
     flex: 1,
-    padding: 20,
-    justifyContent: 'center',
   },
   title: {
     fontSize: 24,
@@ -143,10 +155,31 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   button: {
-    marginTop: 20,
-    backgroundColor: '#4a90e2',
+    marginBottom: 20,
+    backgroundColor: colors.primary,
+    borderRadius: 30,
+    paddingVertical: 16,
+  },
+   instructionText: {
+    marginTop: 5,
+    fontSize: 14,
+    textAlign: 'center',
+    color: colors.black,
+    paddingHorizontal: 12,
   },
   buttonText: {
     fontWeight: 'bold',
+    color: colors.white,
+  },
+  textContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  headerText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: colors.black,
+    textAlign: 'center',
+    marginTop: 100,
   },
 });

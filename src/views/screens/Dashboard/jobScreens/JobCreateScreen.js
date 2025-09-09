@@ -16,6 +16,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomDropdown from '../../../components/customdropdown';
 import colors from '../../../../config/colors';
 import AppButton from '../../../components/ButtonComponents/AppButton';
+import AdvancedLoadingPopup from '../../../components/AdvancedLoadingIndicator';
 import CustomTextInput from '../../../components/CustomTextInput';
 import {
   createJob,
@@ -535,7 +536,13 @@ const JobCreateScreen = ({ navigation, route }) => {
         onHide={() => setToastVisible(false)}
       />
 
-      {loading && <AppActivityIndicator />}
+      {/* {loading && <AppActivityIndicator />} */}
+      <AdvancedLoadingPopup
+        visible={loading}
+        size={80}
+        label="Please wait..."
+        colors={['#6A00F4', '#00D4FF']}
+      />
     </SafeAreaView>
   );
 };

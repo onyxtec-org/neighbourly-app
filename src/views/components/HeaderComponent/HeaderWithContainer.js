@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity,Platform, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from './../ImageComponent/IconComponent';
 import AppText from './../AppText';
@@ -60,14 +60,19 @@ function HeaderWithContainer({ title, icon, onIconPress, isIcon,onSharePress,bac
 
 const styles = StyleSheet.create({
   header: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    backgroundColor: 'transparent',
-
-  },
+  // position: 'absolute',
+  // top:  0,
+  // left: 0,
+  // right: 0,
+  height: 60,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  backgroundColor: 'transparent',
+  // zIndex: 100,
+  // elevation: 10,
+  paddingHorizontal: 10,
+},
   backButton: {
     width: 40,
     alignItems: 'flex-start',

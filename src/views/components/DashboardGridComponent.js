@@ -13,6 +13,7 @@ function DashboardGrid({ items }) {
               key={colIndex}
               title={item.title}
               backgroundColor={item.backgroundColor}
+                onPress={item.onPress}
             />
           ))}
         </View>

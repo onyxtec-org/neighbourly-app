@@ -11,7 +11,7 @@ import AppButton from '../../components/ButtonComponents/AppButton';
 import BackButton from '../../components/ButtonComponents/BackButton';
 import CustomToast from '../../components/CustomToast';
 import colors from '../../../config/colors';
-
+import HeaderWithContainer from '../../components/HeaderComponent/HeaderWithContainer';
 import {
   sendForgotPasswordOtp,
   resetForgotPasswordState,
@@ -81,21 +81,20 @@ const ForgotPasswordScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Top Bar */}
-        <View style={styles.header}>
-          <View style={styles.backWrapper}>
-            <BackButton onPress={() => navigation.goBack()} />
-          </View>
-          <AppText style={styles.headerTitle}>Forgot Password</AppText>
+        
+                <HeaderWithContainer borderColor={colors.black} />
+        <AppText style={styles.headerText}>Forgot Password</AppText>
+
+
+     \
+       <View style={styles.imageContainer}>
+          {/* <StartupSVG width={150} height={150} /> */}
+          <AppText style={styles.instructionText}>
+           No worries! Enter your email address below and we will send you a code to reset password.
+          </AppText>
+          
         </View>
 
-        {/* Image & Subtext */}
-        <View style={styles.imageContainer}>
-          <StartupSVG width={150} height={150} />
-          <AppText style={styles.instructionText}>
-            Please enter your registered Email, so we will send you OTP.
-          </AppText>
-        </View>
 
         {/* Form */}
         <Formik
@@ -159,13 +158,13 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
   },
-  header: {
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-    paddingTop: 10,
-    marginBottom: 20,
+    headerText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: colors.black,
+    textAlign: 'center',
+    marginTop:100
+    
   },
   backWrapper: {
     position: 'absolute',
@@ -183,24 +182,26 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     alignItems: 'center',
-    marginBottom: 40,
-    marginTop: 10,
+    marginBottom: 30,
+    
   },
   instructionText: {
-    marginTop: 16,
-    fontSize: 16,
+    marginTop: 5,
+    fontSize: 14,
     textAlign: 'center',
-    color: '#666',
+    color: colors.black,
     paddingHorizontal: 12,
   },
   formContainer: {
+    flex:1,
     width: '100%',
+    justifyContent:'space-between'
   },
   loginButton: {
     backgroundColor: colors.primary,
-    marginTop: 20,
-    paddingVertical: 14,
-    borderRadius: 10,
+    marginBottom: 20,
+    paddingVertical: 16,
+    borderRadius: 30,
     alignItems: 'center',
   },
   buttonText: {
