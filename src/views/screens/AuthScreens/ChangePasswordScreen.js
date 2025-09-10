@@ -228,9 +228,10 @@ scrollViewContent: {
   flexGrow: 1, // ✅ This makes content take full available height
 },
   formWrapper: {
-    //paddingHorizontal: 20,
+    paddingHorizontal: 20,
      flex: 1,
      justifyContent: 'space-between',
+
   },
   button: {
     marginTop: 24,

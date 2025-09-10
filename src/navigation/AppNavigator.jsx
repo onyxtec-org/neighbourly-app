@@ -73,7 +73,7 @@ const AppNavigator = () => {
         <Stack.Screen name="CreateStage" component={CreateStage} />
         <Stack.Screen name="EditServices" component={EditServicesScreen} />
         <Stack.Screen name="ChatScreen" component={ChatScreen} />
-        <Stack.Screen name="OnboardingScreen" component={OnboardingScreen} />
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         <Stack.Screen name="PostDetails" component={PostDetailsScreen} />
       </Stack.Navigator>
     </NavigationContainer>

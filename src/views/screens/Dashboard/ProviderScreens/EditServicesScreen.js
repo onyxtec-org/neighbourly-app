@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
+  SafeAreaView
 } from 'react-native';
 import Ionicons from '../../../components/ImageComponent/IconComponent';
 import { useDispatch, useSelector } from 'react-redux';
@@ -263,6 +264,8 @@ useEffect(() => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
       >
+          <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={{ flexGrow: 1 }}
@@ -373,6 +376,7 @@ useEffect(() => {
           </View>
           {isLoading && <AppActivityIndicator />}
         </ScrollView>
+        </SafeAreaView>
         <CustomToast
           visible={toastVisible}
           message={toastMessage}
@@ -385,7 +389,7 @@ useEffect(() => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: '#fff' ,  },
   appBar: {
     height: 60,
     flexDirection: 'row',

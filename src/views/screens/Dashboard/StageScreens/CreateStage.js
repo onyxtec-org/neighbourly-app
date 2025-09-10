@@ -13,6 +13,7 @@ import AppText from '../../../components/AppText';
 import Header from '../../../components/HeaderComponent/Header';
 import CustomDropdown from '../../../components/customdropdown';
 import AppActivityIndicator from '../../../components/AppActivityIndicator';
+import { SafeAreaView } from 'react-native-safe-area-context';
 const CreateStageScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector(state => state.post);
@@ -81,7 +82,7 @@ const CreateStageScreen = ({ navigation }) => {
   };
 
   return (
-    <>
+    <SafeAreaView style={{flex:1 , backgroundColor: '#fff'}}>
       {/* Header */}
       <Header title={'Create Post'} bookmark={false} />
 
@@ -142,7 +143,7 @@ const CreateStageScreen = ({ navigation }) => {
         {error && <AppText style={styles.errorText}> {error}</AppText>}
       </ScrollView>
       {loading && <AppActivityIndicator />}
-    </>
+    </SafeAreaView>
   );
 };
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import JobsScreen from '../views/screens/Dashboard/jobScreens/JobsScreen';
 import ProfileScreen from '../views/screens/Dashboard/profileScreens/ProfileScreen';
+import { Platform } from 'react-native';
 import colors from '../config/colors';
 import ProviderNavigator from './ProviderNavigator';
 import StageScreen from '../views/screens/Dashboard/StageScreens/StageScreen';
@@ -43,13 +44,12 @@ const ProviderTabNavigator = () => {
         tabBarLabelStyle: { fontSize: 12 },
         tabBarStyle: {
           paddingBottom: 4,
-          height: 60,
+          height: Platform.OS === 'ios' ? 80 : 60, 
         },
       })}
     >
       <Tab.Screen name="Stage" component={StageScreen} />
       <Tab.Screen name="Dashboard" component={ProviderNavigator} />
-      {/* <Tab.Screen name="MyServices" component={MyServicesScreen} /> */}
       <Tab.Screen name="Jobs" component={JobsScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>

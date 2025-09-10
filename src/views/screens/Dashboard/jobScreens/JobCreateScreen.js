@@ -12,7 +12,7 @@ import Ionicons from '../../../components/ImageComponent/IconComponent';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import CustomToast from '../../../components/CustomToast';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import CustomDropdown from '../../../components/customdropdown';
 import colors from '../../../../config/colors';
 import AppButton from '../../../components/ButtonComponents/AppButton';
@@ -347,52 +347,54 @@ const JobCreateScreen = ({ navigation, route }) => {
             </TouchableOpacity>
 
             {showDatePicker && (
-              <DateTimePicker
-                value={tempDate}
-                mode="date"
-                display="calendar"
-                minimumDate={new Date()}
-                onChange={(event, selectedDate) => {
-                  setShowDatePicker(false);
-                  if (event.type === 'set' && selectedDate) {
-                    setTempDate(selectedDate);
-                    setShowTimePicker(true); // Next, show time picker
+                  <DateTimePickerModal
+                  locale="en_GB"
+                  isVisible={startDateTime}
+                  minimumDate={new Date()}
+                  mode="datetime"
+                  date={new Date(moment(values.startDateTime).toDate())}
+                  onConfirm={date => handleStartDateTimePicker(date, values)}
+                  onCancel={hideStartDateTimePicker}
+                  buttonTextColorIOS={color.white}
+                  pickerStyleIOS={
+                    {
+                      //backgroundColor: color.white,
+                    }
                   }
-                }}
-              />
+                />
             )}
 
             {showTimePicker && (
-              <DateTimePicker
-                value={tempDate}
-                mode="time"
-                display="clock"
-                onChange={(event, selectedTime) => {
-                  setShowTimePicker(false);
-                  if (event.type === 'set' && selectedTime) {
-                    const combined = new Date(
-                      tempDate.getFullYear(),
-                      tempDate.getMonth(),
-                      tempDate.getDate(),
-                      selectedTime.getHours(),
-                      selectedTime.getMinutes(),
-                    );
-
-                    const formatted = combined
-                      .toLocaleString('en-GB', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false,
-                      })
-                      .replace(',', '');
-
-                    setFieldValue(pickerField, formatted);
-                  }
-                }}
-              />
+             <DateTimePickerModal
+             isVisible={showTimePicker}
+             mode="time"
+             onConfirm={(selectedTime) => {
+               setShowTimePicker(false);
+               if (selectedTime) {
+                 const combined = new Date(
+                   tempDate.getFullYear(),
+                   tempDate.getMonth(),
+                   tempDate.getDate(),
+                   selectedTime.getHours(),
+                   selectedTime.getMinutes(),
+                 );
+           
+                 const formatted = combined
+                   .toLocaleString('en-GB', {
+                     year: 'numeric',
+                     month: '2-digit',
+                     day: '2-digit',
+                     hour: '2-digit',
+                     minute: '2-digit',
+                     hour12: false,
+                   })
+                   .replace(',', '');
+           
+                 setFieldValue(pickerField, formatted);
+               }
+             }}
+             onCancel={() => setShowTimePicker(false)}
+           />
             )}
 
             <AppText style={styles.label}>
