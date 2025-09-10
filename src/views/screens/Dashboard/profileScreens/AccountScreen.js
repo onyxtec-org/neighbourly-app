@@ -22,6 +22,7 @@ import CustomToast from '../../../components/CustomToast';
 import AppActivityIndicator from '../../../components/AppActivityIndicator';
 import Seperator from '../../../components/Seperator';
 import { generateBranchLink } from '../../../../utils/branchUtils';
+import ReviewsList from '../../../components/ReviewComponents/ReviewList';
 import ShareBottomSheet from '../../../components/ShareBottomSheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 const AccountScreen = ({ navigation, route }) => {
@@ -36,7 +37,6 @@ const AccountScreen = ({ navigation, route }) => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
 
-  
   const handleReportSubmit = async (data, toastMsg) => {
     if (!data) {
       setToastMessage(toastMsg);
@@ -55,7 +55,7 @@ const AccountScreen = ({ navigation, route }) => {
       await dispatch(
         reportProfile({ reported_id: profile?.id, ...data }),
       ).unwrap();
-    }  finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -64,8 +64,6 @@ const AccountScreen = ({ navigation, route }) => {
   const { status, user } = useSelector(state => state.profile);
   const { success, error } = useSelector(state => state.report);
   const { myServices } = useSelector(state => state.services);
-
-  console.log('user----------', user);
 
   const aauthUser = user?.id ?? null;
   useEffect(() => {
@@ -335,6 +333,12 @@ const AccountScreen = ({ navigation, route }) => {
               )}
             </View>
           )}
+
+          {/* Reviews Section */}
+          {profile?.received_reviews && profile.received_reviews.length > 0 && (
+           <ReviewsList reviews={profile.received_reviews} />
+
+          )}
         </View>
       </ScrollView>
 
@@ -490,4 +494,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
+  
 });
