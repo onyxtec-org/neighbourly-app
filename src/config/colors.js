@@ -28,6 +28,7 @@ const colors = {
   completed: '#4CAF50',
   rejected: '#F44336',
   scheduled: '#378698',
+  invited:'#F39C12',
   linearGradient1: '#d6d6f7ff',
   linearGradient2: '#F5F5F5',
   chatSentColor:'#CDCDFB',
@@ -38,6 +39,7 @@ const colors = {
   pinkColor: '#FFBFBF',
   LightBlueColor: '#C4E8FF',
   lightgreenishColor: '#C4E8FF',
+  starColor:'#FFD700',
   statusColors(type) {
     switch (type) {
       case 'open':
@@ -50,6 +52,9 @@ const colors = {
         return this.rejected;
       case 'scheduled':
         return this.scheduled;
+      case 'invited':
+        return this.purple;
+        
       default:
         return this.black;
     }
