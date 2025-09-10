@@ -13,19 +13,24 @@ import Icon from '../ImageComponent/IconComponent';
 import { formatStatusText } from '../../../utils/stringHelpers';
 import { useSelector } from 'react-redux';
 import StatusBox from './StatusBox';
-function JobCard({  item,
+function JobCard({
+  item,
   onPress,
   onAcceptPress,
   onRejectPress,
   onReinvitePress,
-  status,}) {
+  status,
+}) {
   const { width } = useWindowDimensions();
   const imageSize = width * 0.24; // responsive image size
   const { user: profileUser } = useSelector(state => state.profile);
+  console.log('role', profileUser.role);
 
   return (
-    <TouchableOpacity style={styles.container} onPress={() => onPress(item.id, status, item)}
->
+    <TouchableOpacity
+      style={styles.container}
+      onPress={() => onPress(item.id, status, item)}
+    >
       {/* Left: Image */}
       <Image
         source={
@@ -35,13 +40,22 @@ function JobCard({  item,
               }
             : require('../../../assets/images/job_placeholder.png')
         }
-        style={[styles.image, { width: imageSize, height: profileUser.role === 'provider' ? imageSize + 60 :imageSize + 30 }]}
+        style={[
+          styles.image,
+          {
+            width: imageSize,
+            height:
+              profileUser.role === 'provider' ? imageSize + 60 : imageSize + 30,
+          },
+        ]}
       />
 
       {/* Right: Content */}
       <View style={styles.contentContainer}>
         {/* Title */}
-        <AppText style={styles.title}numberOfLines={1} ellipsizeMode="tail">{item.title}</AppText>
+        <AppText style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+          {item.title}
+        </AppText>
 
         <View style={{ flexDirection: 'row' }}>
           <Icon
@@ -50,7 +64,13 @@ function JobCard({  item,
             color={colors.gray}
             style={{ marginRight: 2 }}
           />
-          <AppText style={styles.location}numberOfLines={1} ellipsizeMode="tail">{item.location}</AppText>
+          <AppText
+            style={styles.location}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {item.location}
+          </AppText>
         </View>
 
         <View style={{ flexDirection: 'row' }}>
@@ -73,7 +93,8 @@ function JobCard({  item,
             style={{ marginRight: 2 }}
           /> */}
           <AppText style={styles.price}>
-            ${item.rate}/ <AppText style={{ fontSize: 10 }}>
+            { item.accepted_offer? `$${item.accepted_offer.rate}`:`$${item.rate}`}/{' '}
+            <AppText style={{ fontSize: 10 }}>
               {formatStatusText(item.price_type)}
             </AppText>
           </AppText>
@@ -86,23 +107,24 @@ function JobCard({  item,
         </AppText>
 
         {/* Action Buttons */}
-        {profileUser.role === 'provider' && item.my_offer === null && (
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={styles.acceptButton}
-              onPress={() => onAcceptPress(item.id, item.price_type)}
-            >
-              <AppText style={styles.acceptButtonText}>Accept</AppText>
-            </TouchableOpacity>
+        {profileUser.role === 'provider' &&
+          (item.my_offer === null || item.status === 'invited') && (
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={styles.acceptButton}
+                onPress={() => onAcceptPress(item.id, item.price_type)}
+              >
+                <AppText style={styles.acceptButtonText}>Accept</AppText>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.rejectButton}
-              onPress={() => onRejectPress(item.id, 'rejected')}
-            >
-              <AppText style={styles.rejectButtonText}>Reject</AppText>
-            </TouchableOpacity>
-          </View>
-        )}
+              <TouchableOpacity
+                style={styles.rejectButton}
+                onPress={() => onRejectPress(item.id, 'rejected')}
+              >
+                <AppText style={styles.rejectButtonText}>Reject</AppText>
+              </TouchableOpacity>
+            </View>
+          )}
       </View>
 
       {/* Distance Badge */}
@@ -123,33 +145,51 @@ function JobCard({  item,
           <AppText style={styles.badgeText}>{item.payment_type}</AppText>
         </View>
       </View> */}
-      <View style={{ flexDirection: 'column' }}>
-  <StatusBox
-    color={colors.statusColors(item.status)}
-    text={
-      item.my_offer && item.accepted_offer === null
-        ? formatStatusText(item.my_offer.status)
-        : formatStatusText(item.status)
-    }
-  />
-  <View style={{ flexDirection: 'row', marginTop: 8 }}>
-    <View style={styles.distanceBadge}>
-      <AppText style={styles.badgeText}>1 km</AppText>
-    </View>
-    <View
-      style={[
-        styles.typeBadge,
-        {
-          backgroundColor:
-            item.payment_type === 'cash' ? colors.green : colors.blue,
-        },
-      ]}
-    >
-      <AppText style={styles.badgeText}>{item.payment_type}</AppText>
-    </View>
-  </View>
-</View>
 
+      <View style={{ flexDirection: 'column' }}>
+        <StatusBox
+          color={colors.statusColors(item.status)}
+          text={
+            item.my_offer && item.accepted_offer === null
+              ? formatStatusText(item.my_offer.status)
+              : formatStatusText(item.status)
+          }
+        />
+
+        {/* Badges */}
+        <View style={{ flexDirection: 'row', marginTop: 8 }}>
+          <View style={styles.distanceBadge}>
+            <AppText style={styles.badgeText}>1 km</AppText>
+          </View>
+          <View
+            style={[
+              styles.typeBadge,
+              {
+                backgroundColor:
+                  item.payment_type === 'cash' ? colors.green : colors.blue,
+              },
+            ]}
+          >
+            <AppText style={styles.badgeText}>{item.payment_type}</AppText>
+          </View>
+        </View>
+
+        {/* Re-invite Button */}
+        {profileUser.role === 'consumer' && item.status === 'completed' && (
+          <TouchableOpacity
+            style={styles.reinviteButton}
+            onPress={() => onReinvitePress(item)}
+          >
+            <Icon
+              name="refresh"
+              size={14}
+              color={colors.white}
+              style={{ marginRight: 6 }}
+            />
+            <AppText style={styles.reinviteText}>Re-invite</AppText>
+          </TouchableOpacity>
+        )}
+      </View>
     </TouchableOpacity>
   );
 }
@@ -240,6 +280,29 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 12,
     color: colors.black,
+  },
+  reinviteButton: {
+    position: 'absolute',
+    top: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 40,
+
+    backgroundColor: colors.primary,
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4, // for Android shadow
+  },
+  reinviteText: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 

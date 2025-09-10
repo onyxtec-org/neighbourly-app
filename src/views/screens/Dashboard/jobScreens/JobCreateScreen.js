@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -26,12 +26,15 @@ import {
 import AppActivityIndicator from '../../../components/AppActivityIndicator';
 import Header from '../../../components/HeaderComponent/Header';
 import AppText from '../../../components/AppText';
-  const validationSchema = Yup.object().shape({
-    title: Yup.string().required('Title is required'),
-    description: Yup.string().required('Description is required'),
-    budget: Yup.string().required('Rate per hour is required'),
-    location: Yup.string().required('Location is required'),
-    startTime: Yup.string().required('Start time is required'),
+import { formatStatusText } from '../../../../utils/stringHelpers';
+import config from '../../../../config';
+import Image from '../../../components/ImageComponent/ImageComponent';
+const validationSchema = Yup.object().shape({
+  title: Yup.string().required('Title is required'),
+  description: Yup.string().required('Description is required'),
+  budget: Yup.string().required('Rate per hour is required'),
+  location: Yup.string().required('Location is required'),
+  startTime: Yup.string().required('Start time is required'),
 
   estimated_time: Yup.string().required('Estimated time is required'),
   price_type: Yup.string().required('Job type is required'),
@@ -53,14 +56,16 @@ import AppText from '../../../components/AppText';
 });
 
 const JobCreateScreen = ({ navigation, route }) => {
-  const { serviceId, serviceName , userId} = route.params;
-  console.log("Service:", serviceId);
-  console.log("User ID:", userId);
+  const { serviceId, serviceName, jobData, isReinvite } = route.params || {};
   const dispatch = useDispatch();
   const [jobTypeOpen, setJobTypeOpen] = useState(false);
-  const [jobTypeValue, setJobTypeValue] = useState('per_hour');
+  const [jobTypeValue, setJobTypeValue] = useState(
+    isReinvite ? jobData.price_type : null,
+  );
   const [paymentTypeOpen, setPaymentTypeOpen] = useState(false);
-  const [paymentTypeValue, setPaymentTypeValue] = useState(null);
+  const [paymentTypeValue, setPaymentTypeValue] = useState(
+    isReinvite ? jobData.payment_type : null,
+  );
   const [mediaList, setMediaList] = useState([]);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -70,6 +75,23 @@ const JobCreateScreen = ({ navigation, route }) => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
   const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  console.log('job data', jobData);
+
+  const formikRef = useRef(null); // ✅ Create reference for Formik
+
+  useEffect(() => {
+    if (isReinvite && jobData?.attachments?.length > 0) {
+      const presetImages = jobData.attachments.map(att => ({
+        uri: `${config.attachmentimageURL}${att.attachment}`,
+        name: att.attachment,
+        type: att.file_type,
+        isPreset: true,
+      }));
+
+      setMediaList(presetImages); // ✅ Keep state for ImageInputList
+    }
+  }, [isReinvite, jobData]);
 
   const handleAddMedia = (file, setFieldValue) => {
     setMediaList(prevList => {
@@ -92,6 +114,7 @@ const JobCreateScreen = ({ navigation, route }) => {
     setMediaList(updatedList);
     setFieldValue('images', updatedList);
   };
+
   const [jobTypeItems, setJobTypeItems] = useState([
     { label: 'Fixed', value: 'fixed' },
     { label: 'Per Hour', value: 'per_hour' },
@@ -116,15 +139,18 @@ const JobCreateScreen = ({ navigation, route }) => {
           : values.estimated_time;
 
       const rate = parseFloat(values.budget);
-      // const noOfHours = parseFloat(values.no_of_hours || 1);
 
       // Append form fields
+      formData.append(
+        'provider_id',
+        isReinvite ? jobData?.accepted_offer.provider.id : null,
+      );
       formData.append('service_id', serviceId);
       formData.append('title', values.title);
       formData.append('description', values.description);
       formData.append('location', values.location);
-      formData.append('location_lat', '40.7128'); // ⚠️ Replace with dynamic value
-      formData.append('location_lng', '-74.0060'); // ⚠️ Replace with dynamic value
+      formData.append('location_lat', '40.7128');
+      formData.append('location_lng', '-74.0060');
       // formData.append('starts_at', values.startTime);
       const startDate = parseDate(values.startTime);
       formData.append(
@@ -138,44 +164,47 @@ const JobCreateScreen = ({ navigation, route }) => {
       formData.append('rate', rate.toString());
       formData.append('payment_type', paymentTypeValue);
 
-      console.log('🧾 Form Data Before Media:', {
-        service_id: serviceId,
-        title: values.title,
-        description: values.description,
-        location: values.location,
-        location_lat: '40.7128',
-        location_lng: '-74.0060',
-        starts_at: values.startTime,
-        ends_at: '2026-01-01 00:00:00',
-        // no_of_hours: values.no_of_hours,
-        price_type: jobTypeValue,
-        no_of_hours: finalEstimatedTime,
-        rate: rate,
-        // budget: budget,
-        payment_type: paymentTypeValue,
-      });
+      // console.log('🧾 Form Data Before Media:', {
+
+      //   service_id: serviceId,
+      //   title: values.title,
+      //   description: values.description,
+      //   location: values.location,
+      //   location_lat: '40.7128',
+      //   location_lng: '-74.0060',
+      //   starts_at: values.startTime,
+      //   ends_at: '2026-01-01 00:00:00',
+      //   price_type: jobTypeValue,
+      //   no_of_hours: finalEstimatedTime,
+      //   rate: rate,
+      //   payment_type: paymentTypeValue,
+      // });
 
       mediaList.forEach((file, index) => {
-        const uri = file.uri;
-        const name = uri.split('/').pop() || `media_${index}`;
-        const ext = name.split('.').pop();
-        const isVideo = ext === 'mp4';
-        const type = isVideo ? 'video/mp4' : `image/${ext}`;
+        if (!file.isPreset) {
+          // only append new files
+          const uri = file.uri;
+          const name = uri.split('/').pop() || `media_${index}`;
+          const ext = name.split('.').pop();
+          const isVideo = ext === 'mp4';
+          const type = isVideo ? 'video/mp4' : `image/${ext}`;
 
-        formData.append('attachments[]', {
-          uri,
-          name,
-          type,
-        });
+          formData.append('attachments[]', {
+            uri,
+            name,
+            type,
+          });
+        }
       });
 
-      console.log('🚀 Dispatching job creation...');
+      console.log('Dispatching job creation...', formData);
+
       const reponse = await dispatch(createJob(formData));
 
       if (reponse.payload.success) {
         console.log('✅ Job successfully created.');
 
-        setToastMessage('Job Created!');
+        setToastMessage(isReinvite ? 'Job Re created!' : 'Job Created!');
         setToastType('success');
         setToastVisible(true);
         dispatch(getJobs());
@@ -185,11 +214,11 @@ const JobCreateScreen = ({ navigation, route }) => {
           navigation.pop();
         }, 1200);
       } else if (error) {
-        console.log('❌ Job creation error received from state:', error);
+        console.log('Job creation error received from state:', error);
 
         const message =
           error?.toString() || 'Job creation failed. Please try again.';
-        setToastMessage(`❌ ${message}`);
+        setToastMessage(`${message}`);
         setToastType('error');
         setToastVisible(true);
 
@@ -198,28 +227,49 @@ const JobCreateScreen = ({ navigation, route }) => {
         }, 1500);
       }
     } catch (error) {
-      console.log('❌ Error in handleSubmit:', error);
+      console.log(' Error in handleSubmit:', error);
     }
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header title={'Create Job'} bookmark={false} />
+      <Header
+        title={isReinvite ? 'Re Invite' : 'Create Job'}
+        bookmark={false}
+      />
 
       <Formik
+        innerRef={formikRef} // ✅ Attach ref to Formik
         initialValues={{
-          title: '',
-          description: '',
-          budget: '',
-          location: '',
-          locationLat: '',
-          locationLng: '',
-          startTime: '',
-          payment_type: '',
-          price_type: 'per_hour',
-          estimated_time: '',
-          custom_estimated_time: '',
-          images: [],
+          title: isReinvite ? jobData.title : '',
+          description: isReinvite ? jobData.description : '',
+          budget: isReinvite ? jobData.rate.toString() : '',
+          location: isReinvite ? jobData.location : '',
+          startTime: '', // Will select new date
+          payment_type: isReinvite ? jobData.payment_type : '',
+          price_type: isReinvite ? jobData.price_type : '',
+
+          // ✅ Handle estimated_time & custom_estimated_time
+          estimated_time: isReinvite
+            ? [1, 2, 3, 4, 5].includes(Number(jobData.no_of_hours))
+              ? Number(jobData.no_of_hours)
+              : 'Custom'
+            : '',
+
+          custom_estimated_time:
+            isReinvite && ![1, 2, 3, 4, 5].includes(Number(jobData.no_of_hours))
+              ? String(jobData.no_of_hours)
+              : '',
+
+          images:
+            isReinvite && jobData?.attachments?.length > 0
+              ? jobData.attachments.map(att => ({
+                  uri: `${config.attachmentimageURL}${att.attachment}`,
+                  name: att.attachment,
+                  type: att.file_type,
+                  isPreset: true,
+                }))
+              : [],
         }}
         validationSchema={validationSchema}
         onSubmit={(values, { setTouched }) => {
@@ -260,7 +310,17 @@ const JobCreateScreen = ({ navigation, route }) => {
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.serviceInfo}>
-              <View style={styles.iconCircle} />
+              <View style={styles.iconCircle}>
+                <Image
+                  source={{
+                    uri: jobData?.service?.image
+                      ? `${config.attachmentimageURL}${jobData.service.image}`
+                      : 'https://via.placeholder.com/50', // fallback image
+                  }}
+                  style={styles.iconImage}
+                  resizeMode="cover"
+                />
+              </View>
               <AppText style={styles.serviceName}>{serviceName}</AppText>
             </View>
 
@@ -302,10 +362,48 @@ const JobCreateScreen = ({ navigation, route }) => {
               onBlur={handleBlur('description')}
               placeholder="Enter job description"
               error={touched.description && errors.description}
-              style={{ height: 100, textAlignVertical: 'top' }}
+              style={{
+                height: 100,
+                textAlignVertical: 'top',
+                backgroundColor: colors.white,
+              }}
               showCharCount
               maxLength={500}
             />
+
+            {/* {isReinvite ? (
+              <CustomTextInput
+                label="Pricing Type"
+                required
+                value={formatStatusText(values.price_type)}
+                style={{
+                  backgroundColor: isReinvite ? colors.lightGray : colors.white,
+                }}
+                editable={false}
+              />
+            ) : (
+              <CustomDropdown
+                label="Pricing Type"
+                open={jobTypeOpen}
+                value={jobTypeValue}
+                items={jobTypeItems}
+                setOpen={o => {
+                  setJobTypeOpen(o);
+                  setPaymentTypeOpen(false);
+                }}
+                setValue={val => {
+                  setJobTypeValue(val);
+                  setFieldValue('price_type', val); // set in Formik
+                  if (val === 'fixed') {
+                    setFieldValue('no_of_hours', ''); // clear hours if not needed
+                  }
+                }}
+                setItems={setJobTypeItems}
+                placeholder="Select job type"
+                required
+                zIndex={3000}
+              />
+            )} */}
 
             <CustomDropdown
               label="Pricing Type"
@@ -395,56 +493,59 @@ const JobCreateScreen = ({ navigation, route }) => {
               />
             )}
 
-            <AppText style={styles.label}>
-              Estimated Time <AppText style={{ color: 'red' }}>*</AppText>
-            </AppText>
+            <>
+              <AppText style={styles.label}>
+                Estimated Time <AppText style={{ color: 'red' }}>*</AppText>
+              </AppText>
 
-            <View style={styles.optionContainer}>
-              {[
-                '1 hour',
-                '2 hours',
-                '3 hours',
-                '4 hours',
-                '5 hours',
-                'Custom',
-              ].map(option => (
-                <TouchableOpacity
-                  key={option}
-                  style={[
-                    styles.optionButton,
-                    (option === 'Custom'
+              <View style={styles.optionContainer}>
+                {[
+                  '1 hour',
+                  '2 hours',
+                  '3 hours',
+                  '4 hours',
+                  '5 hours',
+                  'Custom',
+                ].map(option => {
+                  const isSelected =
+                    option === 'Custom'
                       ? values.estimated_time === 'Custom'
-                      : values.estimated_time === parseFloat(option)) &&
-                      styles.selectedOption,
-                  ]}
-                  onPress={() => {
-                    if (option !== 'Custom') {
-                      const numericValue = parseFloat(option);
-                      setFieldValue('estimated_time', numericValue);
-                      setFieldValue('custom_estimated_time', '');
-                    } else {
-                      setFieldValue('estimated_time', 'Custom');
-                    }
-                    setTimeout(
-                      () => setFieldTouched('estimated_time', true),
-                      0,
-                    );
-                  }}
-                >
-                  <AppText
-                    style={[
-                      styles.optionText,
-                      (option === 'Custom'
-                        ? values.estimated_time === 'Custom'
-                        : values.estimated_time === parseFloat(option)) &&
-                        styles.selectedOptionText,
-                    ]}
-                  >
-                    {option}
-                  </AppText>
-                </TouchableOpacity>
-              ))}
-            </View>
+                      : values.estimated_time === parseFloat(option);
+
+                  return (
+                    <TouchableOpacity
+                      key={option}
+                      style={[
+                        styles.optionButton,
+                        isSelected && styles.selectedOption,
+                      ]}
+                      onPress={() => {
+                        if (option !== 'Custom') {
+                          const numericValue = parseFloat(option);
+                          setFieldValue('estimated_time', numericValue);
+                          setFieldValue('custom_estimated_time', '');
+                        } else {
+                          setFieldValue('estimated_time', 'Custom');
+                        }
+                        setTimeout(
+                          () => setFieldTouched('estimated_time', true),
+                          0,
+                        );
+                      }}
+                    >
+                      <AppText
+                        style={[
+                          styles.optionText,
+                          isSelected && styles.selectedOptionText,
+                        ]}
+                      >
+                        {option}
+                      </AppText>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </>
 
             {touched.estimated_time && errors.estimated_time && (
               <AppText style={{ color: 'red', marginBottom: 10 }}>
@@ -515,10 +616,13 @@ const JobCreateScreen = ({ navigation, route }) => {
               onBlur={handleBlur('location')}
               placeholder="Enter location"
               error={touched.location && errors.location}
+              style={{
+                backgroundColor: colors.white,
+              }}
             />
 
             <AppButton
-              title={loading ? 'Creating...' : 'Create Job'}
+              title={isReinvite ? 'Re-invite' : 'Create Job'}
               onPress={handleSubmit}
               disabled={loading}
               btnStyles={styles.loginButton}
@@ -595,14 +699,21 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   iconCircle: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: '#f0f0f0',
-    alignItems: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 25, // ✅ Makes it circular
+    backgroundColor: '#f0f0f0', // optional background
     justifyContent: 'center',
-    marginRight: 12,
+    alignItems: 'center',
+    overflow: 'hidden',
+    marginRight: 10,
   },
+
+  iconImage: {
+    width: '100%',
+    height: '100%',
+  },
+
   loginButton: {
     backgroundColor: colors.primary,
     marginTop: 20,
