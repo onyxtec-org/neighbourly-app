@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Modal,
   FlatList,
+  SafeAreaView
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import AppBar from '../../../components/HeaderComponent/AppBar';
@@ -87,7 +88,7 @@ const StageScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <AppBar />
 
       {/* Feed */}
@@ -157,7 +158,7 @@ const StageScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
   },
   closeBtn: {
     position: 'absolute',
-    top: 15,
+    top: 40,
     right: 20,
     borderWidth: 2,        
     borderColor: '#fff',   
@@ -212,7 +213,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black background.
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 65, // To avoid notch on some devices.
+    paddingTop: Platform.OS === 'ios' ? 85 : 60, 
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     overflow: 'hidden',

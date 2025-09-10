@@ -23,6 +23,7 @@ import { fetchCategories } from '../../../../redux/slices/categorySlice/categori
 // shimmer + animation
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ProviderHomeScreen = ({ navigation }) => {
   const { myServices } = useSelector(state => state.services);
@@ -61,7 +62,7 @@ const ProviderHomeScreen = ({ navigation }) => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         {/* AppBar */}
         <AppBar />
 
@@ -185,7 +186,7 @@ const ProviderHomeScreen = ({ navigation }) => {
             />
           )}
         </View>
-      </View>
+      </SafeAreaView>
     </TouchableWithoutFeedback>
   );
 };

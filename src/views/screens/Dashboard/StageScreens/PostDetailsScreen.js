@@ -19,6 +19,7 @@ import { likePost, unlikePost, addComment, deleteComment } from '../../../../red
 import HeaderWithContainer from '../../../components/HeaderComponent/HeaderWithContainer';
 import { generateBranchLink } from '../../../../utils/branchUtils';
 import ShareBottomSheet from '../../../components/ShareBottomSheet';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PostDetailsScreen = ({ route, navigation }) => {
   const { post } = route.params;
@@ -125,7 +126,7 @@ const PostDetailsScreen = ({ route, navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <HeaderWithContainer
         title="Post Details"
         backButtonBoxColor={colors.white}
@@ -202,7 +203,7 @@ const PostDetailsScreen = ({ route, navigation }) => {
         onClose={() => setIsShareSheetVisible(false)}
         visible={isShareSheetVisible}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

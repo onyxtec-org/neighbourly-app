@@ -1,5 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Platform } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import HomeScreen from '../views/screens/Dashboard/consumerScreens/ConsumerHomeScreen';
 import TaskScreen from '../views/screens/Dashboard/jobScreens/JobsScreen';
@@ -55,7 +56,7 @@ const ConsumerTabNavigator = () => {
         tabBarLabelStyle: { fontSize: 12 },
         tabBarStyle: {
           paddingBottom: 4,
-          height: 60,
+          height: Platform.OS === 'ios' ? 80 : 60,
         },
       })}
     >

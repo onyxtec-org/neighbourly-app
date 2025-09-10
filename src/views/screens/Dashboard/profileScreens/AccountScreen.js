@@ -23,6 +23,7 @@ import AppActivityIndicator from '../../../components/AppActivityIndicator';
 import Seperator from '../../../components/Seperator';
 import { generateBranchLink } from '../../../../utils/branchUtils';
 import ShareBottomSheet from '../../../components/ShareBottomSheet';
+import { SafeAreaView } from 'react-native-safe-area-context';
 const AccountScreen = ({ navigation, route }) => {
   const { userId } = route.params; // user id passed from StageScreen
   const dispatch = useDispatch();
@@ -122,7 +123,7 @@ const AccountScreen = ({ navigation, route }) => {
   console.log('porfile user', profile);
 
   return (
-    <>
+    <SafeAreaView style={{flex: 1 , backgroundColor: '#fff'}}>
       <ScrollView style={styles.container}>
         {/* Header */}
         <Header
@@ -381,7 +382,7 @@ const AccountScreen = ({ navigation, route }) => {
       />
 
       {loading && <AppActivityIndicator />}
-    </>
+    </SafeAreaView>
   );
 };
 
