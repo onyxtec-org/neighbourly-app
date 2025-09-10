@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -38,8 +38,8 @@ import UserCard from '../../../components/JobComponents/UserCard';
 import { postJobReview } from '../../../../redux/slices/reviewSlice/reviewSlice';
 import BackButtonWithColor from '../../../components/ButtonComponents/BackButtonWithColor';
 import HeaderWithContainer from '../../../components/HeaderComponent/HeaderWithContainer';
-import { createOffer ,} from '../../../../redux/slices/jobSlice/offerSlice/offerSlice';
-
+import { createOffer } from '../../../../redux/slices/jobSlice/offerSlice/offerSlice';
+import { formatStatusText } from '../../../../utils/stringHelpers';
 const { width } = Dimensions.get('window');
 const CARD_HEIGHT = 300;
 
@@ -77,6 +77,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
   const [isRejected, setIsRejected] = useState(false);
+  const [myReview, setMyReview] = useState({});
   const [popupConfig, setPopupConfig] = useState({
     title: '',
     message: '',
@@ -84,7 +85,8 @@ const JobDetailsScreen = ({ navigation, route }) => {
     action: null,
     jobId: null,
   });
-
+  const startsAt = new Date(job?.starts_at); // your API date string
+  const now = new Date();
   useFocusEffect(
     useCallback(() => {
       dispatch(fetchJobDetails(jobId));
@@ -177,9 +179,8 @@ const JobDetailsScreen = ({ navigation, route }) => {
     setPopupVisible(false);
     setIsLoading(true);
 
-          
     if (action === 'reject') {
-      console.log('action',action,jobId);
+      console.log('action', action, jobId);
       const payload = {
         job_id: jobId,
         status: 'rejected',
@@ -187,8 +188,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
 
       try {
         const res = await dispatch(createOffer(payload)).unwrap();
-       
-        
+
         if (res?.success) {
           setIsLoading(false);
           setIsRejected(true);
@@ -197,8 +197,8 @@ const JobDetailsScreen = ({ navigation, route }) => {
           showToast(res?.message || 'Failed to reject job', 'error');
         }
       } catch (error) {
-        console.log('error',error);
-        
+        console.log('error', error);
+
         showToast('Something went wrong. Please try again.', 'error');
       }
     }
@@ -211,12 +211,18 @@ const JobDetailsScreen = ({ navigation, route }) => {
       </View>
     );
   };
-  //console.log('job data', job);
+  console.log('job data in job details', job);
+  useEffect(() => {
+    if (job?.reviews && aauthUser) {
+      const review = job.reviews.find(r => r.reviewer_id === aauthUser);
+      setMyReview(review);
+    }
+  }, [job, aauthUser]);
+
   const alreadyReviewed = job?.reviews?.some(
     review =>
       review.reviewer_id === aauthUser && review.reviewer_type === userRole, // 'consumer' or 'provider'
   );
-
 
   if (loading) {
     return (
@@ -375,8 +381,10 @@ const JobDetailsScreen = ({ navigation, route }) => {
       <ScrollView>
         <View style={styles.mainCard}>
           <View style={styles.mediaCard}>
-           
-                <HeaderWithContainer backButtonBoxColor={colors.white} borderColor={colors.white}/>
+            <HeaderWithContainer
+              backButtonBoxColor={colors.white}
+              borderColor={colors.white}
+            />
 
             <FlatList
               data={mediaSource}
@@ -500,8 +508,8 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 {job.title}
               </AppText>
 
-              {/* Right Side Conditional Content */}
               {userRole === 'consumer' &&
+              job.status === 'open' &&
               Number(job?.offers?.length) > 0 &&
               job.accepted_offer === null ? (
                 // ✅ Consumer → View Offers Button
@@ -514,50 +522,55 @@ const JobDetailsScreen = ({ navigation, route }) => {
               ) : userRole === 'provider' &&
                 (status === 'my_jobs' || status === 'in_progress') ? (
                 // ✅ Provider → Mark as Progress/Complete Button
-                <TouchableOpacity
-                  style={[
-                    styles.smallButton,
-                    {
-                      backgroundColor:
-                        status === 'in_progress'
-                          ? completed
-                            ? colors.completed
-                            : colors.inProgress
-                          : inProgress
-                          ? colors.inProgress
-                          : colors.pending,
-                    },
-                  ]}
-                  onPress={() =>
-                    handleStatusChangePopup(
-                      status === 'my_jobs' ? 'in_progress' : 'completed',
-                    )
-                  }
-                  disabled={status === 'in_progress' ? completed : inProgress}
-                >
-                  <AppText style={styles.smallButtonText}>
-                    {status === 'my_jobs'
-                      ? inProgress
-                        ? 'In Progress'
-                        : 'Mark as In Progress'
-                      : completed
-                      ? 'Completed'
-                      : 'Mark as Complete'}
-                  </AppText>
-                </TouchableOpacity>
-              ) : (
-                // ✅ NEW CASE: Provider with new / my_offer.pending_approval
-                userRole === 'provider' &&
-                (status === 'new' ||
-                  job?.my_offer?.status === 'pending_approval') && (
-                  <View style={styles.rateBox}>
-                    <AppText style={styles.rateText}>
-                      {job?.rate ? `$${job.rate}/` : '$0.00'}
+                now >= startsAt && (
+                  <TouchableOpacity
+                    style={[
+                      styles.smallButton,
+                      {
+                        backgroundColor:
+                          status === 'in_progress'
+                            ? completed
+                              ? colors.completed
+                              : colors.inProgress
+                            : inProgress
+                            ? colors.inProgress
+                            : colors.pending,
+                      },
+                    ]}
+                    onPress={() => {
+                      handleStatusChangePopup(
+                        status === 'my_jobs' ? 'in_progress' : 'completed',
+                      );
+                    }}
+                    disabled={status === 'in_progress' ? completed : inProgress}
+                  >
+                    <AppText style={styles.smallButtonText}>
+                      {status === 'my_jobs'
+                        ? inProgress
+                          ? 'In Progress'
+                          : 'Mark as In Progress'
+                        : completed
+                        ? 'Completed'
+                        : 'Mark as Complete'}
                     </AppText>
-                    <AppText style={styles.perHrText}>per hr</AppText>
-                  </View>
+                  </TouchableOpacity>
                 )
-              )}
+              ) : userRole === 'provider' &&
+                (status === 'new' ||
+                  job?.my_offer?.status === 'pending_approval') ? (
+                // ✅ Provider with new / my_offer.pending_approval
+                <View style={styles.rateBox}>
+                  <AppText style={styles.rateText}>
+                    {job?.accepted_offer
+                      ? `$${job.accepted_offer.rate}`
+                      : `$${job.rate}`}
+                    /
+                  </AppText>
+                  <AppText style={styles.perHrText}>
+                    {formatStatusText(job.price_type)}
+                  </AppText>
+                </View>
+              ) : null}
             </View>
 
             {/* Location Row */}
@@ -594,17 +607,17 @@ const JobDetailsScreen = ({ navigation, route }) => {
             <AppText style={styles.sectionHeading}>Description</AppText>
             <AppText style={styles.jobDescription}>{job.description}</AppText>
 
-            <InfoRow label={'Services:'} value={job.location} />
+            <InfoRow label={'Services:'} value={job.service.name} />
 
             <InfoRow
               label={'Start Date:'}
               value={moment(job.starts_at).format('MMM D, YYYY ')}
             />
 
-            <InfoRow
+            {/* <InfoRow
               label={'End Date:'}
               value={moment(job.ends_at).format('MMM D, YYYY ')}
-            />
+            /> */}
 
             <InfoRow
               label={'Estimated Time:'}
@@ -634,6 +647,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
                 alreadyReviewed={alreadyReviewed}
                 onRatePress={() => setIsRatingModalVisible(true)}
                 isSubmitted={reviewSubmitted}
+                myReview={myReview}
               />
             ) : (
               // === Show Provider Card only if offer accepted ===
@@ -651,13 +665,14 @@ const JobDetailsScreen = ({ navigation, route }) => {
                   alreadyReviewed={alreadyReviewed}
                   onRatePress={() => setIsRatingModalVisible(true)}
                   isSubmitted={reviewSubmitted}
+                  myReview={myReview}
                 />
               )
             )}
 
             {userRole === 'provider' &&
-              status === 'new' &&
-              job.my_offer === null && !isRejected && (
+              ((status === 'new' && job.my_offer === null && !isRejected) ||
+                status === 'invited') && (
                 <View style={styles.footerContainer}>
                   <View style={styles.buttonContainer}>
                     <TouchableOpacity
@@ -687,7 +702,13 @@ const JobDetailsScreen = ({ navigation, route }) => {
               <View style={styles.bottomContainer}>
                 <View style={styles.bottomLeft}>
                   <AppText style={styles.rateText}>
-                    {job?.rate ? `$${job.rate}/per hr` : '$0.00/per hr'}
+                    {job?.accepted_offer
+                      ? `$${job.accepted_offer.rate}`
+                      : `$${job.rate}`}
+                    /{' '}
+                    <AppText style={{ fontSize: 14 }}>
+                      {formatStatusText(job.price_type)}
+                    </AppText>
                   </AppText>
 
                   <View style={[styles.paymentContainer, { marginTop: 6 }]}>
@@ -721,7 +742,13 @@ const JobDetailsScreen = ({ navigation, route }) => {
           {/* Left Section */}
           <View style={styles.bottomLeft}>
             <AppText style={styles.rateText}>
-              {job?.rate ? `$${job.rate}/per hr` : '$0.00/per hr'}
+              {job?.accepted_offer
+                ? `$${job.accepted_offer.rate}`
+                : `$${job.rate}`}
+              /{' '}
+              <AppText style={{ fontSize: 14 }}>
+                {formatStatusText(job.price_type)}
+              </AppText>
             </AppText>
 
             <View style={styles.paymentContainer}>
@@ -775,6 +802,10 @@ const JobDetailsScreen = ({ navigation, route }) => {
         onConfirm={() => {
           setShowPopup(false);
           statusChange();
+
+          if (popupTitle.includes('Completed')) {
+            setIsRatingModalVisible(true);
+          }
         }}
       />
       <CustomPopup
@@ -875,6 +906,10 @@ const JobDetailsScreen = ({ navigation, route }) => {
 
                   setIsSubmitting(false);
                   setIsRatingModalVisible(false);
+                  setMyReview({
+                    rating: selectedRating,
+                    comment: reviewComment,
+                  });
                   setShowSuccessPopup(true);
                   setReviewSubmitted(true);
 
@@ -1035,7 +1070,7 @@ const styles = StyleSheet.create({
   },
   star: {
     fontSize: 16,
-    color: '#FFD700', // Gold for selected
+    color: colors.starColor, // Gold for selected
     marginHorizontal: 1,
   },
   emptyMedia: {

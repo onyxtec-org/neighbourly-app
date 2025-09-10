@@ -35,6 +35,7 @@ const normalize = size =>
 
 const providerTabs = [
   { key: 'new', label: 'New Requests' },
+  { key: 'invited', label: 'Invites' },
   { key: 'pending', label: 'Pending' },
   { key: 'my_jobs', label: 'My Jobs' },
   { key: 'in_progress', label: 'In Progress' },
@@ -42,9 +43,11 @@ const providerTabs = [
 ];
 const consumerTabs = [
   { key: 'pending', label: 'Open' },
+  { key: 'invited', label: 'Invited' },
   { key: 'my_jobs', label: 'Scheduled' },
   { key: 'in_progress', label: 'In Progress' },
   { key: 'completed', label: 'Completed' },
+  { key: 'rejected', label: 'Rejected' },
 ];
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -119,6 +122,17 @@ const JobsScreen = () => {
     setPopupVisible(true);
   };
 
+  const onReinvitePress = item => {
+    //console.log('job item', item);
+
+    navigation.navigate('JobCreateScreen', {
+      serviceId: item.service_id,
+      serviceName: item.service.name,
+      jobData: item,
+      isReinvite: true,
+    });
+  };
+
   const handleConfirmAction = async () => {
     const { action, jobId } = popupConfig;
     setPopupVisible(false);
@@ -157,6 +171,8 @@ const JobsScreen = () => {
     my_jobs: useSelector(selectJobsByTab('my_jobs', userRole)),
     in_progress: useSelector(selectJobsByTab('in_progress', userRole)),
     completed: useSelector(selectJobsByTab('completed', userRole)),
+    invited: useSelector(selectJobsByTab('invited', userRole)),
+    rejected: useSelector(selectJobsByTab('rejected', userRole)),
   };
 
   const renderJobs = () => {
@@ -167,6 +183,8 @@ const JobsScreen = () => {
       my_jobs: 'No jobs assigned to you',
       in_progress: 'No in progress jobs',
       completed: 'No completed jobs',
+      invited: 'No Job invites',
+      rejected: 'No rejected invites',
     };
     const tabStatusMapping = {
       new: 'new',
@@ -174,6 +192,8 @@ const JobsScreen = () => {
       my_jobs: 'my_jobs',
       in_progress: 'in_progress',
       completed: 'completed',
+      invited: 'invited',
+      rejected: 'rejected',
     };
 
     return (
@@ -184,6 +204,7 @@ const JobsScreen = () => {
         onJobPress={handleJobPress}
         onInterestedPress={onInterestedPress}
         onRejectedPress={onRejectedPress}
+        onReinvitePress={onReinvitePress}
       />
     );
   };
@@ -339,7 +360,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     paddingHorizontal: normalize(16),
-    
+
     marginTop: 0,
   },
 });
