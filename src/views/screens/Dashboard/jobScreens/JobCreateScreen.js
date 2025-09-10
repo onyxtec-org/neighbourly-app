@@ -76,7 +76,7 @@ const JobCreateScreen = ({ navigation, route }) => {
   const [toastType, setToastType] = useState('success');
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  console.log('job data', jobData);
+  //console.log('job data', jobData);
 
   const formikRef = useRef(null); // ✅ Create reference for Formik
 
@@ -140,10 +140,11 @@ const JobCreateScreen = ({ navigation, route }) => {
 
       const rate = parseFloat(values.budget);
 
-      // Append form fields
+      //Append form fields
+      if( isReinvite)
       formData.append(
         'provider_id',
-        isReinvite ? jobData?.accepted_offer.provider.id : null,
+        jobData?.accepted_offer.provider.id
       );
       formData.append('service_id', serviceId);
       formData.append('title', values.title);
@@ -365,7 +366,7 @@ const JobCreateScreen = ({ navigation, route }) => {
               style={{
                 height: 100,
                 textAlignVertical: 'top',
-                backgroundColor: colors.white,
+                
               }}
               showCharCount
               maxLength={500}
@@ -616,9 +617,7 @@ const JobCreateScreen = ({ navigation, route }) => {
               onBlur={handleBlur('location')}
               placeholder="Enter location"
               error={touched.location && errors.location}
-              style={{
-                backgroundColor: colors.white,
-              }}
+             
             />
 
             <AppButton
