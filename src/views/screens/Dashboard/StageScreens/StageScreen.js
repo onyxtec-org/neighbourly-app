@@ -7,7 +7,8 @@ import {
   StyleSheet,
   Modal,
   FlatList,
-  SafeAreaView
+  SafeAreaView,
+  Platform
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import AppBar from '../../../components/HeaderComponent/AppBar';
