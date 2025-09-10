@@ -34,6 +34,7 @@ const normalize = size =>
   Math.round(PixelRatio.roundToNearestPixel(size * scale));
 
 const providerTabs = [
+  { key: 'all', label: 'All' },
   { key: 'new', label: 'New Requests' },
   { key: 'pending', label: 'Pending' },
   { key: 'my_jobs', label: 'My Jobs' },
@@ -41,6 +42,7 @@ const providerTabs = [
   { key: 'completed', label: 'Completed' },
 ];
 const consumerTabs = [
+  { key: 'all', label: 'All' },
   { key: 'pending', label: 'Open' },
   { key: 'my_jobs', label: 'Scheduled' },
   { key: 'in_progress', label: 'In Progress' },
@@ -152,6 +154,7 @@ const JobsScreen = () => {
   };
 
   const jobsByStatus = {
+    all: useSelector(selectJobsByTab('all', userRole)), // 👈 Added
     new: useSelector(selectJobsByTab('new', userRole)),
     pending: useSelector(selectJobsByTab('pending', userRole)),
     my_jobs: useSelector(selectJobsByTab('my_jobs', userRole)),

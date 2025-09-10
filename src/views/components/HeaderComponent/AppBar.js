@@ -24,12 +24,15 @@ function AppBar() {
   return (
     <View style={styles.container}>
       <View style={styles.appBar}>
-        {/* Left side: User Image + Info */}
-          {/* 👇 Gradient circular border wrapper */}
-          <TouchableOpacity style={styles.userContainer} onPress={handleUserPress} activeOpacity={0.7}>
-
+        <TouchableOpacity
+          style={styles.userContainer}
+          onPress={handleUserPress}
+          activeOpacity={0.7}
+        >
           <LinearGradient
-            colors={['#8e2de2', '#4a00e0']} // purple gradient
+            colors={['#133FDB', '#B7004D']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={styles.gradientBorder}
           >
             <View style={styles.innerCircle}>
@@ -61,7 +64,9 @@ function AppBar() {
         </TouchableOpacity>
 
         {/* Right side: Notifications */}
-        <TouchableOpacity onPress={() => navigation.navigate('NotificationsScreen')}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('NotificationsScreen')}
+        >
           <View style={{ position: 'relative' }}>
             <Icon name="notifications-outline" size={28} />
             {unreadCount > 0 && (
