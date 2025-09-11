@@ -8,11 +8,13 @@ export const selectJobsByTab = (tabKey, role) =>
 
     if (role === 'consumer') {
       switch (tabKey) {
-        case 'all': // 👈 New tab
-        filteredJobs = jobs
-          .filter(job => job.status !== 'open')
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        break;
+        case 'all': 
+          filteredJobs = jobs
+            .filter(
+              (job) => job.status !== 'rejected' && job.status !== 'declined'
+            )
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          break;
         case 'pending':
           filteredJobs = jobs.filter(
             job => job.status === 'open' && job.accepted_offer === null
@@ -38,11 +40,16 @@ export const selectJobsByTab = (tabKey, role) =>
       }
     } else if (role === 'provider') {
       switch (tabKey) {
-        case 'all': // 👈 New tab
-        filteredJobs = jobs
-          .filter(job => job.status !== 'open')
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        break;
+        case 'all': 
+          filteredJobs = jobs
+            .filter(
+              (job) =>
+                !(job.status === 'open' && job.my_offer === null) && // exclude "new"
+                job.status !== 'rejected' &&
+                job.status !== 'declined'
+            )
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          break;
         case 'new':
           filteredJobs = jobs.filter(
             job => job.status === 'open' && job.my_offer === null

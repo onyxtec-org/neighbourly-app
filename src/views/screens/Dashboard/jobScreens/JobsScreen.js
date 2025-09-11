@@ -24,7 +24,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectJobsByTab } from '../../../../redux/selectors/jobSelector';
 import CustomToast from '../../../components/CustomToast';
 import { createOffer } from '../../../../redux/slices/jobSlice/offerSlice/offerSlice';
-import AppActivityIndicator from '../../../components/AppActivityIndicator';
+import AdvancedLoadingPopup from '../../../components/AdvancedLoadingIndicator';
 import CreateOfferPopup from '../../../screens/Dashboard/jobScreens/offers/CreateOfferPopup';
 import CustomPopup from '../../../components/CustomPopup';
 import AppText from '../../../components/AppText';
@@ -299,7 +299,7 @@ const JobsScreen = () => {
         onConfirm={handleConfirmAction}
       />
 
-      {loading && <AppActivityIndicator />}
+      <AdvancedLoadingPopup visible={loading} size={80} />
     </SafeAreaView>
   );
 };

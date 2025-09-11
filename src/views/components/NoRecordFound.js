@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     textAlign: 'center',
+    marginTop: -25, // 👈 adjust this spacing
   },
 });
 

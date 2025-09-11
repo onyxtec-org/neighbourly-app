@@ -182,8 +182,9 @@ const ProviderHomeScreen = ({ navigation }) => {
               ListEmptyComponent={() => (
                 <NoRecordFound message="No jobs found" />
               )}
-              contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }} 
-
+              contentContainerStyle={
+                (myJobs?.jobs?.length || 0) === 0 && styles.emptyContent
+              }
             />
           )}
         </View>
@@ -234,6 +235,15 @@ const styles = StyleSheet.create({
     width: '40%',
     height: 12,
     borderRadius: 6,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
 });
 

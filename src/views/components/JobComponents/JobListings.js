@@ -22,6 +22,7 @@ function JobListings({ data ,emptyMessage ,status, onJobPress, onInterestedPress
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={ListEmptyComponent}
+        contentContainerStyle={data?.length === 0 && styles.flatlistContent}
       />
     </View>
   );
@@ -48,6 +49,10 @@ const styles = StyleSheet.create({
     color: '#777',
     textAlign: 'center',
     lineHeight: 24,
+  },
+  flatlistContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
 });
 

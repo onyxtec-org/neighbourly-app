@@ -9,6 +9,7 @@ import {
   UIManager,
 } from 'react-native';
 import AppText from '../AppText';
+import LinearGradient from 'react-native-linear-gradient'; 
 import colors from '../../../config/colors';
 import config from '../../../config';
 import Icon from '../ImageComponent/IconComponent';
@@ -49,14 +50,23 @@ const UserCard = ({
       <View style={styles.userRow}>
         {/* Column 1: User Image */}
         <TouchableOpacity onPress={onPress}>
-          <Image
-            source={{
-              uri: user?.image
-                ? `${config.userimageURL}${user?.image}`
-                : 'https://via.placeholder.com/150',
-            }}
-            style={styles.userImage}
-          />
+          <LinearGradient
+                     colors={['#133FDB', '#B7004D']}
+                     start={{ x: 0, y: 0 }}
+                     end={{ x: 1, y: 1 }}
+                     style={styles.gradientBorder}
+                   >
+                     <View style={styles.innerCircle}>
+                     <Image
+                         source={
+                           user?.image
+                             ? { uri: `${config.userimageURL}${user?.image}` }
+                             : require('../../../assets/images/profile_icon.jpeg')
+                         }
+                         style={styles.userImage}
+                       />
+                     </View>
+                   </LinearGradient>
         </TouchableOpacity>
 
         {/* Column 2: Name & Slug */}
@@ -147,9 +157,9 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   userImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
   },
   userInfoColumn: {
     flex: 1,
@@ -224,7 +234,21 @@ ratingValue: {
   textAlignVertical: 'center',
   color: '#555',
 },
-
+gradientBorder: {
+  width: 52,
+  height: 52,
+  borderRadius: 27,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+innerCircle: {
+  width: 48, // slightly smaller to create spacing
+  height: 48,
+  borderRadius: 24,
+  backgroundColor: 'white', // space color
+  justifyContent: 'center',
+  alignItems: 'center',
+},
 });
 
 export default UserCard;

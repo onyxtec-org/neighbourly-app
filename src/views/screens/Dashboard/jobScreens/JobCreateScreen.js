@@ -23,7 +23,6 @@ import {
   resetJobState,
   getJobs,
 } from '../../../../redux/slices/jobSlice/jobSlice';
-import AppActivityIndicator from '../../../components/AppActivityIndicator';
 import Header from '../../../components/HeaderComponent/Header';
 import AppText from '../../../components/AppText';
 import { formatStatusText } from '../../../../utils/stringHelpers';
@@ -617,7 +616,6 @@ const JobCreateScreen = ({ navigation, route }) => {
               onBlur={handleBlur('location')}
               placeholder="Enter location"
               error={touched.location && errors.location}
-             
             />
 
             <AppButton
@@ -639,13 +637,7 @@ const JobCreateScreen = ({ navigation, route }) => {
         onHide={() => setToastVisible(false)}
       />
 
-      {/* {loading && <AppActivityIndicator />} */}
-      <AdvancedLoadingPopup
-        visible={loading}
-        size={80}
-        label="Please wait..."
-        colors={['#6A00F4', '#00D4FF']}
-      />
+      <AdvancedLoadingPopup visible={loading} size={80} />
     </SafeAreaView>
   );
 };

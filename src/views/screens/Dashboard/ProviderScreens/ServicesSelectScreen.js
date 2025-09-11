@@ -28,7 +28,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { CommonActions } from '@react-navigation/native';
 import storage from '../../../../app/storage';
-import AppActivityIndicator from '../../../components/AppActivityIndicator';
+import AdvancedLoadingPopup from '../../../components/AdvancedLoadingIndicator';
 import AppText from '../../../components/AppText';
 import Header from '../../../components/HeaderComponent/Header';
 const ServicesSelectScreen = ({ navigation, route }) => {
@@ -415,7 +415,7 @@ const ServicesSelectScreen = ({ navigation, route }) => {
               <AppText style={styles.logButtonText}>Add services</AppText>
             </TouchableOpacity>
           </View>
-          {isLoading && <AppActivityIndicator />}
+          <AdvancedLoadingPopup visible={isLoading} size={80} />
         </ScrollView>
         <CustomToast
           visible={toastVisible}

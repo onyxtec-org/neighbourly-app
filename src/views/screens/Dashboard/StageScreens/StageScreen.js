@@ -11,6 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
+import NoRecordFound from '../../../components/NoRecordFound';
 import AppBar from '../../../components/HeaderComponent/AppBar';
 import Icon from '../../../components/ImageComponent/IconComponent';
 import colors from '../../../../config/colors';
@@ -89,7 +90,9 @@ const StageScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <AppBar />
-
+      {posts.length === 0 ? (
+      <NoRecordFound message="No post found" />
+    ) : (
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.column}>
           {leftColumn.map((item, idx) => renderItem(item, idx, idx % 2 === 0))}
@@ -99,7 +102,7 @@ const StageScreen = ({ navigation }) => {
           {rightColumn.map((item, idx) => renderItem(item, idx, idx % 2 !== 0))}
         </View>
       </ScrollView>
-
+   )}
       {userRole === 'provider' && (
         <TouchableOpacity
           style={styles.fab}

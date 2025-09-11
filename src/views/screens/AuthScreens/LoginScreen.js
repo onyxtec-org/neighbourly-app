@@ -23,7 +23,7 @@ import AppButton from '../../components/ButtonComponents/AppButton';
 import CustomToast from '../../components/CustomToast';
 import colors from '../../../config/colors';
 import AppText from '../../components/AppText';
-import AppActivityIndicator from '../../components/AppActivityIndicator';
+import AdvancedLoadingPopup from '../../components/AdvancedLoadingIndicator';
 import SocialButton from '../../components/ButtonComponents/SocialButton';
 import { googleIcon } from '../../../config/icons';
 import SvgComponent from '../../components/ImageComponent/SvgComponent';
@@ -182,19 +182,31 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
           )}
         </Formik>
 
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginVertical: 5,
+          }}
+        >
+          <View
+            style={{ flex: 1, height: 1, backgroundColor: colors.lightGray }}
+          />
 
-<View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
+          <AppText
+            style={{
+              marginHorizontal: 10,
+              color: colors.darkGray,
+              fontSize: 14,
+            }}
+          >
+            or
+          </AppText>
 
-  <View style={{ flex: 1, height: 1, backgroundColor: colors.lightGray }} />
-
-
-  <AppText style={{ marginHorizontal: 10, color: colors.darkGray, fontSize: 14 }}>
-    or 
-  </AppText>
-
-  
-  <View style={{ flex: 1, height: 1, backgroundColor: colors.lightGray }} />
-</View>
+          <View
+            style={{ flex: 1, height: 1, backgroundColor: colors.lightGray }}
+          />
+        </View>
 
         <View style={styles.socialButtonContainer}>
           <SocialButton
@@ -206,9 +218,7 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
                 setHeight="30"
               />
             )}
-            onPress={() => {
-             
-            }}
+            onPress={() => {}}
           />
         </View>
         <AppText style={styles.signupPrompt}>Don’t have an account?</AppText>
@@ -229,7 +239,7 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
           onHide={() => setToastVisible(false)}
         />
       </ScrollView>
-      {loading && <AppActivityIndicator />}
+      <AdvancedLoadingPopup visible={loading} size={80} />
     </SafeAreaView>
   );
 };
@@ -333,7 +343,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-    socialButtonContainer: {
+  socialButtonContainer: {
     alignItems: 'center',
   },
 });

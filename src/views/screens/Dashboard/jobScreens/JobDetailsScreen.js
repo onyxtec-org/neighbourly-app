@@ -28,7 +28,7 @@ import CreateOfferPopup from '../../../screens/Dashboard/jobScreens/offers/Creat
 import { useFocusEffect } from '@react-navigation/native';
 import { updateJobStatus } from '../../../../redux/slices/jobSlice/UpdateJobStatusSlice';
 import CustomToast from '../../../components/CustomToast';
-import AppActivityIndicator from '../../../components/AppActivityIndicator';
+import AdvancedLoadingPopup from '../../../components/AdvancedLoadingIndicator';
 import CustomPopup from '../../../components/CustomPopup';
 import AppText from '../../../components/AppText';
 import Seperator from '../../../components/Seperator';
@@ -932,8 +932,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
           </View>
         </View>
       </Modal>
-
-      {isLoading && <AppActivityIndicator />}
+      <AdvancedLoadingPopup visible={isLoading} size={80} />
     </SafeAreaView>
   );
 };

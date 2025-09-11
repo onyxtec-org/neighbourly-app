@@ -14,7 +14,7 @@ import colors from '../../../../../config/colors';
 import { useDispatch } from 'react-redux';
 import { offerStatusUpdate } from '../../../../../redux/slices/jobSlice/offerSlice/offerSlice';
 import AppText from '../../../../components/AppText';
-import AppActivityIndicator from '../../../../components/AppActivityIndicator';
+import AdvancedLoadingPopup from '../../../../components/AdvancedLoadingIndicator';
 const OfferListScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const initialOffers = (route.params?.offers || []).filter(
@@ -70,18 +70,19 @@ const OfferListScreen = ({ navigation, route }) => {
           showToast('Offer has been rejected!', 'success');
         }
       } else {
-                  setLoader(false);
+        setLoader(false);
 
-        showToast(response.data?.message || 'Offer update failed','error');
+        showToast(response.data?.message || 'Offer update failed', 'error');
       }
     } catch (error) {
-                setLoader(false);
+      setLoader(false);
 
-              showToast(error?.message || 'Network error or server not reachable','error');
-
-    
+      showToast(
+        error?.message || 'Network error or server not reachable',
+        'error',
+      );
     } finally {
-                setLoader(false);
+      setLoader(false);
 
       setLoadingId(null);
     }
@@ -118,7 +119,6 @@ const OfferListScreen = ({ navigation, route }) => {
         onAccept={() => onOfferAccepted(item.id)}
         onReject={() => onOfferRejected(item.id)}
       />
-      
     </View>
   );
 
@@ -163,7 +163,7 @@ const OfferListScreen = ({ navigation, route }) => {
         onCancel={() => setPopupVisible(false)}
         onConfirm={handleConfirmAction}
       />
-      {loader && <AppActivityIndicator />}
+      <AdvancedLoadingPopup visible={loader} size={80} />
     </SafeAreaView>
   );
 };

@@ -24,7 +24,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import storage from '../../../../app/storage';
 import ZoomableImage from '../../../components/ImageComponent/ZoomableImage';
 import { setMyServices } from '../../../../redux/slices/servicesSlice/servicesSlice';
-import AppActivityIndicator from '../../../components/AppActivityIndicator';
+import AdvancedLoadingPopup from '../../../components/AdvancedLoadingIndicator';
 import AppText from '../../../components/AppText';
 import colors from '../../../../config/colors';
 const ProfileScreen = ({ navigation }) => {
@@ -330,7 +330,7 @@ const ProfileScreen = ({ navigation }) => {
         onConfirm={confirmLogout}
       />
 
-      {isLoading && <AppActivityIndicator />}
+      <AdvancedLoadingPopup visible={isLoading} size={80} />
     </View>
   );
 };

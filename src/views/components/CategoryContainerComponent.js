@@ -1,13 +1,22 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import colors from '../../config/colors';
+import Icon from '../components/ImageComponent/IconComponent';
 
 const CategoryContainer = ({ title, image, onPress }) => {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.8}>
+      {image.image ? (
       <View style={styles.imageWrapper}>
         <Image source={{ uri: image }} style={styles.image} />
-      </View>
+      </View>): (
+        <View style={styles.imageWrapper}>
+          <Icon
+            name="apps-outline"
+            size={22}
+            color={colors.primary}
+          />
+        </View>)}
       <Text style={styles.title}>{title}</Text>
     </TouchableOpacity>
   );
@@ -36,6 +45,9 @@ const styles = StyleSheet.create({
     borderColor: colors.borderColor,         // grey color
     backgroundColor: colors.white,
 
+    alignItems: 'center',
+    justifyContent: 'center',
+
     // Shadow for iOS
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -44,6 +56,10 @@ const styles = StyleSheet.create({
 
     // Elevation for Android
     elevation: 4,
+  },
+  iconInside: {
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
   image: {
     width: '100%',

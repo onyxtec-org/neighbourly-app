@@ -31,19 +31,23 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { categories: featuredCategories, status: topCatStatus } = useSelector(
-    state => state.featuredCategories,
+  const { categories, status: catStatus } = useSelector(
+    state => state.categories,
   );
   const { services: featuredServices, status: topServStatus } = useSelector(
     state => state.featuredServices,
   );
+  const featuredCats = categories?.filter(cat => cat.featured === 1) || [];
+  const displayCategories =
+    featuredCats.length > 0 ? featuredCats : categories?.slice(0, 5) || [];
   const { user: profileUser } = useSelector(state => state.profile);
   const userRole = profileUser?.role;
 
   useEffect(() => {
     dispatch(fetchCategories());
-    dispatch(fetchFeaturedCategories());
     dispatch(fetchFeaturedServices());
+    dispatch(fetchCategories());
+
     dispatch(getJobs());
   }, [dispatch]);
 
@@ -112,13 +116,13 @@ const HomeScreen = ({ navigation }) => {
             />
   
             {/* Top Categories */}
-            {featuredCategories?.length > 0 || topCatStatus === "loading" ? (
+            {displayCategories?.length > 0 || catStatus === 'loading' ? (
               <>
                 <View style={styles.categoryHeader}>
                   <AppText style={styles.helpText}>Categories</AppText>
                   <TouchableOpacity
                     style={styles.seeAllContainer}
-                    onPress={() => navigation.navigate("AllCategoriesScreen")}
+                    onPress={() => navigation.navigate('AllCategoriesScreen')}
                     activeOpacity={0.7}
                   >
                     <AppText style={styles.seeAllText}>See All</AppText>
@@ -132,7 +136,7 @@ const HomeScreen = ({ navigation }) => {
                 </View>
   
                 <View style={styles.content}>
-                  {topCatStatus === "loading" ? (
+                  {catStatus === 'loading' ? (
                     <FlatList
                       data={[1, 2, 3, 4]}
                       horizontal
@@ -148,7 +152,7 @@ const HomeScreen = ({ navigation }) => {
                     />
                   ) : (
                     <FlatList
-                      data={featuredCategories}
+                      data={displayCategories}
                       horizontal
                       keyExtractor={(item, index) => index.toString()}
                       renderItem={({ item, index }) => (
@@ -168,15 +172,15 @@ const HomeScreen = ({ navigation }) => {
             ) : null}
   
             {/* Top Services */}
-            {featuredServices?.length > 0 || topServStatus === "loading" ? (
+            {featuredServices?.length > 0 || topServStatus === 'loading' ? (
               <>
                 <View style={styles.categoryHeader}>
                   <AppText style={styles.helpText}>Services</AppText>
                 </View>
                 <View style={styles.content}>
-                  {topServStatus === "loading" ? (
+                  {topServStatus === 'loading' ? (
                     <View>
-                      {[1, 2, 3].map((i) => (
+                      {[1, 2, 3].map(i => (
                         <View key={i} style={styles.shimmerServiceCard}>
                           <ShimmerPlaceHolder style={styles.shimmerImage} />
                           <ShimmerPlaceHolder style={styles.shimmerText} />
@@ -193,7 +197,7 @@ const HomeScreen = ({ navigation }) => {
                           service={service}
                           image={`${config.serviceImageURL}${service.image}`}
                           onPress={() =>
-                            navigation.navigate("JobCreateScreen", {
+                            navigation.navigate('JobCreateScreen', {
                               serviceId: service.id,
                               serviceName: service.name,
                             })
@@ -210,7 +214,7 @@ const HomeScreen = ({ navigation }) => {
       </TouchableWithoutFeedback>
     </SafeAreaView>
   );
-};  
+};
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' },
