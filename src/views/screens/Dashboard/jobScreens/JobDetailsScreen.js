@@ -509,7 +509,7 @@ const JobDetailsScreen = ({ navigation, route }) => {
               </AppText>
 
               {userRole === 'consumer' &&
-              job.status === 'open' &&
+              (job.status === 'open'||job.status==='invited') &&
               Number(job?.offers?.length) > 0 &&
               job.accepted_offer === null ? (
                 // ✅ Consumer → View Offers Button
@@ -522,7 +522,8 @@ const JobDetailsScreen = ({ navigation, route }) => {
               ) : userRole === 'provider' &&
                 (status === 'my_jobs' || status === 'in_progress') ? (
                 // ✅ Provider → Mark as Progress/Complete Button
-                now >= startsAt && (
+                //now >= startsAt
+                true && (
                   <TouchableOpacity
                     style={[
                       styles.smallButton,
@@ -905,18 +906,13 @@ const JobDetailsScreen = ({ navigation, route }) => {
                   ).unwrap();
 
                   setIsSubmitting(false);
+                  setShowSuccessPopup(true);
                   setIsRatingModalVisible(false);
                   setMyReview({
                     rating: selectedRating,
                     comment: reviewComment,
                   });
-                  setShowSuccessPopup(true);
                   setReviewSubmitted(true);
-
-                  // job.reviews.push({
-                  //   rating: selectedRating,
-                  //   comment: reviewComment,
-                  // });
                 } catch (error) {
                   setIsSubmitting(false);
                   console.error('Review submission error:', error);

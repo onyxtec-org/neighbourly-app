@@ -40,6 +40,7 @@ const colors = {
   LightBlueColor: '#C4E8FF',
   lightgreenishColor: '#C4E8FF',
   starColor:'#FFD700',
+  lightBrown:'#555',
   statusColors(type) {
     switch (type) {
       case 'open':

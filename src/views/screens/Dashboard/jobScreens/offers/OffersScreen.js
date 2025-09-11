@@ -67,7 +67,7 @@ const OfferListScreen = ({ navigation, route }) => {
                     setLoader(false);
 
           setOffers(prev => prev.filter(o => o.id !== offerId));
-          showToast('Offer has been rejected!', 'success');
+          showToast('Offer has been rejected!', 'error');
         }
       } else {
                   setLoader(false);
