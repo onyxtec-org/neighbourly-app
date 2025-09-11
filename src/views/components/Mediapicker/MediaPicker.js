@@ -7,6 +7,7 @@ import {
   ScrollView,
 } from "react-native";
 import Icon from "../ImageComponent/IconComponent";
+import { PermissionsAndroid, Platform } from "react-native";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import ActionSheet from "react-native-actionsheet";
 import AppText from "../AppText";
@@ -17,8 +18,32 @@ const MediaPicker = ({ onChange }) => {
   const openPickerOptions = () => {
     actionSheetRef.current?.show();
   };
-
-  const handleCameraPick = () => {
+  const requestCameraPermission = async () => {
+    if (Platform.OS === "android") {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: "Camera Permission",
+            message: "App needs access to your camera",
+            buttonNeutral: "Ask Me Later",
+            buttonNegative: "Cancel",
+            buttonPositive: "OK",
+          }
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.warn(err);
+        return false;
+      }
+    }
+    return true;
+  };
+  
+  const handleCameraPick = async () => {
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) return;
+  
     const options = { mediaType: "mixed" };
     launchCamera(options, (response) => {
       if (!response.didCancel && !response.errorCode) {
@@ -107,7 +132,6 @@ const MediaPicker = ({ onChange }) => {
         ref={actionSheetRef}
         title={"Select Media"}
         options={["Camera", "Gallery"]}
-        cancelButtonIndex={0}
         onPress={(index) => {
           if (index === 0) handleCameraPick();
           if (index === 1) handleGalleryPick();

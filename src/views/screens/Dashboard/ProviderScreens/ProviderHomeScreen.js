@@ -16,6 +16,7 @@ import Icon from '../../../components/ImageComponent/IconComponent';
 import { selectJobsByTab } from '../../../../redux/selectors/jobSelector';
 import DashboardGrid from '../../../components/DashboardGridComponent';
 import { getJobs } from '../../../../redux/slices/jobSlice/jobSlice';
+import NoRecordFound from '../../../components/NoRecordFound';
 import AppBar from '../../../components/HeaderComponent/AppBar';
 import { fetchNotifications } from '../../../../redux/slices/notificationSlice/notificationSlice';
 import { fetchCategories } from '../../../../redux/slices/categorySlice/categoriesSlice';
@@ -179,10 +180,10 @@ const ProviderHomeScreen = ({ navigation }) => {
                 </Animated.View>
               )}
               ListEmptyComponent={() => (
-                <AppText style={{ textAlign: 'center', marginTop: 20 }}>
-                  No jobs found.
-                </AppText>
+                <NoRecordFound message="No jobs found" />
               )}
+              contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }} 
+
             />
           )}
         </View>

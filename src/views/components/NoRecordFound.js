@@ -1,12 +1,12 @@
-// components/NoRecordFound.js or .tsx
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import StartupSVG from '../../assets/icons/startup.svg';
+import StartupSVG from '../../assets/icons/norecord.svg';
 import colors from '../../config/colors';
 import AppText from './AppText';
-const NoRecordFound = ({ message, marginTop = 0, iconHeight = 160 }) => {
+
+const NoRecordFound = ({ message, iconHeight = 180 }) => {
   return (
-    <View style={[styles.container, { marginTop }]}>
+    <View style={styles.container}>
       <StartupSVG width={iconHeight} height={iconHeight} />
       <AppText style={styles.message}>{message}</AppText>
     </View>
@@ -14,16 +14,14 @@ const NoRecordFound = ({ message, marginTop = 0, iconHeight = 160 }) => {
 };
 
 const styles = StyleSheet.create({
-container: {
-  //flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-  paddingHorizontal: 20,
-},
-
+  container: {
+    flex: 1,               
+    justifyContent: 'center', 
+    alignItems: 'center',     
+    paddingHorizontal: 20,
+  },
   message: {
-    marginTop: 10,
-    color: colors.primary, // Replace with your primary color
+    color: colors.primary,
     fontWeight: 'bold',
     fontSize: 16,
     textAlign: 'center',

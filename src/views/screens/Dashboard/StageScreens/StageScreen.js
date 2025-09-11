@@ -8,7 +8,7 @@ import {
   Modal,
   FlatList,
   SafeAreaView,
-  Platform
+  Platform,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import AppBar from '../../../components/HeaderComponent/AppBar';
@@ -39,7 +39,6 @@ const StageScreen = ({ navigation }) => {
     dispatch(getPosts());
   }, [dispatch]);
 
-  // Split posts into 2 columns
   useEffect(() => {
     let left = [],
       right = [];
@@ -51,7 +50,6 @@ const StageScreen = ({ navigation }) => {
     setRightColumn(right);
   }, [posts]);
 
-  // ✅ Toggle Like
   const handleLikeToggle = async post => {
     if (liking[post.id]) return;
     setLiking(prev => ({ ...prev, [post.id]: true }));
@@ -92,20 +90,16 @@ const StageScreen = ({ navigation }) => {
     <SafeAreaView style={{ flex: 1 }}>
       <AppBar />
 
-      {/* Feed */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Left column */}
         <View style={styles.column}>
           {leftColumn.map((item, idx) => renderItem(item, idx, idx % 2 === 0))}
         </View>
 
-        {/* Right column */}
         <View style={styles.column}>
           {rightColumn.map((item, idx) => renderItem(item, idx, idx % 2 !== 0))}
         </View>
       </ScrollView>
 
-      {/* Floating Action Button */}
       {userRole === 'provider' && (
         <TouchableOpacity
           style={styles.fab}
@@ -115,10 +109,8 @@ const StageScreen = ({ navigation }) => {
         </TouchableOpacity>
       )}
 
-      {/* ✅ Fullscreen Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={styles.backdrop}>
-          
           <FlatList
             data={
               selectedIndex !== null
@@ -130,7 +122,6 @@ const StageScreen = ({ navigation }) => {
             }
             keyExtractor={item => item.id.toString()}
             renderItem={({ item }) => (
-              
               <PostCard
                 item={item}
                 expanded={false}
@@ -150,7 +141,6 @@ const StageScreen = ({ navigation }) => {
             )}
           />
 
-          {/* Close Button */}
           <TouchableOpacity
             style={styles.closeBtn}
             onPress={() => setModalVisible(false)}
@@ -200,21 +190,21 @@ const styles = StyleSheet.create({
   },
   closeBtn: {
     position: 'absolute',
-    top: 40,
+    top: Platform.OS === 'ios' ? 40 : 20,
     right: 20,
-    borderWidth: 2,        
-    borderColor: '#fff',   
-    padding: 4,            
-    borderRadius: 100,      
-    backgroundColor: 'transparent', 
+    borderWidth: 2,
+    borderColor: '#fff',
+    padding: 4,
+    borderRadius: 100,
+    backgroundColor: 'transparent',
   },
-  
+
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black background.
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: Platform.OS === 'ios' ? 85 : 60, 
+    paddingTop: Platform.OS === 'ios' ? 85 : 65,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     overflow: 'hidden',
