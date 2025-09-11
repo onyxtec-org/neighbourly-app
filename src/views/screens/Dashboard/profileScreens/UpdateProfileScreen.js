@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,14 +6,13 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
-  Text,
 } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import CircularImagePicker from '../../../components/ImageComponent/CircularImagePicker';
 import CustomTextInput from '../../../components/CustomTextInput';
 import AppButton from '../../../components/ButtonComponents/AppButton';
-import CrossIconButton from '../../../components/FormComponents/CrossIconButton';
+import HeaderWithContainer from '../../../components/HeaderComponent/HeaderWithContainer';
 import { fetchUserProfile } from '../../../../redux/slices/authSlice/profileSlice';
 import colors from '../../../../config/colors';
 import CustomToast from '../../../components/CustomToast';
@@ -140,16 +139,12 @@ const validateScreenName = values => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <CrossIconButton
-          onPress={() =>
-            navigation.canGoBack()
-              ? navigation.goBack()
-              : navigation.navigate('RouterDashboard')
-          }
-          size={22}
-          color="#212529"
-          style={styles.closeButton}
-        />
+        
+        <HeaderWithContainer
+        title="update profile"
+        backButtonBoxColor={colors.white}
+        borderColor={colors.primary}
+      />
 
         <CircularImagePicker
           onImagePicked={asset => setProfileImage(asset)}
@@ -282,13 +277,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContainer: {
-    padding: 24,
+    // padding: 24,
     backgroundColor: colors.white,
     flexGrow: 1,
     justifyContent: 'center',
   },
   formContainer: {
     width: '100%',
+    paddingHorizontal: 24,
   },
   loginButton: {
     backgroundColor: colors.primary,

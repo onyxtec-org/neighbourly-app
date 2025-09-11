@@ -7,9 +7,11 @@ import {
   StyleSheet,
   Modal,
   FlatList,
-  SafeAreaView
+  SafeAreaView,
+  Platform,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
+import NoRecordFound from '../../../components/NoRecordFound';
 import AppBar from '../../../components/HeaderComponent/AppBar';
 import Icon from '../../../components/ImageComponent/IconComponent';
 import colors from '../../../../config/colors';
@@ -38,7 +40,6 @@ const StageScreen = ({ navigation }) => {
     dispatch(getPosts());
   }, [dispatch]);
 
-  // Split posts into 2 columns
   useEffect(() => {
     let left = [],
       right = [];
@@ -50,7 +51,6 @@ const StageScreen = ({ navigation }) => {
     setRightColumn(right);
   }, [posts]);
 
-  // ✅ Toggle Like
   const handleLikeToggle = async post => {
     if (liking[post.id]) return;
     setLiking(prev => ({ ...prev, [post.id]: true }));
@@ -90,21 +90,19 @@ const StageScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <AppBar />
-
-      {/* Feed */}
+      {posts.length === 0 ? (
+      <NoRecordFound message="No post found" />
+    ) : (
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Left column */}
         <View style={styles.column}>
           {leftColumn.map((item, idx) => renderItem(item, idx, idx % 2 === 0))}
         </View>
 
-        {/* Right column */}
         <View style={styles.column}>
           {rightColumn.map((item, idx) => renderItem(item, idx, idx % 2 !== 0))}
         </View>
       </ScrollView>
-
-      {/* Floating Action Button */}
+   )}
       {userRole === 'provider' && (
         <TouchableOpacity
           style={styles.fab}
@@ -114,10 +112,8 @@ const StageScreen = ({ navigation }) => {
         </TouchableOpacity>
       )}
 
-      {/* ✅ Fullscreen Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={styles.backdrop}>
-          
           <FlatList
             data={
               selectedIndex !== null
@@ -129,7 +125,6 @@ const StageScreen = ({ navigation }) => {
             }
             keyExtractor={item => item.id.toString()}
             renderItem={({ item }) => (
-              
               <PostCard
                 item={item}
                 expanded={false}
@@ -149,7 +144,6 @@ const StageScreen = ({ navigation }) => {
             )}
           />
 
-          {/* Close Button */}
           <TouchableOpacity
             style={styles.closeBtn}
             onPress={() => setModalVisible(false)}
@@ -199,21 +193,21 @@ const styles = StyleSheet.create({
   },
   closeBtn: {
     position: 'absolute',
-    top: 40,
+    top: Platform.OS === 'ios' ? 40 : 20,
     right: 20,
-    borderWidth: 2,        
-    borderColor: '#fff',   
-    padding: 4,            
-    borderRadius: 100,      
-    backgroundColor: 'transparent', 
+    borderWidth: 2,
+    borderColor: '#fff',
+    padding: 4,
+    borderRadius: 100,
+    backgroundColor: 'transparent',
   },
-  
+
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black background.
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: Platform.OS === 'ios' ? 85 : 60, 
+    paddingTop: Platform.OS === 'ios' ? 85 : 65,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     overflow: 'hidden',

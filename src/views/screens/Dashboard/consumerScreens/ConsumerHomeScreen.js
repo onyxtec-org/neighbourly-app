@@ -31,19 +31,23 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { categories: featuredCategories, status: topCatStatus } = useSelector(
-    state => state.featuredCategories,
+  const { categories, status: catStatus } = useSelector(
+    state => state.categories,
   );
   const { services: featuredServices, status: topServStatus } = useSelector(
     state => state.featuredServices,
   );
+  const featuredCats = categories?.filter(cat => cat.featured === 1) || [];
+  const displayCategories =
+    featuredCats.length > 0 ? featuredCats : categories?.slice(0, 5) || [];
   const { user: profileUser } = useSelector(state => state.profile);
   const userRole = profileUser?.role;
 
   useEffect(() => {
     dispatch(fetchCategories());
-    dispatch(fetchFeaturedCategories());
     dispatch(fetchFeaturedServices());
+    dispatch(fetchCategories());
+
     dispatch(getJobs());
   }, [dispatch]);
 
@@ -69,143 +73,144 @@ const HomeScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView
-          style={styles.container}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* AppBar */}
+        <View style={{ flex: 1 }}>
+          {/* AppBar - stays fixed */}
           <AppBar />
-
-          {/* Search */}
-          <View style={styles.searchContainer}>
-            <SearchBar
-              placeholder="Search"
-              onPress={() => navigation.navigate('SearchScreen')}
+  
+          {/* Scrollable content */}
+          <ScrollView
+            style={styles.container}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Search */}
+            <View style={styles.searchContainer}>
+              <SearchBar
+                placeholder="Search"
+                onPress={() => navigation.navigate("SearchScreen")}
+              />
+            </View>
+  
+            <DashboardGrid
+              items={[
+                [
+                  {
+                    title: `Open → ${jobsByStatus.pending?.count || 0}`,
+                    backgroundColor: colors.purpleColor,
+                  },
+                  {
+                    title: `To Start → ${jobsByStatus.my_jobs?.count || 0}`,
+                    backgroundColor: colors.pinkColor,
+                  },
+                ],
+                [
+                  {
+                    title: `In Progress → ${jobsByStatus.in_progress?.count || 0}`,
+                    backgroundColor: colors.LightBlueColor,
+                  },
+                  {
+                    title: `Completed → ${jobsByStatus.completed?.count || 0}`,
+                    backgroundColor: colors.lightgreenishColor,
+                  },
+                ],
+              ]}
             />
-          </View>
-
-          <DashboardGrid
-            items={[
-              [
-                {
-                  title: `Open → ${jobsByStatus.pending?.count || 0}`,
-                  backgroundColor: colors.purpleColor,
-                },
-                {
-                  title: `To Start → ${jobsByStatus.my_jobs?.count || 0}`,
-                  backgroundColor: colors.pinkColor,
-                },
-              ],
-              [
-                {
-                  title: `In Progress → ${
-                    jobsByStatus.in_progress?.count || 0
-                  }`,
-                  backgroundColor: colors.LightBlueColor,
-                },
-                {
-                  title: `Completed → ${jobsByStatus.completed?.count || 0}`,
-                  backgroundColor: colors.lightgreenishColor,
-                },
-              ],
-            ]}
-          />
-
-          {/* Top Categories */}
-          {featuredCategories?.length > 0 || topCatStatus === 'loading' ? (
-            <>
-              <View style={styles.categoryHeader}>
-                <AppText style={styles.helpText}>Categories</AppText>
-                <TouchableOpacity
-                  style={styles.seeAllContainer}
-                  onPress={() => navigation.navigate('AllCategoriesScreen')}
-                  activeOpacity={0.7}
-                >
-                  <AppText style={styles.seeAllText}>See All</AppText>
-                  <Icon
-                    name="chevron-forward"
-                    size={16}
-                    color={colors.primary}
-                    style={{ marginLeft: 3 }}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.content}>
-                {topCatStatus === 'loading' ? (
-                  <FlatList
-                    data={[1, 2, 3, 4]}
-                    horizontal
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={() => (
-                      <View style={styles.shimmerCard}>
-                        <ShimmerPlaceHolder style={styles.shimmerImage} />
-                        <ShimmerPlaceHolder style={styles.shimmerText} />
-                      </View>
-                    )}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingHorizontal: 10 }}
-                  />
-                ) : (
-                  <FlatList
-                    data={featuredCategories}
-                    horizontal
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item, index }) => (
+  
+            {/* Top Categories */}
+            {displayCategories?.length > 0 || catStatus === 'loading' ? (
+              <>
+                <View style={styles.categoryHeader}>
+                  <AppText style={styles.helpText}>Categories</AppText>
+                  <TouchableOpacity
+                    style={styles.seeAllContainer}
+                    onPress={() => navigation.navigate('AllCategoriesScreen')}
+                    activeOpacity={0.7}
+                  >
+                    <AppText style={styles.seeAllText}>See All</AppText>
+                    <Icon
+                      name="chevron-forward"
+                      size={16}
+                      color={colors.primary}
+                      style={{ marginLeft: 3 }}
+                    />
+                  </TouchableOpacity>
+                </View>
+  
+                <View style={styles.content}>
+                  {catStatus === 'loading' ? (
+                    <FlatList
+                      data={[1, 2, 3, 4]}
+                      horizontal
+                      keyExtractor={(item, index) => index.toString()}
+                      renderItem={() => (
+                        <View style={styles.shimmerCard}>
+                          <ShimmerPlaceHolder style={styles.shimmerImage} />
+                          <ShimmerPlaceHolder style={styles.shimmerText} />
+                        </View>
+                      )}
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={{ paddingHorizontal: 10 }}
+                    />
+                  ) : (
+                    <FlatList
+                      data={displayCategories}
+                      horizontal
+                      keyExtractor={(item, index) => index.toString()}
+                      renderItem={({ item, index }) => (
+                        <Animated.View
+                          entering={FadeInDown.delay(index * 120).springify()}
+                        >
+                          {renderCategoryCard(item)}
+                        </Animated.View>
+                      )}
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={{ paddingHorizontal: 10 }}
+                      style={{ maxHeight: 180 }}
+                    />
+                  )}
+                </View>
+              </>
+            ) : null}
+  
+            {/* Top Services */}
+            {featuredServices?.length > 0 || topServStatus === 'loading' ? (
+              <>
+                <View style={styles.categoryHeader}>
+                  <AppText style={styles.helpText}>Services</AppText>
+                </View>
+                <View style={styles.content}>
+                  {topServStatus === 'loading' ? (
+                    <View>
+                      {[1, 2, 3].map(i => (
+                        <View key={i} style={styles.shimmerServiceCard}>
+                          <ShimmerPlaceHolder style={styles.shimmerImage} />
+                          <ShimmerPlaceHolder style={styles.shimmerText} />
+                        </View>
+                      ))}
+                    </View>
+                  ) : (
+                    featuredServices.map((service, index) => (
                       <Animated.View
-                        entering={FadeInDown.delay(index * 120).springify()}
+                        key={service.id}
+                        entering={FadeInDown.delay(index * 150).springify()}
                       >
-                        {renderCategoryCard(item)}
+                        <ServicesListingCard
+                          service={service}
+                          image={`${config.serviceImageURL}${service.image}`}
+                          onPress={() =>
+                            navigation.navigate('JobCreateScreen', {
+                              serviceId: service.id,
+                              serviceName: service.name,
+                            })
+                          }
+                        />
                       </Animated.View>
-                    )}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingHorizontal: 10 }}
-                    style={{ maxHeight: 180 }}
-                  />
-                )}
-              </View>
-            </>
-          ) : null}
-
-          {/* Top Services */}
-          {featuredServices?.length > 0 || topServStatus === 'loading' ? (
-            <>
-              <View style={styles.categoryHeader}>
-                <AppText style={styles.helpText}>Services</AppText>
-              </View>
-              <View style={styles.content}>
-                {topServStatus === 'loading' ? (
-                  <View>
-                    {[1, 2, 3].map(i => (
-                      <View key={i} style={styles.shimmerServiceCard}>
-                        <ShimmerPlaceHolder style={styles.shimmerImage} />
-                        <ShimmerPlaceHolder style={styles.shimmerText} />
-                      </View>
-                    ))}
-                  </View>
-                ) : (
-                  featuredServices.map((service, index) => (
-                    <Animated.View
-                      key={service.id}
-                      entering={FadeInDown.delay(index * 150).springify()}
-                    >
-                      <ServicesListingCard
-                        service={service}
-                        image={`${config.serviceImageURL}${service.image}`}
-                        onPress={() =>
-                          navigation.navigate('JobCreateScreen', {
-                            serviceId: service.id,
-                            serviceName: service.name,
-                          })
-                        }
-                      />
-                    </Animated.View>
-                  ))
-                )}
-              </View>
-            </>
-          ) : null}
-        </ScrollView>
+                    ))
+                  )}
+                </View>
+              </>
+            ) : null}
+          </ScrollView>
+        </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>
   );

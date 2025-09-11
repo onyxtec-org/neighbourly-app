@@ -127,6 +127,7 @@ import Animated, {
   Easing,
   Extrapolate,
 } from 'react-native-reanimated';
+import { colors } from 'react-native-elements';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -194,7 +195,7 @@ export default function AdvancedLoadingPopup({
             <Animated.View style={[styles.ripple, rippleStyle3]} />
           </View>
 
-          {showLabel && <Text style={styles.label}>{label}</Text>}
+          {/* {showLabel && <Text style={styles.label}>{label}</Text>} */}
         </View>
       </View>
     </Modal>
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
     padding: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 140,
+    minWidth: 100,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
@@ -235,7 +236,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderWidth: 5,
     borderRadius: 999,
-    borderColor: '#00D4FF',
+    borderColor: colors.primary,
     width: '100%',
     height: '100%',
   },

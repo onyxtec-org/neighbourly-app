@@ -12,7 +12,7 @@ import {
 import AppText from '../../../components/AppText';
 import Header from '../../../components/HeaderComponent/Header';
 import CustomDropdown from '../../../components/customdropdown';
-import AppActivityIndicator from '../../../components/AppActivityIndicator';
+import AdvancedLoadingPopup from '../../../components/AdvancedLoadingIndicator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 const CreateStageScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -25,11 +25,8 @@ const CreateStageScreen = ({ navigation }) => {
   const [serviceOpen, setServiceOpen] = useState(false);
   const [serviceValue, setServiceValue] = useState(null);
   const [serviceItems, setServiceItems] = useState([]);
-  const {
-    myServices,
-  } = useSelector(state => state.services);
+  const { myServices } = useSelector(state => state.services);
 
-  
   useEffect(() => {
     if (myServices?.length > 0) {
       const formattedServices = myServices.map(service => ({
@@ -39,7 +36,6 @@ const CreateStageScreen = ({ navigation }) => {
       setServiceItems(formattedServices);
     }
   }, [myServices]);
-
 
   const handleSubmit = async () => {
     setSubmitted(true);
@@ -82,7 +78,7 @@ const CreateStageScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={{flex:1 , backgroundColor: '#fff'}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       {/* Header */}
       <Header title={'Create Post'} bookmark={false} />
 
@@ -142,7 +138,7 @@ const CreateStageScreen = ({ navigation }) => {
 
         {error && <AppText style={styles.errorText}> {error}</AppText>}
       </ScrollView>
-      {loading && <AppActivityIndicator />}
+      <AdvancedLoadingPopup visible={loading} size={80} />
     </SafeAreaView>
   );
 };

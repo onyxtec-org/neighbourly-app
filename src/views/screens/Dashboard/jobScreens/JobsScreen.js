@@ -24,7 +24,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectJobsByTab } from '../../../../redux/selectors/jobSelector';
 import CustomToast from '../../../components/CustomToast';
 import { createOffer } from '../../../../redux/slices/jobSlice/offerSlice/offerSlice';
-import AppActivityIndicator from '../../../components/AppActivityIndicator';
+import AdvancedLoadingPopup from '../../../components/AdvancedLoadingIndicator';
 import CreateOfferPopup from '../../../screens/Dashboard/jobScreens/offers/CreateOfferPopup';
 import CustomPopup from '../../../components/CustomPopup';
 import AppText from '../../../components/AppText';
@@ -34,6 +34,7 @@ const normalize = size =>
   Math.round(PixelRatio.roundToNearestPixel(size * scale));
 
 const providerTabs = [
+  { key: 'all', label: 'All' },
   { key: 'new', label: 'New Requests' },
   { key: 'invited', label: 'Invites' },
   { key: 'pending', label: 'Pending' },
@@ -42,6 +43,7 @@ const providerTabs = [
   { key: 'completed', label: 'Completed' },
 ];
 const consumerTabs = [
+  { key: 'all', label: 'All' },
   { key: 'pending', label: 'Open' },
   { key: 'invited', label: 'Invited' },
   { key: 'my_jobs', label: 'Scheduled' },
@@ -166,6 +168,7 @@ const JobsScreen = () => {
   };
 
   const jobsByStatus = {
+    all: useSelector(selectJobsByTab('all', userRole)), // 👈 Added
     new: useSelector(selectJobsByTab('new', userRole)),
     pending: useSelector(selectJobsByTab('pending', userRole)),
     my_jobs: useSelector(selectJobsByTab('my_jobs', userRole)),
@@ -296,7 +299,7 @@ const JobsScreen = () => {
         onConfirm={handleConfirmAction}
       />
 
-      {loading && <AppActivityIndicator />}
+      <AdvancedLoadingPopup visible={loading} size={80} />
     </SafeAreaView>
   );
 };

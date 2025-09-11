@@ -22,6 +22,7 @@ const ImagePickerModal = ({ visible, onClose, onImagePicked }) => {
       }
     });
   };
+  
 
   const requestCameraPermission = async () => {
     if (Platform.OS === 'android') {
@@ -123,3 +124,4 @@ const styles = StyleSheet.create({
     color: '#333',
   },
 });
+

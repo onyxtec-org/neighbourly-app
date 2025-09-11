@@ -14,7 +14,7 @@ const Tab = createBottomTabNavigator();
 const ProviderTabNavigator = () => {
   return (
     <Tab.Navigator
-      initialRouteName="Dashboard"
+      initialRouteName="Stage"
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {

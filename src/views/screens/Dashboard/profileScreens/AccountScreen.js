@@ -19,7 +19,7 @@ import AppText from '../../../components/AppText';
 import colors from '../../../../config/colors';
 import InfoItems from '../../../components/ProfileComponents/InfoItems';
 import CustomToast from '../../../components/CustomToast';
-import AppActivityIndicator from '../../../components/AppActivityIndicator';
+import AdvancedLoadingPopup from '../../../components/AdvancedLoadingIndicator';
 import Seperator from '../../../components/Seperator';
 import { generateBranchLink } from '../../../../utils/branchUtils';
 import ReviewsList from '../../../components/ReviewComponents/ReviewList';
@@ -121,7 +121,7 @@ const AccountScreen = ({ navigation, route }) => {
   console.log('porfile user', profile);
 
   return (
-    <SafeAreaView style={{flex: 1 , backgroundColor: '#fff'}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <ScrollView style={styles.container}>
         {/* Header */}
         <Header
@@ -336,8 +336,7 @@ const AccountScreen = ({ navigation, route }) => {
 
           {/* Reviews Section */}
           {profile?.received_reviews && profile.received_reviews.length > 0 && (
-           <ReviewsList reviews={profile.received_reviews} />
-
+            <ReviewsList reviews={profile.received_reviews} />
           )}
         </View>
       </ScrollView>
@@ -385,7 +384,7 @@ const AccountScreen = ({ navigation, route }) => {
         onHide={() => setToastVisible(false)}
       />
 
-      {loading && <AppActivityIndicator />}
+      <AdvancedLoadingPopup visible={loading} size={80} />
     </SafeAreaView>
   );
 };
@@ -494,5 +493,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  
 });

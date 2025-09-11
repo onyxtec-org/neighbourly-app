@@ -83,10 +83,10 @@ const PostDetailsScreen = ({ route, navigation }) => {
       await dispatch(deleteComment({ postId: post.id, commentId }));
       setComments(prev => prev.filter(c => c.id !== commentId));
       console.log('✅ Comment deleted successfully:', commentId);
-      Alert.alert('Success', 'Comment deleted successfully!');
+      // Alert.alert('Success', 'Comment deleted successfully!');
     } catch (error) {
       console.error('❌ Failed to delete comment:', error);
-      Alert.alert('Error', 'Failed to delete comment. Please try again.');
+      // Alert.alert('Error', 'Failed to delete comment. Please try again.');
     }
   };
 

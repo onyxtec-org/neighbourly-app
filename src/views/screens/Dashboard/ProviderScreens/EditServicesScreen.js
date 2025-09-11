@@ -11,7 +11,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
-  SafeAreaView
+  SafeAreaView,
 } from 'react-native';
 import Ionicons from '../../../components/ImageComponent/IconComponent';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,7 +26,7 @@ import {
 import SearchBar from '../../../components/SearchBar';
 import { useFocusEffect, CommonActions } from '@react-navigation/native';
 import storage from '../../../../app/storage';
-import AppActivityIndicator from '../../../components/AppActivityIndicator';
+import AdvancedLoadingPopup from '../../../components/AdvancedLoadingIndicator';
 import AppText from '../../../components/AppText';
 import Header from '../../../components/HeaderComponent/Header';
 
@@ -35,7 +35,9 @@ const EditServicesScreen = ({ navigation }) => {
   const { status, services, myServices } = useSelector(state => state.services);
   const { categories } = useSelector(state => state.categories);
 
-  const [selectedCustomServiceNames, setSelectedCustomServiceNames] = useState([]);
+  const [selectedCustomServiceNames, setSelectedCustomServiceNames] = useState(
+    [],
+  );
   const [selectedServiceIds, setSelectedServiceIds] = useState([]);
   const [customService, setCustomService] = useState('');
   const [expandedCategoryIds, setExpandedCategoryIds] = useState([]);
@@ -52,38 +54,36 @@ const EditServicesScreen = ({ navigation }) => {
     dispatch(fetchServices());
   }, [dispatch]);
 
-
   /** ✅ Initialize selected services and handle uncategorized */
-useEffect(() => {
+  useEffect(() => {
+    console.log('my serrvices', myServices);
 
-  console.log('my serrvices', myServices);
-  
-  if (myServices && myServices.length > 0) {
-    // ✅ Auto-select normal services by ID
-    const normalIds = myServices
-      .filter(s => s.category !== null)
-      .map(s => Number(s.id));
+    if (myServices && myServices.length > 0) {
+      // ✅ Auto-select normal services by ID
+      const normalIds = myServices
+        .filter(s => s.category !== null)
+        .map(s => Number(s.id));
 
-    setSelectedServiceIds(normalIds);
+      setSelectedServiceIds(normalIds);
 
-    // ✅ Find custom or uncategorized services (category === null or type === 'custom')
-    const customAndUncategorized = myServices.filter(
-      s => s.category === null || s.type === 'custom'
-    );
-
-    // ✅ Merge them into customServices
-    setCustomServices(prev => {
-      const existingNames = prev.map(item => item.name.toLowerCase());
-      const newOnes = customAndUncategorized.filter(
-        s => !existingNames.includes(s.name.toLowerCase())
+      // ✅ Find custom or uncategorized services (category === null or type === 'custom')
+      const customAndUncategorized = myServices.filter(
+        s => s.category === null || s.type === 'custom',
       );
-      return [...prev, ...newOnes];
-    });
 
-    // ✅ Auto-select them by name
-    setSelectedCustomServiceNames(customAndUncategorized.map(s => s.name));
-  }
-}, [myServices]);
+      // ✅ Merge them into customServices
+      setCustomServices(prev => {
+        const existingNames = prev.map(item => item.name.toLowerCase());
+        const newOnes = customAndUncategorized.filter(
+          s => !existingNames.includes(s.name.toLowerCase()),
+        );
+        return [...prev, ...newOnes];
+      });
+
+      // ✅ Auto-select them by name
+      setSelectedCustomServiceNames(customAndUncategorized.map(s => s.name));
+    }
+  }, [myServices]);
 
   /** ✅ Pre-select existing user services when categories and myServices load */
   useEffect(() => {
@@ -141,7 +141,10 @@ useEffect(() => {
         if (isSelected) {
           return prevServices.filter(s => s.name !== serviceName);
         } else {
-          return [...prevServices, { id: null, name: serviceName, type: 'custom' }];
+          return [
+            ...prevServices,
+            { id: null, name: serviceName, type: 'custom' },
+          ];
         }
       });
 
@@ -168,7 +171,10 @@ useEffect(() => {
 
     setCustomServices(prev => [...prev, newService]);
     setSelectedCustomServiceNames(prev => [...prev, trimmed]);
-    setSelectedServices(prev => [...prev, { ...newService, id: Number(newService.id) }]);
+    setSelectedServices(prev => [
+      ...prev,
+      { ...newService, id: Number(newService.id) },
+    ]);
     setCustomService('');
     setShowCustomInput(false);
   };
@@ -194,14 +200,16 @@ useEffect(() => {
   const handleUpdateServices = async () => {
     setIsLoading(true);
     console.log('✅ Selected Preset Service IDs:', selectedServiceIds);
-    console.log('🛠️ Selected Custom Service Names:', selectedCustomServiceNames);
+    console.log(
+      '🛠️ Selected Custom Service Names:',
+      selectedCustomServiceNames,
+    );
 
     const body = {
       service_ids: selectedServiceIds,
       new_services: selectedCustomServiceNames,
     };
 
-    
     try {
       const result = await dispatch(addServices(body)).unwrap();
 
@@ -264,118 +272,126 @@ useEffect(() => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
       >
-          <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.container}>
+              {/* Header */}
 
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.container}>
-            {/* Header */}
-           
-            <Header title={'Edit Services'} bookmark={false}/>
-            {/* Search */}
-            <SearchBar
-              placeholder='Search or add services'
-              onPress={() => {
-                navigation.navigate('SearchScreen', {
-                  type: 'selection',
-                  onSelect: selectedItem => {
-                    selectedSearch(selectedItem);
-                  },
-                });
-              }}
-            />
+              <Header title={'Edit Services'} bookmark={false} />
+              {/* Search */}
+              <SearchBar
+                placeholder="Search or add services"
+                onPress={() => {
+                  navigation.navigate('SearchScreen', {
+                    type: 'selection',
+                    onSelect: selectedItem => {
+                      selectedSearch(selectedItem);
+                    },
+                  });
+                }}
+              />
 
-            {/* Selected Services */}
-            {selectedServices.length > 0 && (
-              <View style={styles.selectedContainer}>
-                <AppText style={styles.selectedTitle}>
-                  Selected Services ({selectedServices.length})
-                </AppText>
-                <View style={styles.selectedWrap}>
-                  {selectedServices.map(service => (
-                    <View key={service.id} style={styles.selectedBadge}>
-                      <AppText>{service.name}</AppText>
-                    </View>
-                  ))}
+              {/* Selected Services */}
+              {selectedServices.length > 0 && (
+                <View style={styles.selectedContainer}>
+                  <AppText style={styles.selectedTitle}>
+                    Selected Services ({selectedServices.length})
+                  </AppText>
+                  <View style={styles.selectedWrap}>
+                    {selectedServices.map(service => (
+                      <View key={service.id} style={styles.selectedBadge}>
+                        <AppText>{service.name}</AppText>
+                      </View>
+                    ))}
+                  </View>
                 </View>
-              </View>
-            )}
-
-            {/* Categories */}
-            <View style={styles.content}>
-              {status === 'loading' ? (
-                <ActivityIndicator size="large" color={colors.primary} />
-              ) : (
-                <FlatList
-                  data={categories}
-                  keyExtractor={item => item.id.toString()}
-                  renderItem={renderCategory}
-                  extraData={selectedServiceIds}
-                  scrollEnabled={false}
-                />
               )}
-            </View>
 
-            {/* Add Custom */}
-            <TouchableOpacity
-              style={styles.addCustomRoundButton}
-              onPress={() => setShowCustomInput(prev => !prev)}
-            >
-              <Ionicons name="add" size={20} color={colors.primary} />
-              <AppText style={styles.addCustomText}>Add Custom</AppText>
-            </TouchableOpacity>
-
-            {showCustomInput && (
-              <View style={styles.customInputRow}>
-                <TextInput
-                  placeholder="Enter custom service name"
-                  placeholderTextColor="#888"
-                  style={styles.customInput}
-                  value={customService}
-                  onChangeText={setCustomService}
-                />
-                <TouchableOpacity
-                  style={styles.addButton}
-                  onPress={handleAddCustomService}
-                >
-                  <AppText style={styles.addButtonText}>Add</AppText>
-                </TouchableOpacity>
+              {/* Categories */}
+              <View style={styles.content}>
+                {status === 'loading' ? (
+                  <ActivityIndicator size="large" color={colors.primary} />
+                ) : (
+                  <FlatList
+                    data={categories}
+                    keyExtractor={item => item.id.toString()}
+                    renderItem={renderCategory}
+                    extraData={selectedServiceIds}
+                    scrollEnabled={false}
+                  />
+                )}
               </View>
-            )}
 
-            {customServices.length > 0 && (
-              <View style={styles.customServicesContainer}>
-                <AppText style={styles.customServicesTitle}>Custom Services</AppText>
-                <View style={styles.cardWrapContainer}>
-                  {customServices.map(service => (
-                    <ServicesCard
-                      key={service.name}
-                      item={service}
-                      isSelected={selectedCustomServiceNames.includes(service.name)}
-                      onToggleSelect={() => toggleSelectCustomService(service.name)}
-                    />
-                  ))}
+              {/* Add Custom */}
+              <TouchableOpacity
+                style={styles.addCustomRoundButton}
+                onPress={() => setShowCustomInput(prev => !prev)}
+              >
+                <Ionicons name="add" size={20} color={colors.primary} />
+                <AppText style={styles.addCustomText}>Add Custom</AppText>
+              </TouchableOpacity>
+
+              {showCustomInput && (
+                <View style={styles.customInputRow}>
+                  <TextInput
+                    placeholder="Enter custom service name"
+                    placeholderTextColor="#888"
+                    style={styles.customInput}
+                    value={customService}
+                    onChangeText={setCustomService}
+                  />
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={handleAddCustomService}
+                  >
+                    <AppText style={styles.addButtonText}>Add</AppText>
+                  </TouchableOpacity>
                 </View>
-              </View>
-            )}
+              )}
 
-            {/* Update Button */}
-            <TouchableOpacity
-              style={[
-                styles.logButton,
-                { backgroundColor: selectedServiceIds.length >= 1 ? colors.primary : '#ccc' },
-              ]}
-              onPress={handleUpdateServices}
-              disabled={selectedServiceIds.length < 1}
-            >
-              <AppText style={styles.logButtonText}>Update Services</AppText>
-            </TouchableOpacity>
-          </View>
-          {isLoading && <AppActivityIndicator />}
-        </ScrollView>
+              {customServices.length > 0 && (
+                <View style={styles.customServicesContainer}>
+                  <AppText style={styles.customServicesTitle}>
+                    Custom Services
+                  </AppText>
+                  <View style={styles.cardWrapContainer}>
+                    {customServices.map(service => (
+                      <ServicesCard
+                        key={service.name}
+                        item={service}
+                        isSelected={selectedCustomServiceNames.includes(
+                          service.name,
+                        )}
+                        onToggleSelect={() =>
+                          toggleSelectCustomService(service.name)
+                        }
+                      />
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Update Button */}
+              <TouchableOpacity
+                style={[
+                  styles.logButton,
+                  {
+                    backgroundColor:
+                      selectedServiceIds.length >= 1 ? colors.primary : '#ccc',
+                  },
+                ]}
+                onPress={handleUpdateServices}
+                disabled={selectedServiceIds.length < 1}
+              >
+                <AppText style={styles.logButtonText}>Update Services</AppText>
+              </TouchableOpacity>
+            </View>
+            <AdvancedLoadingPopup visible={isLoading} size={80} />
+          </ScrollView>
         </SafeAreaView>
         <CustomToast
           visible={toastVisible}
@@ -389,7 +405,7 @@ useEffect(() => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' ,  },
+  container: { flex: 1, backgroundColor: '#fff' },
   appBar: {
     height: 60,
     flexDirection: 'row',
