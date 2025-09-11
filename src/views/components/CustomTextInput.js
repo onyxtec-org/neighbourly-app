@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import Ionicons from './ImageComponent/IconComponent';
 import AppText from './AppText';
+import colors from '../../config/colors';
 const CustomTextInput = ({
   label,
   value,
@@ -115,17 +116,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 6,
-    paddingHorizontal: 12,
+   // paddingHorizontal: 12,
     backgroundColor: '#fff',
   },
   input: {
     flex: 1,
-    paddingVertical: 10,
-    color: '#333',
+    color: colors.black,
     fontSize: 16,
+     paddingLeft: 8,
   },
   icon: {
-    marginLeft: 8,
+    paddingRight: 8,
   },
   errorInput: {
     borderColor: 'red',

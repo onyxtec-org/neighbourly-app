@@ -1,29 +1,54 @@
-import React from 'react';
-import { View, Image, TouchableOpacity,StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+} from 'react-native';
 import AppText from '../AppText';
 import colors from '../../../config/colors';
 import config from '../../../config';
+import Icon from '../ImageComponent/IconComponent';
+if (
+  Platform.OS === 'android' &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
 const UserCard = ({
   user,
-onPress,
+  onPress,
   averageRating,
   status,
   userRole,
   alreadyReviewed,
   onRatePress,
   isSubmitted,
+  myReview,
 }) => {
+  const [expanded, setExpanded] = useState(false);
 
-  console.log('isSubmitted', isSubmitted);
-  
+  const ratingToShow =
+    status === 'completed' && myReview?.rating != null
+      ? myReview.rating
+      : averageRating != null
+      ? averageRating
+      : 0;
+
+  const toggleExpand = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpanded(!expanded);
+  };
+
   return (
     <View style={styles.userCard}>
       <View style={styles.userRow}>
         {/* Column 1: User Image */}
-        <TouchableOpacity
-          onPress={onPress
-          }
-        >
+        <TouchableOpacity onPress={onPress}>
           <Image
             source={{
               uri: user?.image
@@ -36,43 +61,68 @@ onPress,
 
         {/* Column 2: Name & Slug */}
         <View style={styles.userInfoColumn}>
-          <AppText style={styles.userName}>{user?.name || 'Unknown User'}</AppText>
-          <AppText style={styles.userScreenName}>{user?.slug || '@unknown'}</AppText>
+          <AppText style={styles.userName}>
+            {user?.name || 'Unknown User'}
+          </AppText>
+          <AppText style={styles.userScreenName}>
+            {user?.slug || '@unknown'}
+          </AppText>
         </View>
 
-        {/* Column 3: Rating & Button */}
+        {/* Column 3: Rating & Review */}
         <View style={styles.ratingColumn}>
-          <AppText style={styles.ratingLabel}>Rating</AppText>
+          {!isSubmitted && status === 'completed' && !alreadyReviewed ? (
+            <TouchableOpacity
+              style={styles.giveRatingBtn}
+              onPress={onRatePress}
+            >
+              <AppText style={styles.giveRatingText}>Rate this user</AppText>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.reviewBox}>
+              <AppText style={styles.ratingLabel}>
+                {status === 'completed' ? 'My Rating' : 'Average Rating'}
+              </AppText>
 
-          {/* Stars */}
-          <View style={styles.starsRow}>
-            {[...Array(5)].map((_, index) => {
-              const starValue = index + 1;
-              return (
-                <AppText
-                  key={index}
-                  style={[
-                    styles.star,
-                    { color: starValue <= averageRating ? '#FFD700' : '#ccc' },
-                  ]}
-                >
-                  ★
+              {/* Stars */}
+              <View style={styles.ratingRow}>
+                <View style={styles.starsRow}>
+                  {[...Array(5)].map((_, index) => (
+                    <Icon
+                      key={index}
+                      name={index < ratingToShow ? 'star' : 'star-outline'}
+                      size={14}
+                      color={colors.starColor}
+                      style={styles.starIcon}
+                    />
+                  ))}
+                </View>
+
+                <AppText style={styles.ratingValue}>
+                  {Number(ratingToShow).toFixed(1)}
                 </AppText>
-              );
-            })}
-          </View>
+              </View>
 
-          {/* Rate Button */}
-          {!isSubmitted && status === 'completed' &&
-            !alreadyReviewed &&
-          (
-              <TouchableOpacity
-                style={styles.giveRatingBtn}
-                onPress={onRatePress}
-              >
-                <AppText style={styles.giveRatingText}>Rate this user</AppText>
-              </TouchableOpacity>
-            )}
+              {/* Review Comment with "See More" */}
+              {status === 'completed' && myReview?.comment && (
+                <View>
+                  <AppText
+                    style={styles.reviewComment}
+                    numberOfLines={expanded ? 0 : 2}
+                  >
+                    {myReview.comment}
+                  </AppText>
+                  {myReview.comment.length > 60 && (
+                    <TouchableOpacity onPress={toggleExpand}>
+                      <AppText style={styles.seeMoreText}>
+                        {expanded ? 'See Less' : 'See More'}
+                      </AppText>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
+            </View>
+          )}
         </View>
       </View>
     </View>
@@ -89,12 +139,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     padding: 20,
-    marginBottom: 16,
-    marginTop: 16,
+    marginVertical: 16,
   },
   userRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     padding: 10,
   },
   userImage: {
@@ -118,21 +167,18 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   ratingColumn: {
+    flexShrink: 1,
+    maxWidth: 160,
     alignItems: 'flex-end',
-    justifyContent: 'center',
   },
   ratingLabel: {
     fontSize: 14,
     color: '#555',
     marginBottom: 4,
   },
-  starsRow: {
-    flexDirection: 'row',
-    marginBottom: 6,
-  },
+
   star: {
     fontSize: 16,
-    color: '#FFD700', // Gold for selected
     marginHorizontal: 1,
   },
   giveRatingBtn: {
@@ -145,6 +191,40 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
   },
+  reviewComment: {
+    fontSize: 12,
+    color: '#444',
+    marginTop: 4,
+  },
+  seeMoreText: {
+    fontSize: 12,
+    color: colors.primary,
+    marginTop: 4,
+  },
+ratingRow: {
+  flexDirection: 'row',
+  alignItems: 'center',     // centers icon row + text vertically
+},
+
+starsRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginRight: 6,           // space between stars and number
+  // remove any marginBottom here
+},
+
+starIcon: {
+  marginHorizontal: 1,
+},
+
+ratingValue: {
+  fontSize: 12,  // slightly smaller than star size
+  lineHeight: 14,    // match the star height for baseline alignment
+  includeFontPadding: false, // Android: removes extra top padding
+  textAlignVertical: 'center',
+  color: '#555',
+},
+
 });
 
 export default UserCard;

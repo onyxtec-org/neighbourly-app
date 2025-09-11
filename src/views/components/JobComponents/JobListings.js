@@ -3,9 +3,9 @@ import { View, StyleSheet,FlatList } from 'react-native';
 import JobCard from './JobCard';
 import NoRecordFound from '../NoRecordFound';
 
-function JobListings({ data ,emptyMessage ,status, onJobPress, onInterestedPress, onRejectedPress}) {
+function JobListings({ data ,emptyMessage ,status, onJobPress, onInterestedPress, onRejectedPress,onReinvitePress}) {
   const renderItem = ({ item }) => <JobCard item={item} onPress={onJobPress} 
-  onAcceptPress={onInterestedPress} onRejectPress={onRejectedPress} status={status} />;
+  onAcceptPress={onInterestedPress} onRejectPress={onRejectedPress} status={status} onReinvitePress={onReinvitePress} />;
   const ListEmptyComponent = () => {
     return (
       <View>

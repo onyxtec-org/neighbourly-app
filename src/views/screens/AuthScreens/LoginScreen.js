@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, Animated, SafeAreaView } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Animated,
+  SafeAreaView,
+} from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -17,15 +24,24 @@ import CustomToast from '../../components/CustomToast';
 import colors from '../../../config/colors';
 import AppText from '../../components/AppText';
 import AppActivityIndicator from '../../components/AppActivityIndicator';
+import SocialButton from '../../components/ButtonComponents/SocialButton';
+import { googleIcon } from '../../../config/icons';
+import SvgComponent from '../../components/ImageComponent/SvgComponent';
 const validationSchema = Yup.object().shape({
-  email: Yup.string().email('Invalid email address').required('Email is required'),
-  password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required'),
+  password: Yup.string()
+    .min(8, 'Password must be at least 8 characters')
+    .required('Password is required'),
 });
 
 const LoginAndSelectTypeScreen = ({ navigation, route }) => {
   const accountType = route?.params?.accountType || null;
   const dispatch = useDispatch();
-  const { loading, error, success, user, token } = useSelector((state) => state.login);
+  const { loading, error, success, user, token } = useSelector(
+    state => state.login,
+  );
 
   const [loginEmail, setLoginEmail] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
@@ -34,12 +50,12 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
 
   const fadeAnim = useState(new Animated.Value(0))[0];
 
-  const handleLogin = (values) => {
+  const handleLogin = values => {
     setLoginEmail(values.email);
     dispatch(loginUser(values));
   };
 
-  const handleSelectType = (type) => {
+  const handleSelectType = type => {
     navigation.navigate('Signup', { accountType: type });
   };
 
@@ -54,8 +70,8 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (success && user && token) {
       dispatch(setMyServices(user.services));
-      dispatch(fetchUserProfile({userId:user.id}));
-       dispatch(fetchNotifications())
+      dispatch(fetchUserProfile({ userId: user.id }));
+      dispatch(fetchNotifications());
       setToastMessage('Login Successful!');
       setToastType('success');
       setToastVisible(true);
@@ -69,18 +85,24 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
             CommonActions.reset({
               index: 0,
               routes: [{ name: 'DashboardRouter' }],
-            })
+            }),
           );
         }, 1000);
       };
       saveAndNavigate();
     } else if (error) {
-      const message = error?.message || error?.toString() || 'Login failed. Please try again.';
+      const message =
+        error?.message ||
+        error?.toString() ||
+        'Login failed. Please try again.';
       setToastMessage(message);
       setToastType('error');
       setToastVisible(true);
 
-      if (message.toLowerCase().includes('not verified') || message.toLowerCase().includes('verify your account')) {
+      if (
+        message.toLowerCase().includes('not verified') ||
+        message.toLowerCase().includes('verify your account')
+      ) {
         setTimeout(() => {
           navigation.navigate('OTPScreen', { email: loginEmail });
         }, 600);
@@ -92,72 +114,105 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ScrollView>
+        {/* Animated Logo */}
+        <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
+          <StartupSVG width={160} height={160} />
+          <AppText style={styles.welcomeText}>Welcome Back!</AppText>
+          {/* <AppText style={styles.subText}>Log in to continue</AppText> */}
+        </Animated.View>
 
-    <ScrollView>
-      
+        {/* Login Form */}
+        <Formik
+          initialValues={{ email: '', password: '' }}
+          onSubmit={handleLogin}
+          validationSchema={validationSchema}
+        >
+          {({
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            values,
+            errors,
+            touched,
+          }) => (
+            <View style={styles.formContainer}>
+              <CustomTextInput
+                label="Email"
+                required
+                value={values.email}
+                onChangeText={handleChange('email')}
+                onBlur={handleBlur('email')}
+                placeholder="Enter your email"
+                keyboardType="email-address"
+                error={touched.email && errors.email}
+                style={styles.input}
+              />
 
-      {/* Animated Logo */}
-      <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
-        <StartupSVG width={160} height={160} />
-        <AppText style={styles.welcomeText}>Welcome Back!</AppText>
-        {/* <AppText style={styles.subText}>Log in to continue</AppText> */}
-      </Animated.View>
+              <CustomTextInput
+                label="Password"
+                required
+                value={values.password}
+                onChangeText={handleChange('password')}
+                onBlur={handleBlur('password')}
+                placeholder="Enter password"
+                secureTextEntry
+                error={touched.password && errors.password}
+                style={styles.input}
+              />
 
-      {/* Login Form */}
-      <Formik
-        initialValues={{ email: '', password: '' }}
-        onSubmit={handleLogin}
-        validationSchema={validationSchema}
-      >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-          <View style={styles.formContainer}>
-            <CustomTextInput
-              label="Email"
-              required
-              value={values.email}
-              onChangeText={handleChange('email')}
-              onBlur={handleBlur('email')}
-              placeholder="Enter your email"
-              keyboardType="email-address"
-              error={touched.email && errors.email}
-              style={styles.input}
-            />
+              <TouchableOpacity
+                onPress={() => navigation.navigate('ForgotPassword')}
+                style={styles.forgotPasswordContainer}
+              >
+                <AppText style={styles.forgotPasswordText}>
+                  Forgot Password?
+                </AppText>
+              </TouchableOpacity>
 
-            <CustomTextInput
-              label="Password"
-              required
-              value={values.password}
-              onChangeText={handleChange('password')}
-              onBlur={handleBlur('password')}
-              placeholder="Enter password"
-              secureTextEntry
-              error={touched.password && errors.password}
-              style={styles.input}
-            />
+              <AppButton
+                title={loading ? 'Logging in...' : 'Login'}
+                onPress={handleSubmit}
+                disabled={loading}
+                btnStyles={styles.loginButton}
+                textStyle={styles.buttonText}
+                IconName="log-in-outline"
+              />
+            </View>
+          )}
+        </Formik>
 
-            <TouchableOpacity
-              onPress={() => navigation.navigate('ForgotPassword')}
-              style={styles.forgotPasswordContainer}
-            >
-              <AppText style={styles.forgotPasswordText}>Forgot Password?</AppText>
-            </TouchableOpacity>
 
-            <AppButton
-              title={loading ? 'Logging in...' : 'Login'}
-              onPress={handleSubmit}
-              disabled={loading}
-              btnStyles={styles.loginButton}
-              textStyle={styles.buttonText}
-              IconName="log-in-outline"
-            />
-          </View>
-        )}
-      </Formik>
+<View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
 
-      {/* Divider */}
-      <AppText style={styles.signupPrompt}>Don’t have an account?</AppText>
+  <View style={{ flex: 1, height: 1, backgroundColor: colors.lightGray }} />
 
-      
+
+  <AppText style={{ marginHorizontal: 10, color: colors.darkGray, fontSize: 14 }}>
+    or 
+  </AppText>
+
+  
+  <View style={{ flex: 1, height: 1, backgroundColor: colors.lightGray }} />
+</View>
+
+        <View style={styles.socialButtonContainer}>
+          <SocialButton
+            title="Login with Google"
+            LogoIcon={() => (
+              <SvgComponent
+                svgMarkup={googleIcon()}
+                setWidth="30"
+                setHeight="30"
+              />
+            )}
+            onPress={() => {
+             
+            }}
+          />
+        </View>
+        <AppText style={styles.signupPrompt}>Don’t have an account?</AppText>
+
         <AppButton
           title="Signup"
           onPress={() => handleSelectType('consumer')}
@@ -167,19 +222,15 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
           IconSize={20}
         />
 
-       
-
-
-      <CustomToast
-        visible={toastVisible}
-        message={toastMessage}
-        type={toastType}
-        onHide={() => setToastVisible(false)}
-      />
-    </ScrollView>
-      {loading && <AppActivityIndicator/>}
-        </SafeAreaView>
-
+        <CustomToast
+          visible={toastVisible}
+          message={toastMessage}
+          type={toastType}
+          onHide={() => setToastVisible(false)}
+        />
+      </ScrollView>
+      {loading && <AppActivityIndicator />}
+    </SafeAreaView>
   );
 };
 
@@ -281,5 +332,8 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 16,
     fontWeight: '600',
+  },
+    socialButtonContainer: {
+    alignItems: 'center',
   },
 });
