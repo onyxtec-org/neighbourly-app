@@ -17,6 +17,7 @@ import ZoomableImage from './../ImageComponent/ZoomableImage';
 import { useSelector } from 'react-redux';
 import colors from '../../../config/colors';
   const { height } = Dimensions.get('window');
+const screenWidth = Dimensions.get('window').width;
 
 const PostCard = ({
   item,
@@ -26,13 +27,13 @@ const PostCard = ({
   colors,
   navigation,
   liking,
-  mediaWidth = 300,   
+  mediaWidth =screenWidth - 85,   
   mediaHeight = height * 0.5, 
   handleLikeToggle,
   handelsharePost,
   config,
   // 🔥 new optional props
-  cardBackgroundColor = '#fff',
+  cardBackgroundColor = colors.white,
   cardWidth = '94%',
   cardHeight, // optional height
 }) => {
@@ -119,6 +120,11 @@ console.log('item',item);
             showsHorizontalScrollIndicator={false}
             onMomentumScrollEnd={onScrollEnd}
             keyExtractor={(item, index) => index.toString()}
+            getItemLayout={(_, index) => ({
+    length: screenWidth * 0.94,          // 👈 must match your mediaContainer width
+    offset: (screenWidth * 0.94) * index,
+    index,
+  })}
             renderItem={({ item, index }) => {
               if (!item || !item.attachment || !item.file_type) return null;
 
@@ -282,6 +288,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 2,
+    
   },
   postHeader: {
     flexDirection: 'row',
@@ -328,7 +335,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   mediaContainer: {
-    width: 300,
+     width: screenWidth * 0.94, // same as card width (94%)
+
     height: height * 0.5,
     // marginRight: 10,
     borderRadius: 10,
