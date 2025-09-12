@@ -6,6 +6,7 @@ import {
   ScrollView,
   Animated,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 import { Formik } from 'formik';
@@ -114,7 +115,10 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContent}
+      >
         {/* Animated Logo */}
         <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
           <StartupSVG width={160} height={160} />
@@ -346,4 +350,9 @@ const styles = StyleSheet.create({
   socialButtonContainer: {
     alignItems: 'center',
   },
+  scrollContent: {
+    padding: Platform.OS === 'ios'?24:0,
+    flexGrow: 1, // ensures vertical centering
+    justifyContent: 'center',
+  },  
 });
