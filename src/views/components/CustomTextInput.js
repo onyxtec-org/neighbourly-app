@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     color: colors.black,
     fontSize: 16,
      paddingLeft: 8,
-     paddingVertical: Platform.OS === 'ios' ? 10 : 8, // different handling for iOS
+     paddingVertical: Platform.OS === 'ios' ? 10 : 10, // different handling for iOS
   },
   icon: {
     paddingRight: 8,

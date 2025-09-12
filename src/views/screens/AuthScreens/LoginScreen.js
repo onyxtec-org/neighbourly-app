@@ -6,6 +6,7 @@ import {
   ScrollView,
   Animated,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 import { Formik } from 'formik';
@@ -350,7 +351,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scrollContent: {
-    padding: 24,
+    padding: Platform.OS === 'ios'?24:0,
     flexGrow: 1, // ensures vertical centering
     justifyContent: 'center',
   },  

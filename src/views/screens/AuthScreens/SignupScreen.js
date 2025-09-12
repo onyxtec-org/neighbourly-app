@@ -34,7 +34,10 @@ const validationSchema = Yup.object().shape({
     .matches(/^\S+$/, 'Screen name cannot contain spaces'),
   email: Yup.string().email('Invalid email').required('Email is required'),
   countryCode: Yup.string().required('Country code is required'),
-  phoneNumber: Yup.string().required('Phone number is required'),
+  phoneNumber: Yup.string()
+    .required('Phone number is required')
+    .min(9, 'Phone number must be at least 9 digits')
+    .max(11, 'Phone number cannot be more than 11 digits'),
   address: Yup.string().required('Address is required'),
 
   password: Yup.string()

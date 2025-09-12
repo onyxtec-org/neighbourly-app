@@ -92,8 +92,8 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 6,
     backgroundColor: '#fff',
-    paddingHorizontal: 8,
-paddingVertical: Platform.OS === 'ios' ? 8 : 10,  },
+    paddingHorizontal: 7,
+    paddingVertical: Platform.OS === 'ios' ? 10 : 10,  },
   plus: {
     fontSize: 16,
     color: '#999',
