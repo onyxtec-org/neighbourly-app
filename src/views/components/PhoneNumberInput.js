@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, Platform } from 'react-native';
 import AppText from './AppText';
 const PhoneNumberInput = ({
   label = 'Phone',
@@ -93,8 +93,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: '#fff',
     paddingHorizontal: 8,
-    paddingVertical: 10,
-  },
+paddingVertical: Platform.OS === 'ios' ? 8 : 10,  },
   plus: {
     fontSize: 16,
     color: '#999',
@@ -105,6 +104,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#333',
     padding: 0,
+    textAlignVertical: 'center'
   },
   phoneContainer: {
     flex: 1,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: '#fff',
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingVertical: Platform.OS === 'ios' ? 10 : 10,  
     fontSize: 15,
     color: '#333',
   },

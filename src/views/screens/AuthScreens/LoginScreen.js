@@ -114,7 +114,10 @@ const LoginAndSelectTypeScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContent}
+      >
         {/* Animated Logo */}
         <Animated.View style={[styles.imageContainer, { opacity: fadeAnim }]}>
           <StartupSVG width={160} height={160} />
@@ -346,4 +349,9 @@ const styles = StyleSheet.create({
   socialButtonContainer: {
     alignItems: 'center',
   },
+  scrollContent: {
+    padding: 24,
+    flexGrow: 1, // ensures vertical centering
+    justifyContent: 'center',
+  },  
 });

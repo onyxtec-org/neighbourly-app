@@ -4,6 +4,7 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  Platform
 } from 'react-native';
 import Ionicons from './ImageComponent/IconComponent';
 import AppText from './AppText';
@@ -124,6 +125,7 @@ const styles = StyleSheet.create({
     color: colors.black,
     fontSize: 16,
      paddingLeft: 8,
+     paddingVertical: Platform.OS === 'ios' ? 10 : 8, // different handling for iOS
   },
   icon: {
     paddingRight: 8,
