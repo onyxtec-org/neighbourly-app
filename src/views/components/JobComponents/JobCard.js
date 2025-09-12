@@ -24,7 +24,6 @@ function JobCard({
   const { width } = useWindowDimensions();
   const imageSize = width * 0.24; // responsive image size
   const { user: profileUser } = useSelector(state => state.profile);
-  console.log('role', profileUser.role);
 
   return (
     <TouchableOpacity
@@ -101,10 +100,13 @@ function JobCard({
         </View>
 
         {/* Service */}
-        <AppText style={styles.service}>
+       {item.status==='rejected'|| item.status==='declined'?( <AppText style={styles.service}>
+          <AppText style={styles.serviceLabel}>Info: </AppText>
+          {item.status==='rejected'?`Job rejected by the provider`:`Offer declined by the Consumer`}
+        </AppText>):( <AppText style={styles.service}>
           <AppText style={styles.serviceLabel}>Service: </AppText>
           {item.service.name}
-        </AppText>
+        </AppText>)}
 
         {/* Action Buttons */}
         {profileUser.role === 'provider' &&
@@ -146,7 +148,7 @@ function JobCard({
         </View>
       </View> */}
 
-      <View style={{ flexDirection: 'column' }}>
+    <View style={{ flexDirection: 'column' }}>
         <StatusBox
           color={colors.statusColors(item.status)}
           text={
@@ -157,7 +159,7 @@ function JobCard({
         />
 
         {/* Badges */}
-        <View style={{ flexDirection: 'row', marginTop: 8 }}>
+      {(item.status!=='rejected'&&item.status!='declined') &&  <View style={{ flexDirection: 'row', marginTop: 8 }}>
           <View style={styles.distanceBadge}>
             <AppText style={styles.badgeText}>1 km</AppText>
           </View>
@@ -172,7 +174,7 @@ function JobCard({
           >
             <AppText style={styles.badgeText}>{item.payment_type}</AppText>
           </View>
-        </View>
+        </View>}
 
         {/* Re-invite Button */}
         {profileUser.role === 'consumer' && item.status === 'completed' && (

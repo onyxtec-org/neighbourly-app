@@ -55,7 +55,7 @@ const validationSchema = Yup.object().shape({
 });
 
 const JobCreateScreen = ({ navigation, route }) => {
-  const { serviceId, serviceName, jobData, isReinvite } = route.params || {};
+  const { serviceId, serviceName, jobData, isReinvite ,userId} = route.params || {};
   const dispatch = useDispatch();
   const [jobTypeOpen, setJobTypeOpen] = useState(false);
   const [jobTypeValue, setJobTypeValue] = useState(
@@ -75,7 +75,6 @@ const JobCreateScreen = ({ navigation, route }) => {
   const [toastType, setToastType] = useState('success');
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  //console.log('job data', jobData);
 
   const formikRef = useRef(null); // ✅ Create reference for Formik
 
@@ -140,7 +139,12 @@ const JobCreateScreen = ({ navigation, route }) => {
       const rate = parseFloat(values.budget);
 
       //Append form fields
-      if( isReinvite)
+      if( userId)
+      formData.append(
+        'provider_id',
+        userId
+      );
+         if( isReinvite)
       formData.append(
         'provider_id',
         jobData?.accepted_offer.provider.id

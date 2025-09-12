@@ -44,6 +44,7 @@ const PostCard = ({
 
   const mediaSource = item.attachments || [];
   const hasMultipleMedia = mediaSource.length > 1;
+console.log('item',item);
 
   const onLoadStart = index => {
     setLoadingStates(prev => ({ ...prev, [index]: true }));
@@ -254,8 +255,9 @@ const PostCard = ({
     style={styles.actionButton}
     onPress={() =>
       navigation.navigate('JobCreateScreen', {
-        serviceId: item.service,
+        serviceId: item.service.id,
         userId: item.user?.id,
+        serviceName:item.service.name
       })
     }
   >

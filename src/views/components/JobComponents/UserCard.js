@@ -109,7 +109,7 @@ const UserCard = ({
                 </View>
 
                 <AppText style={styles.ratingValue}>
-                  {Number(ratingToShow).toFixed(1)}
+                  {`(${Number(ratingToShow).toFixed(1)})`}
                 </AppText>
               </View>
 

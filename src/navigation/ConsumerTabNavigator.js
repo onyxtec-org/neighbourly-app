@@ -19,42 +19,33 @@ const ConsumerTabNavigator = () => {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
-          let IconComponent;
+          let iconName;
 
           switch (route.name) {
             case 'Stage':
-              IconComponent = StageIcon;
-              colors.white;
+              iconName = 'albums-outline';
               break;
             case 'Dashboard':
-              IconComponent = DashboardIcon;
+              iconName = 'home-outline';
               break;
             case 'Jobs':
-              IconComponent = JobsIcon;
-              colors.white;
+              iconName = 'briefcase-outline';
               break;
             case 'Profile':
-              IconComponent = ProfileIcon;
-              colors.white;
+              iconName = 'person-outline';
               break;
             default:
-              IconComponent = DashboardIcon;
+              iconName = 'ellipse-outline';
           }
 
-          return (
-            <IconComponent
-              width={size}
-              height={size}
-              fill={focused ? colors.primary : 'transparent'}
-            />
-          );
+          return <Icon name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: 'black',
+        tabBarInactiveTintColor: 'gray',
         tabBarLabelStyle: { fontSize: 12 },
         tabBarStyle: {
           paddingBottom: 4,
-          height: Platform.OS === 'ios' ? 80 : 60,
+          height: Platform.OS === 'ios' ? 80 : 60, 
         },
       })}
     >
