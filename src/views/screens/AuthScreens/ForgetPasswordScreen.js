@@ -86,7 +86,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
         <AppText style={styles.headerText}>Forgot Password</AppText>
 
 
-     \
+     
        <View style={styles.imageContainer}>
           {/* <StartupSVG width={150} height={150} /> */}
           <AppText style={styles.instructionText}>

@@ -131,6 +131,7 @@ const PostDetailsScreen = ({ route, navigation }) => {
         title="Post Details"
         backButtonBoxColor={colors.white}
         borderColor={colors.primary}
+        needBackGround={true}
       />
 
       <ScrollView style={styles.content}>
