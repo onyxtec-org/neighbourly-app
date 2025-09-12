@@ -6,11 +6,11 @@ import AppText from './../AppText';
 import BackButton from './../ButtonComponents/BackButton';
 import colors from '../../../config/colors';
 import BackButtonWithColor from '../ButtonComponents/BackButtonWithColor';
-function HeaderWithContainer({ title, icon, onIconPress, isIcon,onSharePress,backButtonBoxColor,borderColor }) {
+function HeaderWithContainer({ title, icon, onIconPress, isIcon,onSharePress,backButtonBoxColor,borderColor,needBackGround=false }) {
   const navigation = useNavigation();
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header,!needBackGround && {position: 'absolute',zIndex: 100,}]}>
       {/* Back button */}
       <BackButtonWithColor
         onPress={() => {
@@ -60,7 +60,7 @@ function HeaderWithContainer({ title, icon, onIconPress, isIcon,onSharePress,bac
 
 const styles = StyleSheet.create({
   header: {
-  // position: 'absolute',
+   //position: 'absolute',
   // top:  0,
   // left: 0,
   // right: 0,
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   alignItems: 'center',
   justifyContent: 'space-between',
   backgroundColor: 'transparent',
-  // zIndex: 100,
+   //zIndex: 100,
   // elevation: 10,
   paddingHorizontal: 10,
 },

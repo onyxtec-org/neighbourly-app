@@ -133,18 +133,19 @@ const validateScreenName = values => {
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={60}
-    >
+      >
+      <HeaderWithContainer
+      title="update profile"
+      backButtonBoxColor={colors.white}
+      borderColor={colors.primary}
+      needBackGround={true}
+    />
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         
-        <HeaderWithContainer
-        title="update profile"
-        backButtonBoxColor={colors.white}
-        borderColor={colors.primary}
-      />
 
         <CircularImagePicker
           onImagePicked={asset => setProfileImage(asset)}
@@ -217,6 +218,9 @@ const validateScreenName = values => {
                 placeholder="Enter your email"
                 keyboardType="email-address"
                 error={touched.email && errors.email}
+                editable={false}
+                backgroundColor={colors.lightGray}
+
               />
 
               <CustomTextInput
@@ -275,6 +279,7 @@ export default UpdateProfileScreen;
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
+    backgroundColor: colors.white,
   },
   scrollContainer: {
     // padding: 24,
